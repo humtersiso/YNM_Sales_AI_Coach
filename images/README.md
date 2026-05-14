@@ -1,12 +1,10 @@
 # 範疇文件用圖檔
 
-請將「銷售顧問智慧訓練系統_架構」圖檔放置於此資料夾，並命名為：
+專案範疇文件 [`../PROJECT_SCOPE_SALES_TRAINING.md`](../PROJECT_SCOPE_SALES_TRAINING.md) 之系統架構圖請使用本資料夾內之：
 
-`sales-consultant-intelligent-training-architecture.png`
+`架構圖.PNG`
 
-如此 [`../PROJECT_SCOPE_SALES_TRAINING.md`](../PROJECT_SCOPE_SALES_TRAINING.md) 中的 Markdown 圖片連結即可正常顯示。
-
-支援格式：建議使用 PNG 或 WebP（若使用 WebP，請一併修改文件中圖檔副檔名）。
+支援格式：建議使用 PNG 或 WebP（若改副檔名，請一併更新 Markdown 圖片連結）。
 
 ## PDF 匯出
 
