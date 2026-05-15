@@ -3,7 +3,7 @@
 | 項目 | 說明 |
 |------|------|
 | 文件名稱 | 銷售顧問智慧訓練系統 — 專案範疇與開發項目 |
-| 版本 | 草案 v0.10（精簡版） |
+| 版本 | 草案 v0.11（精簡版） |
 | 適用對象 | 裕日總部智慧行銷部、資訊、法務、業務、外部供應商 |
 | 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web） |
 | 權限機制 | **串接裕日系統 API**；規格、錯誤碼、快取策略由裕日提供 |
@@ -128,7 +128,7 @@
 
 **假設**：2 名後端／全端（約 4～5 年經驗）＋ AI 工具輔助；甘特起始日 `2026-06-01` 為示意，開案後整體平移。
 
-**原則（4.1 與 4.2 共通）**：以 **裕日資料庫** 為主資料核心；**優先完成資料匯入 BigQuery**（欄位、頻率、權限與主資料對齊），其餘工作（登入與雲端銜接、總部資料整理平台、裕日銷售知識庫、Vertex 試作、兩套前台或 ADK Agent）皆在此基礎上展開。
+**試排目標**：4.1 約於 **2027 年 2 月** 左右收尾；4.2 約於 **2026 年 10 月** 左右收尾（以下工作天數依此生起算試排，可隨開案日平移）。
 
 ### 4.1 全部開發（以裕日資料庫與 BigQuery 為核心；前台雙模組、總部資料處理、裕日銷售知識庫、完整管理介面、Vertex、業績／權限 API 等）
 
@@ -138,22 +138,22 @@ gantt
 title 全部開發（2 人＋ AI 輔助）
 dateFormat YYYY-MM-DD
 section 準備與定稿
-需求與 API 及資料字典定稿 :p0, 2026-06-01, 18d
+需求與 API 及資料字典定稿 :p0, 2026-06-01, 14d
 section 裕日資料庫與 BigQuery
-裕日資料庫串接與資料匯入 BigQuery :pdb, after p0, 50d
+裕日資料庫串接與資料匯入 BigQuery :pdb, after p0, 34d
 section 基礎建置
-共用平台與裕日登入串接 :p1, after pdb, 42d
-總部資料處理後台試用版 :p1b, after p1, 52d
+共用平台與裕日登入串接 :p1, after pdb, 28d
+總部資料處理後台試用版 :p1b, after p1, 38d
 section 雲端與知識庫
-Vertex 與 BigQuery 連線試作 :p2, after p1b, 38d
-裕日銷售知識庫建置與內容匯入 :pk, after p1b, 50d
+Vertex 與 BigQuery 連線試作 :p2, after p1b, 24d
+裕日銷售知識庫建置與內容匯入 :pk, after p1b, 30d
 section 兩套前台功能
-銷售助手開放全體業代使用 :p3a, after p2 pk, 55d
-對練助手第一個可用版本 :p3b, after p3a, 48d
+銷售助手開放全體業代使用 :p3a, after p2 pk, 38d
+對練助手第一個可用版本 :p3b, after p3a, 32d
 section 管理後台
-管理後台 4a 至 4d :p4, after p3b, 55d
+管理後台 4a 至 4d :p4, after p3b, 36d
 section 收尾
-功能加強與緩衝時間 :p5, after p4, 28d
+功能加強與緩衝時間 :p5, after p4, 22d
 ```
 
 ### 4.2 部分開發（裕日資料庫與 BigQuery 優先；資料整理 Agent 平台、裕日銷售知識庫、ADK 雙 Agent）
@@ -164,18 +164,18 @@ gantt
 title 部分開發（2 人＋ AI 輔助）
 dateFormat YYYY-MM-DD
 section 起步
-需求與測試範圍定稿 :v0, 2026-06-01, 12d
+需求與測試範圍定稿 :v0, 2026-06-01, 8d
 section 裕日資料庫與 BigQuery
 裕日資料庫串接與資料匯入 BigQuery :vdb, after v0, 46d
 section 基盤與登入
-裕日登入與 Google 雲端專案銜接 :v1, after vdb, 20d
+裕日登入與 Google 雲端專案銜接 :v1, after vdb, 10d
 section 資料整理平台
-資料整理 Agent 平台試運轉 :v2, after v1, 32d
+資料整理 Agent 平台試運轉 :v2, after v1, 20d
 section 知識庫
-裕日銷售知識庫建置與內容匯入 :v3, after v2, 48d
+裕日銷售知識庫建置與內容匯入 :v3, after v2, 36d
 section 兩個 Agent ADK
-銷售助手 Agent ADK 串知識庫 :v4a, after v3, 40d
-對練助手 Agent ADK 串知識庫 :v4b, after v3, 40d
+銷售助手 Agent ADK 串知識庫 :v4a, after v3, 20d
+對練助手 Agent ADK 串知識庫 :v4b, after v3, 20d
 section 測試驗收
-問答對照知識庫與對練情境驗收 :v5, after v4a v4b, 16d
+問答對照知識庫與對練情境驗收 :v5, after v4a v4b, 12d
 ```
