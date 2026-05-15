@@ -3,70 +3,14 @@
 | 項目 | 說明 |
 |------|------|
 | 文件名稱 | 銷售顧問智慧訓練系統 — 專案範疇與開發項目 |
-| 版本 | 草案 v0.5（精簡版） |
+| 版本 | 草案 v0.6（精簡版） |
 | 適用對象 | 裕日總部智慧行銷部、資訊、法務、業務、外部供應商 |
-| 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web；<span style="color:#dc2626">【待確認】</span>是否另做原生 App） |
-| 權限機制 | **串接裕日系統 API**；<span style="color:#2563eb">【待確認】</span>規格、錯誤碼、快取策略由裕日提供 |
-
-> **【待確認】色碼（同類議題同色）**：<span style="color:#dc2626">■</span>產品範圍　<span style="color:#2563eb">■</span>裕日 API／規格　<span style="color:#059669">■</span>資料流與主資料　<span style="color:#7c3aed">■</span>雲端 AI／技術路線　<span style="color:#4338ca">■</span>架構定案　<span style="color:#db2777">■</span>對練對照規格　<span style="color:#ea580c">■</span>個資與法遵　<span style="color:#4f46e5">■</span>統計規則（Top50 等）　<span style="color:#0f766e">■</span>跨單位定稿（DBA／法務）
+| 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web） |
+| 權限機制 | **串接裕日系統 API**；規格、錯誤碼、快取策略由裕日提供 |
 
 ---
 
-## 1. 系統架構圖（本案重要依據）
-
-本案架構圖檔：`web/docs/images/架構圖.PNG`。
-
-![銷售顧問智慧訓練系統架構圖](images/架構圖.PNG)
-
-**四大功能對應（摘要）**：
-
-- **USER 情境**：多裝置、有望客編號等
-- **前台**：銷售助手、對練助手、管理介面
-- **後台**：資料處理 Agent、雙 Agent、知識庫、訓練資料、菁英團隊 PDCA
-
-```mermaid
-flowchart LR
-  subgraph userLayer [UserLayer]
-    Mobile[MobileWeb]
-    Desktop[DesktopWeb]
-  end
-  subgraph front [FrontOffice]
-    M1[SalesAssistant]
-    M2[RoleplayAssistant]
-    M3[ManagementUI]
-  end
-  subgraph back [BackOffice]
-    DP[DataProcessingAgent]
-    SA[SalesAssistantAgent]
-    RA[RoleplayAssistantAgent]
-    KB[NissanSalesKnowledgeBase]
-    TD[AITrainingData]
-    Team[EliteTeamOps]
-  end
-  subgraph ext [ExternalSystems]
-    YulonAuth[YulonAuthAPI]
-    PerfAPI[YulonPerformanceAPI]
-    BQ[BigQuery_YulonSalesDB]
-    Vertex[VertexAI_SearchConversation]
-  end
-  Mobile --> front
-  Desktop --> front
-  front --> YulonAuth
-  M1 --> Vertex
-  M2 --> RA
-  M3 --> BQ
-  DP --> BQ
-  SA --> KB
-  RA --> KB
-  KB --> BQ
-  Team --> TD
-  TD --> KB
-  M3 --> PerfAPI
-```
-
----
-
-## 2. 專案願景與範疇邊界
+## 1. 專案願景與範疇邊界
 
 **願景**：以 AI 協助 Nissan 銷售顧問在實戰與對練中提升應對能力，並由總部流程與知識庫持續 PDCA。
 
@@ -74,53 +18,94 @@ flowchart LR
 
 **範疇外（建議後續）**：原生 App（除非納標）；第三方 CRM 深度客製；影片對練評分。
 
----
+**系統架構圖**
 
-## 3. 四大功能
+![銷售顧問智慧訓練系統架構圖](images/架構圖.PNG)
 
-### 3.1 功能一：資料處理 AI Agent／平台（總部智慧行銷部）
+## 2. 四大功能
+
+**四大功能對應（摘要）**：
+
+- USER 情境：多裝置、有望客編號等
+- 前台：銷售助手、對練助手、管理介面
+- 後台：資料處理 Agent、雙 Agent、知識庫、訓練資料、菁英團隊 PDCA
+
+### 2.1 功能一：資料處理 AI Agent／平台（總部智慧行銷部）
 
 - **內部營運**：問句、專家回饋、LLM、行銷審核、法務、回寫主庫等流程與責任分工
-- **資料介面**：與知識庫／BQ 之寫入或匯出介面 <span style="color:#059669">【待確認】</span>單雙向、頻率、主資料歸屬
+- **資料介面**：與知識庫／BigQuery 之寫入或匯出介面
 
-### 3.2 功能二：銷售助手（前台）
+### 2.2 功能二：銷售助手（前台）
 
 - **使用流程**：業代發問 → AI 依知識庫回覆
-- **資料層**：<span style="color:#059669">【待確認】</span> 以 **BigQuery** 為主
-- **AI 服務**：<span style="color:#7c3aed">【待確認】</span> **Vertex AI Search and Conversation**（或等價）以 BQ 表為或接近「資料源」之可行性（索引路徑、是否需經 GCS／同步層）
-- **架構決策**：<span style="color:#4338ca">【待確認】</span>「以 BQ 為唯一真實來源（SoT）」與「Vertex 產品原生支援度」可二擇一或混合；**先 POC 驗證索引路徑，再凍結架構**
+- **資料層**：BigQuery 與相關資料管線
+- **AI 服務**：Vertex AI Search and Conversation（或等價方案）與 BQ／知識庫整合
+- **架構原則**：先以 POC 驗證 BQ 與 Vertex 之索引與資料路徑，再凍結整體架構
 
-### 3.3 功能三：對練助手（前台）
+### 2.3 功能三：對練助手（前台）
 
-- **使用流程**：AI 出題 → 業代作答 → 評分與建議；對練紀錄進 BQ
-- **規格對照**：<span style="color:#db2777">【待確認】</span>「格上小格學長」對照規格（流程、評分、欄位）取得時程與範圍
+- **使用流程**：AI 出題 → 業代作答 → 評分與建議；對練紀錄進 BigQuery
+- **規格對照**：對齊「格上小格學長」之流程、評分與欄位（訪談與文件還原）
 
-### 3.4 功能四：管理介面
+### 2.4 功能四：管理介面
 
-- **4a 使用統計**：PV（Page Views，頁面瀏覽量／次數）、UV（Unique Visitors，不重複訪客數；實務定義依埋點與 Cookie／帳號規則調整）、對話數等；資料來源為 log → BQ 或既有平台
-- **4b 戰力儀表板**：訓練與業績連動；資料來源為 <span style="color:#2563eb">【待確認】</span> **裕日業績系統 API** ＋訓練事件
-- **4c 權限／維護**：比照裕日系統；資料來源為 <span style="color:#2563eb">【待確認】</span> **裕日權限 API**
-- **4d Top50**：競品相關詢問統計；資料來源為 BQ 聚合＋排程規則 <span style="color:#4f46e5">【待確認】</span>
+- **4a 使用統計**：PV（Page Views，頁面瀏覽量／次數）、UV（Unique Visitors，不重複訪客數；實務定義依埋點與 Cookie／帳號規則調整）、對話數等；資料來源為 log → BigQuery 或既有平台
+- **4b 戰力儀表板**：訓練與業績連動；資料來源為裕日業績系統 API 與訓練事件
+- **4c 權限／維護**：比照裕日系統；資料來源為裕日權限 API
+- **4d Top50**：競品相關詢問統計；資料來源為 BigQuery 聚合與排程規則
 
 ---
 
-## 4. 風險
+## 3. 風險
 
-- **Vertex＋BQ 整合**
-  - <span style="color:#7c3aed">【待確認】</span>原生索引路徑與產品邊界
-  - **處置**：未過驗收則提出替代架構與 POC 報告後再定案
-- **裕日權限 API／業績 API**（<span style="color:#2563eb">【待確認】</span>）
-  - 規格、sandbox、到齊日影響串接與畫面
-  - **處置**：延遲則 4b／4c 改暫行方案並留存變更紀錄
-- **對練產品深度**
-  - 無「小格學長」程式碼可對照，需訪談還原
-  - **處置**：以訪談紀錄凍結範圍，避免範圍蔓延
-- **個資／法遵**
-  - 有望客編號、對話進 BQ <span style="color:#ea580c">【待確認】</span>；Top50 排除規則與正規化 <span style="color:#4f46e5">【待確認】</span>
-  - **處置**：與法務／資安對齊欄位與保存政策後再實作
-- **人力與並行**
-  - 2 人（約 4～5 年資歷）＋ AI 輔助可加速產碼
-  - **處置**：外部依賴仍以裕日／GCP／法遵之等待日曆為準，**無法**以人力單方面壓縮
+以下為須由裕日、法遵或技術驗證釐清之項目；文中其他章節不再重複標註【待確認】。
+
+### 3.1 產品與平台
+
+- 【待確認】是否另做原生 App（目前假設以響應式 Web 為主）
+
+### 3.2 裕日 API／介面規格
+
+- 【待確認】權限 API 之規格、錯誤碼、快取策略與提供時程
+- 【待確認】業績系統 API 之規格、sandbox、到齊日（影響 4b）
+- 【待確認】權限 API 與管理介面 4c 之串接細節與對照表
+
+### 3.3 資料流與主資料
+
+- 【待確認】知識庫／BigQuery 寫入或匯出介面之單雙向、頻率、主資料歸屬
+
+### 3.4 雲端 AI、架構與 Vertex＋BQ
+
+- 【待確認】資料層是否以 BigQuery 為主及其邊界
+- 【待確認】Vertex AI Search and Conversation（或等價）以 BQ 表為或接近「資料源」之可行性（索引路徑、是否需經 Cloud Storage／同步層）
+- 【待確認】「以 BQ 為唯一真實來源（SoT）」與 Vertex 產品原生支援度之定案方式（二擇一、混合或替代方案）
+- 【待確認】Vertex 與 BQ 之原生索引路徑與產品邊界
+- **處置**：未過驗收則提出替代架構與 POC 報告後再定案
+
+### 3.5 對練對照與產品深度
+
+- 【待確認】「格上小格學長」對照規格（流程、評分、欄位）之取得時程與納入範圍
+- 無「小格學長」程式碼可對照，需訪談還原
+- **處置**：以訪談紀錄凍結範圍，避免範圍蔓延
+
+### 3.6 個資與法遵
+
+- 【待確認】有望客編號、對話內容是否進 BigQuery 及保存條件
+- 【待確認】Top50 之排除規則與正規化
+- **處置**：與法務／資安對齊欄位與保存政策後再實作
+
+### 3.7 統計規則（Top50 等）
+
+- 【待確認】Top50／BigQuery 聚合與排程規則之細部定義
+
+### 3.8 跨單位定稿
+
+- 【待確認】詢問紀錄、對練回合、埋點事件、Top50 聚合等欄位與法遵，須與裕日 DBA／法務定稿
+
+### 3.9 人力與並行
+
+- 2 人（約 4～5 年資歷）＋ AI 輔助可加速產碼
+- **處置**：外部依賴仍以裕日／GCP／法遵之等待日曆為準，**無法**以人力單方面壓縮
 
 **Vertex POC 驗收（精簡）**
 
@@ -131,15 +116,14 @@ flowchart LR
 **BQ 草案（精簡）**
 
 - 詢問紀錄、對練回合、埋點事件、Top50 聚合邏輯
-- 欄位與法遵須與裕日 DBA／法務 <span style="color:#0f766e">【待確認】</span> 定稿
 
 ---
 
-## 5. 專案時程
+## 4. 專案時程
 
 **假設**：2 名後端／全端（約 4～5 年經驗）＋ AI 工具輔助；甘特起始日 `2026-06-01` 為示意，開案後整體平移。
 
-### 5.1 全部開發（前台雙模組、總部資料處理、完整管理介面、Vertex＋BQ、業績／權限 API 等）
+### 4.1 全部開發（前台雙模組、總部資料處理、完整管理介面、Vertex＋BQ、業績／權限 API 等）
 
 ```mermaid
 gantt
@@ -161,7 +145,7 @@ section Phase5
 強化擴充與緩衝 :p5, after p4, 21d
 ```
 
-### 5.2 部分 Agent 開發（總部資料處理平台＋大腦／管線＋雙 Agent 與 BQ；不含完整第一線 UI 與完整管理介面 4a～4d）
+### 4.2 部分 Agent 開發（總部資料處理平台＋大腦／管線＋雙 Agent 與 BQ；不含完整第一線 UI 與完整管理介面 4a～4d）
 
 ```mermaid
 gantt
