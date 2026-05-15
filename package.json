@@ -3,15 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
+    "dev:turbo": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "smoke": "tsx scripts/smoke-test.ts",
+    "build:demo-xlsx": "tsx scripts/build-demo-xlsx.ts",
+    "db:seed": "tsx scripts/seed-demo.ts",
+    "db:demo": "tsx scripts/seed-demo.ts",
+    "docs:pdf": "node scripts/export-scope-pdf.cjs"
   },
   "dependencies": {
+    "@google-cloud/bigquery": "^7.9.4",
     "next": "16.2.4",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "string-similarity": "^4.0.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,7 +29,10 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "marked": "^18.0.3",
+    "playwright": "^1.60.0",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

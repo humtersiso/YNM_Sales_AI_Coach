@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local POC data (incoming queue, legal reviews)
+.data/
+dev.db
+*.db
+
+/app/generated/prisma

@@ -1,0 +1,40 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#ecfdf5','primaryTextColor':'#064e3b'}}}%%
+flowchart LR
+  subgraph userLayer [UserLayer]
+    Mobile[MobileWeb]
+    Desktop[DesktopWeb]
+  end
+  subgraph front [FrontOffice]
+    M1[SalesAssistant]
+    M2[RoleplayAssistant]
+    M3[ManagementUI]
+  end
+  subgraph back [BackOffice]
+    DP[DataProcessingAgent]
+    SA[SalesAssistantAgent]
+    RA[RoleplayAssistantAgent]
+    KB[NissanSalesKnowledgeBase]
+    TD[AITrainingData]
+    Team[EliteTeamOps]
+  end
+  subgraph ext [ExternalSystems]
+    YulonAuth[YulonAuthAPI]
+    PerfAPI[YulonPerformanceAPI]
+    BQ[BigQuery_YulonSalesDB]
+    GeminiDA[Gemini_Data_Analytics_API]
+  end
+  Mobile --> front
+  Desktop --> front
+  front --> YulonAuth
+  M1 --> GeminiDA
+  GeminiDA --> BQ
+  M2 --> RA
+  M3 --> BQ
+  DP --> BQ
+  SA --> KB
+  RA --> KB
+  KB --> BQ
+  Team --> TD
+  TD --> KB
+  M3 --> PerfAPI
+
