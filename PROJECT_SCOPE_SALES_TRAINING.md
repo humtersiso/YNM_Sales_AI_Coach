@@ -3,7 +3,7 @@
 | 項目 | 說明 |
 |------|------|
 | 文件名稱 | 銷售顧問智慧訓練系統 — 專案範疇與開發項目 |
-| 版本 | 草案 v0.12（精簡版） |
+| 版本 | 草案 v0.13（精簡版） |
 | 適用對象 | 裕日總部智慧行銷部、資訊、法務、業務、外部供應商 |
 | 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web） |
 | 權限機制 | **串接裕日系統 API**；規格、錯誤碼、快取策略由裕日提供 |
@@ -138,15 +138,16 @@ dateFormat YYYY-MM-DD
 section 準備與定稿
 需求與 API 及資料字典定稿 :p0, 2026-06-01, 14d
 section 裕日資料庫與 BigQuery
-裕日資料庫串接與資料匯入 BigQuery :pdb, after p0, 34d
+裕日資料庫串接與資料匯入 BigQuery :pdb, after p0, 22d
 section 基礎建置
-共用平台與裕日登入串接 :p1, after pdb, 28d
-總部資料處理後台試用版 :p1b, after p1, 38d
-section 雲端與知識庫
-Vertex 與 BigQuery 連線試作 :p2, after p1b, 24d
-裕日銷售知識庫建置與內容匯入 :pk, after p1b, 30d
+共用平台與裕日登入基本銜接 :p1, after pdb, 12d
+總部資料處理後台試用版 :p1b, after p1, 30d
+section BigQuery 與 LLM
+BigQuery 與大型語言模型串接與試作 :pll, after p1b, 68d
+section 知識庫
+裕日銷售知識庫建置與內容匯入 :pk, after p1b, 28d
 section 兩套前台功能
-銷售助手開放全體業代使用 :p3a, after p2 pk, 38d
+銷售助手開放全體業代使用 :p3a, after pll pk, 36d
 對練助手第一個可用版本 :p3b, after p3a, 32d
 section 管理後台
 管理後台 4a 至 4d :p4, after p3b, 36d
@@ -164,16 +165,18 @@ dateFormat YYYY-MM-DD
 section 起步
 需求與測試範圍定稿 :v0, 2026-06-01, 8d
 section 裕日資料庫與 BigQuery
-裕日資料庫串接與資料匯入 BigQuery :vdb, after v0, 46d
-section 基盤與登入
-裕日登入與 Google 雲端專案銜接 :v1, after vdb, 10d
+裕日資料庫串接與資料匯入 BigQuery :vdb, after v0, 22d
+section 基礎銜接
+裕日登入與雲端專案基本銜接 :v1, after vdb, 8d
 section 資料整理平台
 資料整理 Agent 平台試運轉 :v2, after v1, 20d
+section BigQuery 與 LLM
+BigQuery 與大型語言模型串接與試作 :vll, after v2, 64d
 section 知識庫
-裕日銷售知識庫建置與內容匯入 :v3, after v2, 36d
+裕日銷售知識庫建置與內容匯入 :v3, after v2, 28d
 section 兩個 Agent ADK
-銷售助手 Agent ADK 串知識庫 :v4a, after v3, 20d
-對練助手 Agent ADK 串知識庫 :v4b, after v3, 20d
+銷售助手 Agent ADK 串知識庫 :v4a, after vll v3, 18d
+對練助手 Agent ADK 串知識庫 :v4b, after vll v3, 18d
 section 測試驗收
 問答對照知識庫與對練情境驗收 :v5, after v4a v4b, 12d
 ```
