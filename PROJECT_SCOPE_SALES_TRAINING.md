@@ -3,7 +3,7 @@
 | 項目 | 說明 |
 |------|------|
 | 文件名稱 | 銷售顧問智慧訓練系統 — 專案範疇與開發項目 |
-| 版本 | 草案 v0.6（精簡版） |
+| 版本 | 草案 v0.7（精簡版） |
 | 適用對象 | 裕日總部智慧行銷部、資訊、法務、業務、外部供應商 |
 | 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web） |
 | 權限機制 | **串接裕日系統 API**；規格、錯誤碼、快取策略由裕日提供 |
@@ -40,7 +40,7 @@
 - **使用流程**：業代發問 → AI 依知識庫回覆
 - **資料層**：BigQuery 與相關資料管線
 - **AI 服務**：Vertex AI Search and Conversation（或等價方案）與 BQ／知識庫整合
-- **架構原則**：先以 POC 驗證 BQ 與 Vertex 之索引與資料路徑，再凍結整體架構
+- **架構原則**：先以試作驗證 BigQuery 與 Vertex 之索引與資料路徑，再定稿整體架構
 
 ### 2.3 功能三：對練助手（前台）
 
@@ -49,10 +49,10 @@
 
 ### 2.4 功能四：管理介面
 
-- **4a 使用統計**：PV（Page Views，頁面瀏覽量／次數）、UV（Unique Visitors，不重複訪客數；實務定義依埋點與 Cookie／帳號規則調整）、對話數等；資料來源為 log → BigQuery 或既有平台
-- **4b 戰力儀表板**：訓練與業績連動；資料來源為裕日業績系統 API 與訓練事件
-- **4c 權限／維護**：比照裕日系統；資料來源為裕日權限 API
-- **4d Top50**：競品相關詢問統計；資料來源為 BigQuery 聚合與排程規則
+- **4a 使用統計（對內）**：對象為內部人員檢視系統使用情形；**不以網站流量（瀏覽次數／不重複訪客）為主**，而著重 **業代是否實際使用銷售助手、對練助手等 AI 協助功能**、使用頻率與模組分布，以及與 **業績或成交行為** 是否可合理對照（指標與定義於「3. 風險」釐清）。資料來源為系統紀錄（log）→ BigQuery 或既有內部分析平台。
+- **4b 戰力儀表板**：呈現訓練與業績之連動。資料來源為裕日業績系統 API 與訓練事件。
+- **4c 權限／維護**：帳號與權限維運比照裕日系統。資料來源為裕日權限 API。
+- **4d Top50**：競品相關詢問之統計。資料來源為 BigQuery 彙總與排程規則。
 
 ---
 
@@ -67,7 +67,7 @@
 ### 3.2 裕日 API／介面規格
 
 - 【待確認】權限 API 之規格、錯誤碼、快取策略與提供時程
-- 【待確認】業績系統 API 之規格、sandbox、到齊日（影響 4b）
+- 【待確認】業績系統 API 之規格、測試環境、到齊日（影響 4b）
 - 【待確認】權限 API 與管理介面 4c 之串接細節與對照表
 
 ### 3.3 資料流與主資料
@@ -78,9 +78,9 @@
 
 - 【待確認】資料層是否以 BigQuery 為主及其邊界
 - 【待確認】Vertex AI Search and Conversation（或等價）以 BQ 表為或接近「資料源」之可行性（索引路徑、是否需經 Cloud Storage／同步層）
-- 【待確認】「以 BQ 為唯一真實來源（SoT）」與 Vertex 產品原生支援度之定案方式（二擇一、混合或替代方案）
+- 【待確認】「以 BigQuery 為唯一主資料來源」與 Vertex 產品原生支援度之定案方式（擇一、併用或替代方案）
 - 【待確認】Vertex 與 BQ 之原生索引路徑與產品邊界
-- **處置**：未過驗收則提出替代架構與 POC 報告後再定案
+- **處置**：未過驗收則提出替代架構與試作驗證報告後再定案
 
 ### 3.5 對練對照與產品深度
 
@@ -94,20 +94,21 @@
 - 【待確認】Top50 之排除規則與正規化
 - **處置**：與法務／資安對齊欄位與保存政策後再實作
 
-### 3.7 統計規則（Top50 等）
+### 3.7 統計與儀表（含 4a、Top50）
 
-- 【待確認】Top50／BigQuery 聚合與排程規則之細部定義
+- 【待確認】內部使用統計（4a）之指標與範圍：業代是否實際使用銷售助手與對練助手等 AI 功能、使用頻率與模組分布、與業績或成交行為之對照方式（非網站流量統計）
+- 【待確認】Top50／BigQuery 彙總與排程規則之細部定義
 
 ### 3.8 跨單位定稿
 
-- 【待確認】詢問紀錄、對練回合、埋點事件、Top50 聚合等欄位與法遵，須與裕日 DBA／法務定稿
+- 【待確認】詢問紀錄、對練回合、埋點事件、Top50 彙總等欄位與法遵，須與裕日 DBA／法務定稿
 
 ### 3.9 人力與並行
 
 - 2 人（約 4～5 年資歷）＋ AI 輔助可加速產碼
 - **處置**：外部依賴仍以裕日／GCP／法遵之等待日曆為準，**無法**以人力單方面壓縮
 
-**Vertex POC 驗收（精簡）**
+**Vertex 試作驗收（精簡）**
 
 - 代表問句可用率
 - BQ→服務路徑書面說明與替代方案
@@ -115,7 +116,7 @@
 
 **BQ 草案（精簡）**
 
-- 詢問紀錄、對練回合、埋點事件、Top50 聚合邏輯
+- 詢問紀錄、對練回合、埋點事件、Top50 彙總邏輯
 
 ---
 
@@ -123,44 +124,46 @@
 
 **假設**：2 名後端／全端（約 4～5 年經驗）＋ AI 工具輔助；甘特起始日 `2026-06-01` 為示意，開案後整體平移。
 
-### 4.1 全部開發（前台雙模組、總部資料處理、完整管理介面、Vertex＋BQ、業績／權限 API 等）
+### 4.1 全部開發（前台雙模組、總部資料處理、完整管理介面、Vertex＋BigQuery、業績／權限 API 等）
 
 ```mermaid
+%%{init: { "gantt": { "barHeight": 44, "barGap": 14, "fontSize": 16, "sectionFontSize": 17, "topPadding": 70, "leftPadding": 200, "gridLineStartPadding": 50 } } }%%
 gantt
-title 全部開發_2人加AI輔助
+title 全部開發（2 人＋ AI 輔助）
 dateFormat YYYY-MM-DD
-section Phase0
-需求凍結API清單BQ字典 :p0, 2026-06-01, 14d
-section Phase1
-共通基盤與裕日權限串接 :p1, after p0, 35d
-總部資料處理平台MVP :p1b, after p0, 40d
-section Phase2
-Vertex與BQ路徑POC :p2, after p1b, 28d
-section Phase3
-銷售助手GA :p3a, after p2, 40d
-對練助手MVP :p3b, after p3a, 35d
-section Phase4
-管理介面4a至4d :p4, after p3b, 42d
-section Phase5
-強化擴充與緩衝 :p5, after p4, 21d
+section 準備與定稿
+需求與 API 及資料字典定稿 :p0, 2026-06-01, 14d
+section 基礎建置
+共用平台與裕日登入串接 :p1, after p0, 35d
+總部資料處理後台試用版 :p1b, after p0, 40d
+section 雲端資料試作
+Vertex 與 BigQuery 連線試作 :p2, after p1b, 28d
+section 兩套前台功能
+銷售助手開放全體業代使用 :p3a, after p2, 40d
+對練助手第一個可用版本 :p3b, after p3a, 35d
+section 管理後台
+管理後台 4a 至 4d :p4, after p3b, 42d
+section 收尾
+功能加強與緩衝時間 :p5, after p4, 21d
 ```
 
-### 4.2 部分 Agent 開發（總部資料處理平台＋大腦／管線＋雙 Agent 與 BQ；不含完整第一線 UI 與完整管理介面 4a～4d）
+### 4.2 部分開發（總部平台＋兩套助手後端與 BigQuery；不含完整第一線畫面與完整管理後台 4a～4d）
 
 ```mermaid
+%%{init: { "gantt": { "barHeight": 44, "barGap": 14, "fontSize": 16, "sectionFontSize": 17, "topPadding": 70, "leftPadding": 200, "gridLineStartPadding": 50 } } }%%
 gantt
-title 部分Agent與總部平台_2人加AI輔助
+title 部分開發（2 人＋ AI 輔助）
 dateFormat YYYY-MM-DD
-section 啟動
-精簡需求與介面清單 :v0, 2026-06-01, 7d
-section 基盤與BQ
-裕日權限與GCP專案BQ連線 :v1, after v0, 18d
-section 資料處理平台
-總部流程平台可運行版 :v2, after v1, 14d
-section 雙Agent與大腦
-SalesAgent管線與查詢 :v3a, after v2, 32d
-RoleplayAgent管線與紀錄 :v3b, after v2, 32d
-知識編排與VertexBQ整合 :v3c, after v2, 30d
-section 驗收
-整合測試與文件交付 :v4, after v3a, 10d
+section 起步
+需求與畫面項目整理 :v0, 2026-06-01, 7d
+section 登入與資料庫
+裕日登入與 Google 雲端資料庫連線 :v1, after v0, 18d
+section 總部平台
+總部流程後台可試運轉 :v2, after v1, 14d
+section 兩套助手後端
+銷售助手後端查詢流程 :v3a, after v2, 32d
+對練助手後端與使用紀錄 :v3b, after v2, 32d
+知識內容與 Vertex 及 BigQuery 串接 :v3c, after v2, 30d
+section 驗收交付
+整體測試與交付文件 :v4, after v3a, 10d
 ```
