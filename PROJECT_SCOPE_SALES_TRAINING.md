@@ -3,7 +3,7 @@
 | 項目 | 說明 |
 |------|------|
 | 文件名稱 | 銷售顧問智慧訓練系統 — 專案範疇與開發項目 |
-| 版本 | 草案 v0.7（精簡版） |
+| 版本 | 草案 v0.8（精簡版） |
 | 適用對象 | 裕日總部智慧行銷部、資訊、法務、業務、外部供應商 |
 | 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web） |
 | 權限機制 | **串接裕日系統 API**；規格、錯誤碼、快取策略由裕日提供 |
@@ -38,6 +38,7 @@
 ### 2.2 功能二：銷售助手（前台）
 
 - **使用流程**：業代發問 → AI 依知識庫回覆
+- **知識庫**：**裕日銷售知識庫**（業代問答與對練之主要依據；內容建置、更新與管線見「4. 專案時程」）
 - **資料層**：BigQuery 與相關資料管線
 - **AI 服務**：Vertex AI Search and Conversation（或等價方案）與 BQ／知識庫整合
 - **架構原則**：先以試作驗證 BigQuery 與 Vertex 之索引與資料路徑，再定稿整體架構
@@ -73,6 +74,7 @@
 ### 3.3 資料流與主資料
 
 - 【待確認】知識庫／BigQuery 寫入或匯出介面之單雙向、頻率、主資料歸屬
+- 【待確認】裕日銷售知識庫之內容範圍、更新節奏與與總部資料整理平台之銜接方式
 
 ### 3.4 雲端 AI、架構與 Vertex＋BQ
 
@@ -80,6 +82,7 @@
 - 【待確認】Vertex AI Search and Conversation（或等價）以 BQ 表為或接近「資料源」之可行性（索引路徑、是否需經 Cloud Storage／同步層）
 - 【待確認】「以 BigQuery 為唯一主資料來源」與 Vertex 產品原生支援度之定案方式（擇一、併用或替代方案）
 - 【待確認】Vertex 與 BQ 之原生索引路徑與產品邊界
+- 【待確認】以 ADK 實作兩個 Agent 與裕日銷售知識庫之串接方式、版本與執行環境限制
 - **處置**：未過驗收則提出替代架構與試作驗證報告後再定案
 
 ### 3.5 對練對照與產品深度
@@ -124,7 +127,7 @@
 
 **假設**：2 名後端／全端（約 4～5 年經驗）＋ AI 工具輔助；甘特起始日 `2026-06-01` 為示意，開案後整體平移。
 
-### 4.1 全部開發（前台雙模組、總部資料處理、完整管理介面、Vertex＋BigQuery、業績／權限 API 等）
+### 4.1 全部開發（前台雙模組、總部資料處理、裕日銷售知識庫、完整管理介面、Vertex＋BigQuery、業績／權限 API 等）
 
 ```mermaid
 %%{init: { "gantt": { "barHeight": 44, "barGap": 14, "fontSize": 16, "sectionFontSize": 17, "topPadding": 70, "leftPadding": 200, "gridLineStartPadding": 50 } } }%%
@@ -132,22 +135,27 @@ gantt
 title 全部開發（2 人＋ AI 輔助）
 dateFormat YYYY-MM-DD
 section 準備與定稿
-需求與 API 及資料字典定稿 :p0, 2026-06-01, 14d
+需求與 API 及資料字典定稿 :p0, 2026-06-01, 18d
 section 基礎建置
-共用平台與裕日登入串接 :p1, after p0, 35d
-總部資料處理後台試用版 :p1b, after p0, 40d
-section 雲端資料試作
-Vertex 與 BigQuery 連線試作 :p2, after p1b, 28d
+共用平台與裕日登入串接 :p1, after p0, 48d
+總部資料處理後台試用版 :p1b, after p0, 55d
+section 雲端與知識庫
+Vertex 與 BigQuery 連線試作 :p2, after p1b, 38d
+裕日銷售知識庫建置與內容匯入 :pk, after p1b, 50d
 section 兩套前台功能
-銷售助手開放全體業代使用 :p3a, after p2, 40d
-對練助手第一個可用版本 :p3b, after p3a, 35d
+銷售助手開放全體業代使用 :p3a, after p2 pk, 55d
+對練助手第一個可用版本 :p3b, after p3a, 48d
 section 管理後台
-管理後台 4a 至 4d :p4, after p3b, 42d
+管理後台 4a 至 4d :p4, after p3b, 55d
 section 收尾
-功能加強與緩衝時間 :p5, after p4, 21d
+功能加強與緩衝時間 :p5, after p4, 28d
 ```
 
-### 4.2 部分開發（總部平台＋兩套助手後端與 BigQuery；不含完整第一線畫面與完整管理後台 4a～4d）
+### 4.2 部分開發（資料整理 Agent 平台 → 裕日銷售知識庫 → 以 ADK 實作兩個 Agent 串知識庫；測試範疇見下段說明）
+
+本方案主軸為 **總部資料整理 Agent 平台**，先建立 **資料源（裕日銷售知識庫）**，再以 **ADK（Agent Development Kit，Google 提供之智慧代理開發工具組）** 實作 **銷售助手、對練助手** 兩個 Agent，與裕日銷售知識庫串接。**不含**完整第一線產品化畫面與完整管理後台（4a～4d）。
+
+**測試範疇（刻意縮小）**：僅驗證（1）**問答結果是否對應知識庫可查得之答案**；（2）**對練流程是否符合預先設定的情境**。其餘大範圍驗收納入「4.1 全部開發」或後續階段。
 
 ```mermaid
 %%{init: { "gantt": { "barHeight": 44, "barGap": 14, "fontSize": 16, "sectionFontSize": 17, "topPadding": 70, "leftPadding": 200, "gridLineStartPadding": 50 } } }%%
@@ -155,15 +163,16 @@ gantt
 title 部分開發（2 人＋ AI 輔助）
 dateFormat YYYY-MM-DD
 section 起步
-需求與畫面項目整理 :v0, 2026-06-01, 7d
-section 登入與資料庫
-裕日登入與 Google 雲端資料庫連線 :v1, after v0, 18d
-section 總部平台
-總部流程後台可試運轉 :v2, after v1, 14d
-section 兩套助手後端
-銷售助手後端查詢流程 :v3a, after v2, 32d
-對練助手後端與使用紀錄 :v3b, after v2, 32d
-知識內容與 Vertex 及 BigQuery 串接 :v3c, after v2, 30d
-section 驗收交付
-整體測試與交付文件 :v4, after v3a, 10d
+需求與測試範圍定稿 :v0, 2026-06-01, 12d
+section 基盤
+裕日登入與 Google 雲端及 BigQuery 連線 :v1, after v0, 22d
+section 資料整理平台
+資料整理 Agent 平台試運轉 :v2, after v1, 32d
+section 知識庫
+裕日銷售知識庫建置與內容匯入 :v3, after v2, 48d
+section 兩個 Agent ADK
+銷售助手 Agent ADK 串知識庫 :v4a, after v3, 40d
+對練助手 Agent ADK 串知識庫 :v4b, after v3, 40d
+section 測試驗收
+問答對照知識庫與對練情境驗收 :v5, after v4a v4b, 16d
 ```
