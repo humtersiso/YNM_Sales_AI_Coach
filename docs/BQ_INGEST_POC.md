@@ -21,11 +21,8 @@ Excel / CSV / 裕日 DB  →  [本 PoC：ingest API]  →  BigQuery  →  Gemini
 ## API
 
 | 方法 | 路徑 | 說明 |
-
 |------|------|------|
-
 | `POST` | `/api/ingest/script-drills/preview` | 僅預覽：`dataRowCount`、`warnings`、樣本列；不寫 BQ。Query：`maxRows`（預設 100）。 |
-
 | `POST` | `/api/ingest/script-drills` | 全檔解析並寫入 staging。 |
 
 表單欄位名：`file`（`multipart/form-data`）。

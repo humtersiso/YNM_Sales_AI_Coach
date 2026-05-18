@@ -1,19 +1,12 @@
 # 銷售顧問智慧訓練系統 — 專案範疇與開發項目
 
 | 項目 | 說明 |
-
 |------|------|
-
 | 文件名稱 | 銷售顧問智慧訓練系統 — 專案範疇與開發項目 |
-
 | 版本 | 草案 v0.15（BQ + Gemini Data Analytics 路徑定案） |
-
 | 適用對象 | 裕日總部智慧行銷部、資訊、法務、業務、外部供應商 |
-
 | 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web） |
-
 | 權限機制 | **串接裕日系統 API**；規格、錯誤碼、快取策略由裕日提供 |
-
 | 資料與 AI 主路徑 | **BigQuery 為結構化主資料**；**Gemini Data Analytics API**（含 Gemini in BigQuery）以 BQ 為資料源做語意查詢與分析 |
 
 ---
@@ -95,17 +88,11 @@
 ### 3.4 雲端 AI 與 BQ（更新）
 
 | 項目 | 狀態 | 說明 |
-
 |------|------|------|
-
 | BQ 作為主資料層 | **已定** | 話術、專家、紀錄、彙總均以表／檢視管理 |
-
 | 以 BQ 為資料源做 AI 查找 | **已定（PoC）** | **Gemini Data Analytics API**／Gemini in BigQuery |
-
 | Vertex AI Search 直接索引 BQ | **非主路徑** | 早期阻塞點；僅特殊文件檢索場景再評估 |
-
 | GCS 同步層 | **非必須** | 除非非法結構化文件庫，否則不強制 |
-
 | ADK 雙 Agent 串接 | 【待確認】 | 執行環境、版本、與 Gemini／BQ 呼叫方式 |
 
 ### 3.5 對練對照
@@ -257,14 +244,9 @@ section 測試驗收
 ## 5. 相關文件
 
 | 文件 | 用途 |
-
 |------|------|
-
 | [GEMINI_BQ_DATA_PATH.md](./GEMINI_BQ_DATA_PATH.md) | BQ + Gemini 技術路徑與突破說明 |
-
 | [BQ_INGEST_POC.md](./BQ_INGEST_POC.md) | Excel 匯入 BQ API 與欄位對策 |
-
 | [architecture-export.mmd](./architecture-export.mmd) | 架構圖 Mermaid 原始檔 |
-
 | [EMAIL_INTEGRATION.md](./EMAIL_INTEGRATION.md) | 法務／專家信件流程 |
 
