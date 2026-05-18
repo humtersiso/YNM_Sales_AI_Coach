@@ -233,12 +233,6 @@ section 測試驗收
 
 ```
 
-### 4.2.1 PoC：Excel／CSV → BigQuery staging
-
-已實作：話術表上傳、解析、寫入 staging。詳見 [BQ_INGEST_POC.md](./BQ_INGEST_POC.md)。
-
-**下一步（vll）**：在 BQ 表就緒後，串接 **Gemini Data Analytics API**，驗證業代自然語言問句能否正確檢索話術與欄位。
-
 ---
 
 ## 5. 相關文件
