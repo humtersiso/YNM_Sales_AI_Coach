@@ -146,7 +146,7 @@ export default function ExpertsPage() {
             <li><strong>要寫回 Excel</strong>：完成後請回首頁按步驟 5「儲存變更」。</li>
           </ul>
         </div>
-        <Link href="/" className="shrink-0 text-sm text-emerald-700 underline">
+        <Link href="/admin" className="shrink-0 text-sm text-emerald-700 underline">
           回主要資料
         </Link>
       </div>

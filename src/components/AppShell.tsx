@@ -5,10 +5,18 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 const navItems = [
-  { href: "/", label: "資料總覽", hint: "主庫資料與摘要", icon: "▦" },
-  { href: "/inbox", label: "匯入與檢查", hint: "上傳檔案與重複比對", icon: "⤴" },
-  { href: "/clarification", label: "問題流程追蹤", hint: "專家回覆、法務與回寫", icon: "✎" },
+  { href: "/admin/home", label: "主頁", hint: "使用統計・戰力・競品", icon: "⌂" },
+  { href: "/admin", label: "資料總覽", hint: "主庫資料與摘要", icon: "▦" },
+  { href: "/admin/inbox", label: "匯入與檢查", hint: "上傳檔案與重複比對", icon: "⤴" },
+  { href: "/admin/clarification", label: "問題流程追蹤", hint: "專家回覆、法務與回寫", icon: "✎" },
 ];
+
+function isNavActive(pathname: string, href: string) {
+  if (href === "/admin") {
+    return pathname === "/admin";
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function AppShell({
   children,
@@ -25,14 +33,16 @@ export function AppShell({
   async function logout() {
     setBusy(true);
     await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/login");
+    router.replace("/admin/login");
     router.refresh();
   }
 
   return (
     <div className="min-h-screen bg-[#f5faf7] text-zinc-900">
       <div className="flex min-h-screen w-full">
-        <aside className={`${collapsed ? "w-[84px]" : "w-50"} shrink-0 overflow-hidden border-r border-emerald-100 bg-white/90 p-4 shadow-sm transition-[width] duration-200 ease-out`}>
+        <aside
+          className={`${collapsed ? "w-[84px]" : "w-50"} shrink-0 overflow-hidden border-r border-emerald-100 bg-white/90 p-4 shadow-sm transition-[width] duration-200 ease-out`}
+        >
           <div className={`mb-4 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
             <h1 className={`${collapsed ? "hidden" : "block"} text-lg font-semibold text-emerald-950`}>YNM 管理後台</h1>
             <button
@@ -47,7 +57,7 @@ export function AppShell({
           <p className={`${collapsed ? "hidden" : "mb-5 block"} text-xs text-emerald-700`}>依操作流程排序</p>
           <nav className="space-y-2">
             {navItems.map((item) => {
-              const active = pathname === item.href;
+              const active = isNavActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
@@ -68,15 +78,20 @@ export function AppShell({
               );
             })}
           </nav>
+          <p className={`${collapsed ? "hidden" : "mt-6 block"} text-xs`}>
+            <Link href="/" className="text-emerald-700 underline">
+              返回行動入口
+            </Link>
+          </p>
         </aside>
 
         <section className="flex-1">
           <header className="sticky top-0 z-20 flex items-center justify-end border-b border-emerald-100 bg-white/95 px-6 py-3 backdrop-blur">
             <div className="flex items-center gap-3 text-sm">
-              <Link href="/experts" className="rounded-lg px-2 py-1 text-emerald-800 hover:bg-emerald-50">
+              <Link href="/admin/experts" className="rounded-lg px-2 py-1 text-emerald-800 hover:bg-emerald-50">
                 專家名單
               </Link>
-              <Link href="/users" className="rounded-lg px-2 py-1 text-emerald-800 hover:bg-emerald-50">
+              <Link href="/admin/users" className="rounded-lg px-2 py-1 text-emerald-800 hover:bg-emerald-50">
                 用戶管理
               </Link>
               <span className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-900">
@@ -98,4 +113,3 @@ export function AppShell({
     </div>
   );
 }
-

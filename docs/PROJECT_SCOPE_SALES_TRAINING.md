@@ -3,7 +3,7 @@
 | 項目 | 說明 |
 |------|------|
 | 文件名稱 | 銷售顧問智慧訓練系統 — 專案範疇與開發項目 |
-| 版本 | 草案 v0.15（BQ + Gemini Data Analytics 路徑定案） |
+| 版本 | 草案 v0.16（4.2 時程壓至 9 月前完成） |
 | 適用對象 | 裕日總部智慧行銷部、資訊、法務、業務、外部供應商 |
 | 平台入口 | **手機瀏覽器**與**桌面網頁**皆可登入（響應式 Web） |
 | 權限機制 | **串接裕日系統 API**；規格、錯誤碼、快取策略由裕日提供 |
@@ -187,51 +187,60 @@ section 收尾
 
 ### 4.2 部分開發（目前主軸）
 
+**目標完成日**：**2026 年 9 月前**（以 **2026-08-31** 前完成銷售／對練助手串接與問答驗收為準）。下列甘特已壓縮工期並拉高並行度，相較原 4.2 版約提前 6～8 週。
+
 ```mermaid
 
 %%{init: { "gantt": { "barHeight": 44, "barGap": 14, "fontSize": 16, "sectionFontSize": 17, "topPadding": 70, "leftPadding": 200, "gridLineStartPadding": 50 } } }%%
 
 gantt
 
-title 部分開發（2 人＋ AI 輔助）
+title 部分開發（2 人＋ AI 輔助｜9 月前完成）
 
 dateFormat YYYY-MM-DD
 
 section 起步
 
-需求與測試範圍定稿 :v0, 2026-06-01, 8d
+需求與測試範圍定稿 :v0, 2026-06-01, 5d
 
 section 裕日資料庫與 BigQuery
 
-裕日資料庫串接與資料匯入 BigQuery :vdb, after v0, 22d
+裕日資料庫串接與資料匯入 BigQuery :vdb, after v0, 14d
 
 section GCP 專案進駐
 
-裕日 GCP 專案內開發環境與權限就緒 :v1, after vdb, 8d
+裕日 GCP 專案內開發環境與權限就緒 :v1, after vdb, 5d
 
 section 資料整理平台
 
-資料整理 Agent 平台試運轉 :v2, after v1, 20d
+資料整理 Agent 平台試運轉 :v2, after v1, 12d
 
 section BQ 與 Gemini 分析
 
-BigQuery 與 Gemini Data Analytics 串接試作 :vll, after v2, 64d
+BigQuery 與 Gemini Data Analytics 串接試作 :vll, after v2, 30d
 
 section 知識庫
 
-裕日銷售知識庫建置與內容匯入 BQ :v3, after v2, 28d
+裕日銷售知識庫建置與內容匯入 BQ :v3, after v2, 14d
 
 section 兩個 Agent ADK
 
-銷售助手 Agent ADK 串 BQ 與 Gemini :v4a, after vll v3, 18d
+銷售助手 Agent ADK 串 BQ 與 Gemini :v4a, after vll v3, 10d
 
-對練助手 Agent ADK 串 BQ 與 Gemini :v4b, after vll v3, 18d
+對練助手 Agent ADK 串 BQ 與 Gemini :v4b, after vll v3, 10d
 
 section 測試驗收
 
-問答對照知識庫與對練情境驗收 :v5, after v4a v4b, 12d
+問答對照知識庫與對練情境驗收 :v5, after v4a v4b, 8d
 
 ```
+
+| 里程碑 | 目標日期 | 說明 |
+|--------|----------|------|
+| 資料進 BQ、GCP 就緒 | 2026-06 下旬 | vdb、v1 完成 |
+| 資料整理平台試運轉 | 2026-07 上旬 | v2 完成 |
+| BQ + Gemini 串接可 demo | 2026-08 上旬 | vll、v3 完成 |
+| 銷售／對練助手可驗收 | **2026-08-31 前** | v4a、v4b、v5 完成 |
 
 ---
 

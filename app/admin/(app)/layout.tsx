@@ -9,8 +9,7 @@ export default async function ProtectedLayout({
 }) {
   const session = await readSession();
   if (!session) {
-    redirect("/login");
+    redirect("/admin/login");
   }
-  return <AppShell displayName={session.username}>{children}</AppShell>;
+  return <AppShell displayName={session.displayName}>{children}</AppShell>;
 }
-
