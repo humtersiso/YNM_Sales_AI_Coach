@@ -2,7 +2,7 @@
 node_modules/
 .next/
 out/
-data/test-logs/
+data/
 test-logs/
 .git/
 .env
