@@ -86,7 +86,9 @@ function BulletList({ bullets }: { bullets: string[] }) {
         {bullets.map((b, i) => (
           <li key={i} className="flex gap-2 text-[16px] leading-relaxed text-zinc-800">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
-            <span className="whitespace-pre-line">{formatBulletLine(b)}</span>
+            <span className="whitespace-pre-line">
+              {formatBulletLine(b)}
+            </span>
           </li>
         ))}
       </ul>
@@ -145,14 +147,15 @@ function AssistantBubble({
   } = message;
 
   const hasBullets = Boolean(bullets && bullets.length > 0);
-  const safeIntro =
-    typeof content === "string" && !content.includes("[object Object]")
-      ? stripInlineCitationMarkers(
-          cleanInlineMarkdown(introOnlyForDisplay(content, hasBullets)),
-        )
-      : "";
   const hasCitations = Boolean(citations && citations.length > 0);
-
+  const introRaw = introOnlyForDisplay(
+    typeof content === "string" && !content.includes("[object Object]") ? content : "",
+    hasBullets,
+  );
+  const safeIntro =
+    introRaw.trim().length > 0
+      ? stripInlineCitationMarkers(cleanInlineMarkdown(introRaw))
+      : "";
   async function handleAdd() {
     if (!questionForAdd || !onAddToBank || addRequestSubmitted) return;
     setAddBusy(true);
@@ -170,9 +173,14 @@ function AssistantBubble({
       ) : (
         <>
           {safeIntro ? (
-            <p className="whitespace-pre-line text-[16px] leading-relaxed text-zinc-800">
-              {safeIntro}
-            </p>
+            <div className={hasBullets ? "mb-3" : undefined}>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+                小結
+              </p>
+              <p className="whitespace-pre-line text-[16px] leading-relaxed text-zinc-800">
+                {safeIntro}
+              </p>
+            </div>
           ) : null}
 
           {hasBullets ? <BulletList bullets={bullets!} /> : null}

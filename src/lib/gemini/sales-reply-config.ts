@@ -4,7 +4,13 @@ export const SALES_REPLY_BULLET_MIN_CHARS = 28;
 export const SALES_REPLY_BULLET_MAX_CHARS = 130;
 export const SALES_REPLY_INTRO_MAX_CHARS = 72;
 
+/** Vertex Grounded：防禦話術較長，與 test-rag-grounded log 對齊 */
+export const SALES_GROUNDED_INTRO_MAX_CHARS = 120;
+export const SALES_GROUNDED_BULLET_MAX_CHARS = 220;
+
 export const SALES_REPLY_LENGTH_HINT = `列點 2～${SALES_REPLY_MAX_BULLETS} 條（夠答題即可，勿重複、勿灌水）；每條約 40～${SALES_REPLY_BULLET_MAX_CHARS} 字、一點一事，精簡可當場複誦`;
+
+export const SALES_GROUNDED_REPLY_LENGTH_HINT = `列點 2～3 條；每條完整句（須有句尾），約 60～${SALES_GROUNDED_BULLET_MAX_CHARS} 字，勿寫到一半截斷`;
 
 /** Data Agent 原文 → Gemini 整理後列點上限（成本／規格題需較多細項） */
 export const DATA_AGENT_FORMAT_MAX_BULLETS = 10;

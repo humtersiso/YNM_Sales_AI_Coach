@@ -50,8 +50,8 @@ export function summarizeMaxOutputTokens(): number {
 /** RAG Grounding 生成上限（串流／非串流共用；防禦話術需較長輸出） */
 export function groundingMaxOutputTokens(): number {
   const n = Number(process.env.RAG_GROUNDING_MAX_OUTPUT_TOKENS ?? "");
-  if (!Number.isNaN(n) && n > 0) return Math.min(n, 2048);
-  return isSalesChatFastMode() ? 1024 : 1536;
+  if (!Number.isNaN(n) && n > 0) return Math.min(n, 4096);
+  return isSalesChatFastMode() ? 1536 : 2048;
 }
 
 /** 語意檢索（需 embedding 表；fast 模式預設關閉） */

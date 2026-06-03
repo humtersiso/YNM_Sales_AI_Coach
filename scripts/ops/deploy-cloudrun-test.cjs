@@ -98,7 +98,21 @@ if (!geminiKey) {
 }
 
 if (!envOnly) {
-  run("gcloud", ["builds", "submit", webRoot, "--tag", image, "--project", projectId]);
+  const cloudbuild = path.join(webRoot, "cloudbuild.yaml");
+  if (!fs.existsSync(cloudbuild)) {
+    console.error("[deploy] 找不到 cloudbuild.yaml");
+    process.exit(1);
+  }
+  console.log("[deploy] Cloud Build（E2_HIGHCPU_8）→ %s", image);
+  run("gcloud", [
+    "builds",
+    "submit",
+    webRoot,
+    "--config",
+    cloudbuild,
+    "--project",
+    projectId,
+  ]);
 } else {
   console.log("[deploy] DEPLOY_ENV_ONLY=1 — 略過映像建置，僅更新服務設定");
 }
@@ -118,6 +132,7 @@ if (!/^APP_PUBLIC_URL:/m.test(mergedForDeploy)) {
 const deployEnv = path.join(webRoot, ".deploy-tmp", "cloudrun-deploy.env.yaml");
 fs.writeFileSync(deployEnv, mergedForDeploy, "utf8");
 
+/** cloudbuild 已 deploy 一輪；此步併入 GEMINI 等 secrets 與 APP_PUBLIC_URL */
 run("gcloud", [
   "run",
   "deploy",

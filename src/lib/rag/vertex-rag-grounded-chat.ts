@@ -6,10 +6,13 @@ import {
 } from "@/lib/gemini/citation-utils";
 import type { SalesChatStreamEvent } from "@/lib/gemini/sales-chat-types";
 import { groundingMaxOutputTokens } from "@/lib/gemini/sales-chat-speed";
-import { SALES_REPLY_LENGTH_HINT } from "@/lib/gemini/sales-reply-config";
+import {
+  SALES_GROUNDED_REPLY_LENGTH_HINT,
+  SALES_REPLY_LENGTH_HINT,
+} from "@/lib/gemini/sales-reply-config";
 import {
   normalizeReplyLine,
-  parseGroundedReplyDisplay,
+  finalizeGroundedClientReply,
   sanitizeReplyCitationMarkers,
   type ScriptCitation,
 } from "@/lib/gemini/reply-format";
@@ -252,6 +255,7 @@ function buildGroundedGenPrompt(
     `使用者問題：${userQuestion}`,
     "請直接回答，規格數字若片段有必須寫出。",
     SALES_REPLY_LENGTH_HINT,
+    SALES_GROUNDED_REPLY_LENGTH_HINT,
     "手機現場查閱：先一句結論，列點最多 3 條、每條精簡可複誦，勿長篇展開。",
     "輸出結構（必守）：第一行一句結論（可含 [n]）；空一行；最多 3 行，每行以「建議可強調／重點在於／可回覆客戶」等開頭，勿用 - 或 * 列點符號，勿寫長段落。",
     extraInstruction,
@@ -307,16 +311,11 @@ export async function retrieveGroundedFacts(
   return retrieveSingleCorpusFacts(message, profile, ragCorpus, topK);
 }
 
-function textToIntroBullets(raw: string): { intro: string; bullets: string[] } {
-  return parseGroundedReplyDisplay(raw);
-}
-
 function parseAndSanitizeGroundedReply(
   rawText: string,
   maxDocId: number,
 ): { intro: string; bullets: string[] } {
-  const parsed = textToIntroBullets(rawText);
-  return sanitizeReplyCitationMarkers(parsed.intro, parsed.bullets, maxDocId);
+  return finalizeGroundedClientReply(rawText, maxDocId);
 }
 
 function vertexRagStorePayload(ragCorpus: string, retrievalConfig: Record<string, unknown>) {

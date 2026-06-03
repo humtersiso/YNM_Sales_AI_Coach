@@ -1,9 +1,12 @@
+import { stripInlineCitationMarkers } from "@/lib/gemini/citation-display";
 import {
   DATA_AGENT_FORMAT_BULLET_MAX_CHARS,
   DATA_AGENT_FORMAT_INTRO_MAX_CHARS,
   DATA_AGENT_FORMAT_MAX_BULLETS,
   DATA_AGENT_FORMAT_SUMMARY_MAX_CHARS,
   SALES_REPLY_BULLET_MAX_CHARS,
+  SALES_GROUNDED_BULLET_MAX_CHARS,
+  SALES_GROUNDED_INTRO_MAX_CHARS,
   SALES_REPLY_INTRO_MAX_CHARS,
   SALES_REPLY_MAX_BULLETS,
 } from "@/lib/gemini/sales-reply-config";
@@ -514,18 +517,109 @@ export function sanitizeDataAgentDisplay(intro: string, bullets: string[]): {
   };
 }
 
-/** 從 Gemini 原文取出「列點前」的一句結論（對齊早上 grounded log 格式） */
-export function extractIntroBeforeBullets(raw: string): string {
-  const lines = raw.replace(/\r\n/g, "\n").split("\n");
-  const parts: string[] = [];
-  for (const line of lines) {
+const COACHING_LINE_START =
+  /^(建議|可強調|重點在於|重點是|可回覆|說明|強調|重點在|重點)[：:,，]?\s*/;
+
+/** 第一句結論之後、• 列點之前、無項目符號的話術行 */
+export function extractOrphanCoachingBullets(raw: string): string[] {
+  const out: string[] = [];
+  let seenIntro = false;
+  for (const line of raw.replace(/\r\n/g, "\n").split("\n")) {
+    const t = line.trim();
+    if (!t || /^[-–—*]+$/.test(t)) continue;
+    if (/^[-*•]\s+/.test(t) || /^\d+[.)）]\s/.test(t)) break;
+    if (!seenIntro) {
+      if (!COACHING_LINE_START.test(t)) seenIntro = true;
+      continue;
+    }
+    if (COACHING_LINE_START.test(t)) {
+      out.push(normalizeReplyLine(t.replace(/^[-*•]\s+/, "")));
+    }
+  }
+  return out.slice(0, SALES_REPLY_MAX_BULLETS);
+}
+
+/** 從 Gemini 原文取出「列點前」的一句結論（僅第一行，勿合併話術行） */
+export function extractIntroBeforeBullets(
+  raw: string,
+  maxIntroChars = SALES_REPLY_INTRO_MAX_CHARS,
+): string {
+  for (const line of raw.replace(/\r\n/g, "\n").split("\n")) {
     const t = line.trim();
     if (!t || /^[-–—*]+$/.test(t)) continue;
     if (/^[-*•]\s+/.test(t)) break;
     if (/^\d+[.)）]\s/.test(t)) break;
-    parts.push(normalizeReplyLine(t.replace(/^#{1,6}\s*/, "")));
+    if (COACHING_LINE_START.test(t)) break;
+    return normalizeReplyLine(t.replace(/^#{1,6}\s*/, ""))
+      .trim()
+      .slice(0, maxIntroChars);
   }
-  return parts.join(" ").trim().slice(0, SALES_REPLY_INTRO_MAX_CHARS);
+  return "";
+}
+
+/** 模型因 maxOutputTokens 截斷時，末尾常殘留「競品雖」等半句 */
+export function isTruncatedGroundedBullet(text: string): boolean {
+  const t = text.trim();
+  if (t.length < 10) return true;
+  if (/[。！？；.!?]$/.test(t)) return false;
+  if (t.length >= SALES_GROUNDED_BULLET_MAX_CHARS - 8) return false;
+  if (/[，,](雖|但|若|與|且|或|為)$/.test(t)) return true;
+  if (/(雖|但|若|與|為|宣稱|主打)$/.test(t)) return true;
+  return false;
+}
+
+export function dropTruncatedGroundedBullets(bullets: string[]): string[] {
+  return bullets
+    .map((b) => b.trim())
+    .filter((b) => b.length >= 6 && !isTruncatedGroundedBullet(b));
+}
+
+/** orphan（• 前話術行）先於 • 列點，順序與原文一致 */
+function mergeGroundedBullets(primary: string[], extra: string[]): string[] {
+  const seen = new Set<string>();
+  const merged: string[] = [];
+  for (const b of [...extra, ...primary]) {
+    const t = b.trim();
+    if (t.length < 6 || seen.has(t)) continue;
+    seen.add(t);
+    merged.push(t);
+  }
+  return dropTruncatedGroundedBullets(merged).slice(0, SALES_REPLY_MAX_BULLETS);
+}
+
+/** API / 前端 / log 共用：解析後清理引用標籤與殘句 */
+export function finalizeGroundedClientReply(
+  raw: string,
+  maxDocId: number,
+): { intro: string; bullets: string[] } {
+  const parsed = parseGroundedReplyDisplay(raw);
+  const intro = parsed.intro.trim().slice(0, SALES_GROUNDED_INTRO_MAX_CHARS);
+  const bullets = dropTruncatedGroundedBullets(parsed.bullets);
+  return sanitizeReplyCitationMarkers(intro, bullets, maxDocId);
+}
+
+/** 與銷售助手 ChatThread 實際顯示一致（小結 + 列點，句內不顯示 [n]） */
+export function formatSalesReplyAsUiDisplay(intro: string, bullets: string[]): string {
+  const parts: string[] = [];
+  const introText = stripInlineCitationMarkers(cleanInlineMarkdown(intro.trim()));
+  if (introText) {
+    parts.push("小結");
+    parts.push(introText);
+  }
+  const cleanedBullets = bullets
+    .map((b) => stripInlineCitationMarkers(cleanInlineMarkdown(b.trim())))
+    .filter((b) => b.length > 0);
+  if (cleanedBullets.length > 0) {
+    if (parts.length > 0) parts.push("");
+    parts.push("列點");
+    for (const b of cleanedBullets) parts.push(`• ${b}`);
+  }
+  return parts.join("\n");
+}
+
+/** test-rag-grounded log 與前端畫面對齊 */
+export function formatGroundedReplyForLog(intro: string, bullets: string[]): string {
+  return formatSalesReplyAsUiDisplay(intro, bullets);
 }
 
 /**
@@ -535,29 +629,36 @@ export function parseGroundedReplyDisplay(raw: string): { intro: string; bullets
   const text = raw.replace(/\r\n/g, "\n").trim();
   if (!text) return { intro: "", bullets: [] };
 
+  const orphanBullets = extractOrphanCoachingBullets(text);
+  const introFromFirstLine = extractIntroBeforeBullets(text, SALES_GROUNDED_INTRO_MAX_CHARS);
+
   const markerParts = text.split(/\n---\s*條列\s*---\n/i);
   if (markerParts.length > 1) {
-    const intro = markerParts[0]!.trim();
+    const intro =
+      extractIntroBeforeBullets(markerParts[0]!, SALES_GROUNDED_INTRO_MAX_CHARS) ||
+      markerParts[0]!.trim().slice(0, SALES_GROUNDED_INTRO_MAX_CHARS);
     const bulletBlock = markerParts.slice(1).join("\n");
     const listed = formatMarkdownReplyToDisplay(bulletBlock);
     if (listed.bullets.length > 0) {
       return {
-        intro: intro || extractIntroBeforeBullets(text),
-        bullets: listed.bullets,
+        intro,
+        bullets: mergeGroundedBullets(listed.bullets, orphanBullets),
       };
     }
   }
 
   const parsed = formatMarkdownReplyToDisplay(text);
   if (parsed.bullets.length > 0) {
-    const intro = parsed.intro.trim() || extractIntroBeforeBullets(text);
-    return { intro, bullets: parsed.bullets };
+    return {
+      intro: introFromFirstLine,
+      bullets: mergeGroundedBullets(parsed.bullets, orphanBullets),
+    };
   }
 
   const fromKeywords = buildBulletReplyFromText(text);
   if (fromKeywords.bullets.length >= 2) {
     return {
-      intro: fromKeywords.intro.trim() || extractIntroBeforeBullets(text),
+      intro: introFromFirstLine || fromKeywords.intro.trim(),
       bullets: fromKeywords.bullets,
     };
   }
@@ -569,15 +670,21 @@ export function parseGroundedReplyDisplay(raw: string): { intro: string; bullets
   if (paras.length >= 2) {
     return {
       intro: extractIntroBeforeBullets(paras[0]!) || paras[0]!,
-      bullets: paras.slice(1).slice(0, SALES_REPLY_MAX_BULLETS),
+      bullets: mergeGroundedBullets(
+        paras.slice(1).slice(0, SALES_REPLY_MAX_BULLETS),
+        orphanBullets,
+      ),
     };
   }
 
   const intro =
-    parsed.intro.trim() ||
-    extractIntroBeforeBullets(text) ||
-    normalizeReplyLine(text).trim().slice(0, SALES_REPLY_INTRO_MAX_CHARS);
-  return { intro, bullets: fromKeywords.bullets };
+    introFromFirstLine ||
+    parsed.intro.trim().slice(0, SALES_GROUNDED_INTRO_MAX_CHARS) ||
+    normalizeReplyLine(text).trim().slice(0, SALES_GROUNDED_INTRO_MAX_CHARS);
+  return {
+    intro,
+    bullets: mergeGroundedBullets(fromKeywords.bullets, orphanBullets),
+  };
 }
 
 /** 有列點時只顯示重點，不顯示 Insights 等標題／導言 */

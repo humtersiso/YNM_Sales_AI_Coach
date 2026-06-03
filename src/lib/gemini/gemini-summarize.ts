@@ -55,6 +55,7 @@ function buildContextBlock(citations: ScriptCitation[]): {
   xml: string;
   maxDocId: number;
   markerRules: string;
+  markerHardLimit: string;
 } {
   const charLimit = summarizeContextCharLimit();
   const prep = prepareCitationCards(citations);

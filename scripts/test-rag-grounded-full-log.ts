@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chatWithDataAgent } from "../src/lib/gemini/conversational-analytics";
+import { formatGroundedReplyForLog } from "../src/lib/gemini/reply-format";
 import { listConfiguredRagCorpora } from "../src/lib/rag/rag-engine-config";
 import { searchVertexRagCorpus } from "../src/lib/rag/vertex-rag-search";
 
@@ -141,14 +142,7 @@ async function retrievalDetail(question: string): Promise<string[]> {
 }
 
 function formatReply(r: Awaited<ReturnType<typeof chatWithDataAgent>>): string {
-  const parts: string[] = [];
-  if (r.reply.trim()) parts.push(r.reply.trim());
-  if (r.bullets.length > 0) {
-    parts.push("");
-    parts.push("--- 條列 ---");
-    for (const b of r.bullets) parts.push(`• ${b}`);
-  }
-  return parts.join("\n");
+  return formatGroundedReplyForLog(r.reply, r.bullets);
 }
 
 async function main() {
@@ -173,7 +167,7 @@ async function main() {
     `RAG_GROUNDING_TOP_K: ${process.env.RAG_GROUNDING_TOP_K ?? "12"}`,
     `RAG_ENGINE: ${process.env.RAG_ENGINE_LOCATION ?? "asia-east1"}`,
     `案例數: ${CASES.length}`,
-    "說明: 【系統回覆】= Gemini 生成；retrieveContexts 區塊僅供診斷（加 --verbose 顯示）",
+    "說明: 【系統回覆】= 前端實際顯示（小結+列點，無句內 [n]）；retrieveContexts 僅診斷（加 --verbose）",
     "=".repeat(80),
   ];
   header.forEach((l) => logLine(out, l));
@@ -217,7 +211,7 @@ async function main() {
       }
 
       logLine(out, "");
-      logLine(out, "  --- 【系統回覆】（Gemini + RAG Grounding）---");
+      logLine(out, "  --- 【系統回覆】（前端顯示）---");
       logLine(out, formatReply(r));
       logLine(out, "  --- END REPLY ---");
       logLine(out, `  PASS (有生成回答): ${ok ? "YES" : "NO"}`);

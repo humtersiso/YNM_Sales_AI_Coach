@@ -1,0 +1,24 @@
+# 高速 Cloud Build：8 核編譯 + Docker 建置與推送
+# 完整佈署（含 secrets / APP_PUBLIC_URL）：npm run deploy:test
+options:
+  machineType: E2_HIGHCPU_8
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _SERVICE: ynm-web-test
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - gcr.io/$PROJECT_ID/${_SERVICE}:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - gcr.io/$PROJECT_ID/${_SERVICE}:latest
+
+images:
+  - gcr.io/$PROJECT_ID/${_SERVICE}:latest

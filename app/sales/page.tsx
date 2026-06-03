@@ -157,13 +157,14 @@ export default function SalesChatPage() {
               ),
             );
           } else if (event.type === "intro_delta" && event.text) {
+            const introText = event.text;
             setMessages((m) =>
               m.map((x) =>
                 x.id === pendingId
                   ? {
                       ...x,
-                      role: "assistant",
-                      content: (x.content || "") + event.text,
+                      role: "assistant" as const,
+                      content: introText,
                       pending: true,
                     }
                   : x,

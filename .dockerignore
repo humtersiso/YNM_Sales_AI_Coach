@@ -1,6 +1,19 @@
-node_modules
-npm-debug.log
-.git
-.next
-agent-transcripts
-terminals
+# 阻止本機巨量檔案進入 build context（與 package.json 同層）
+node_modules/
+.next/
+out/
+data/test-logs/
+test-logs/
+.git/
+.env
+.env.*
+.deploy-tmp/
+dist/
+coverage/
+terminals/
+agent-transcripts/
+*.log
+debug-shake-out*.txt
+*.pdf
+*.pptx
+*.xlsx

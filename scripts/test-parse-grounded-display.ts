@@ -2,13 +2,24 @@
  * 驗證 grounded 回覆不會「正文 + 列點」重複
  * 執行：npm run test:parse-grounded
  */
-import { parseGroundedReplyDisplay } from "../src/lib/gemini/reply-format";
+import {
+  finalizeGroundedClientReply,
+  formatGroundedReplyForLog,
+  parseGroundedReplyDisplay,
+} from "../src/lib/gemini/reply-format";
 
 const morningXforce = `XFORCE 的特色在於針對日常駕駛情境進行引擎與變速箱調校，強調起步與中速域的輕快反應，並具備優異的油耗表現 [2][3][4]。
 
 建議可強調 XFORCE 搭載 AYC 主動式彎道動態控制系統，透過控制左右車輪驅動力，提升過彎穩定性與精準度 [1][5]。
 重點在於其空間配置，後座膝部空間較競品多出約 4.2 公分 [1][5]。
 可回覆客戶 XFORCE 採用 105ps 馬力引擎，內部測試油耗數據為 17 km/l [1][3][4]。`;
+
+/** 對齊 grounded-full-2026-06-03T07-45-18 reg-03（intro 後多一行話術 + • 列點） */
+const log0745Reg03 = `XFORCE 主打日常駕駛情境的加速輕快感與空間配置，並強調搭載 AYC 主動式彎道動態控制系統 [1][5]。
+重點在於競品強調 1.5L 自然進氣引擎的日常加速反應，若客戶提及此點，可引導對比 X-TRAIL ICE。
+
+• 強調搭載 AYC 主動式彎道動態控制系統 [1][5]
+• 可回覆客戶，競品雖宣稱透過 AYC 系統提升過彎穩定性 [5]，但 X-TRAIL ICE 同樣具備高度競爭力`;
 
 const markdownBullets = `XFORCE 主打空間機能、全速域 Level 2 駕駛輔助系統及針對日常市區駕駛調校的動力表現。
 
@@ -40,5 +51,27 @@ allOk =
   assertCase("morning-style", morningXforce, /XFORCE 的特色/, 3) && allOk;
 allOk =
   assertCase("markdown", markdownBullets, /XFORCE 主打/, 3) && allOk;
+allOk =
+  assertCase("log-0745-reg03", log0745Reg03, /XFORCE 主打日常/, 3) && allOk;
+if (parseGroundedReplyDisplay(log0745Reg03).intro.includes("重點在於競品")) {
+  console.error("FAIL [log-0745-reg03]: intro 不應含第二行話術");
+  allOk = false;
+}
+
+const client = finalizeGroundedClientReply(log0745Reg03, 5);
+const logText = formatGroundedReplyForLog(client.intro, client.bullets);
+if (client.bullets.some((b) => /競品雖$/.test(b))) {
+  console.error("FAIL: 不應保留截斷列點「競品雖」");
+  allOk = false;
+}
+if (!logText.includes("小結") || !logText.includes("列點")) {
+  console.error("FAIL: log 格式應含 小結 / 列點 區塊");
+  allOk = false;
+} else if (/\[\d{1,2}\]/.test(logText)) {
+  console.error("FAIL: log 不應含句內 [n] 標記");
+  allOk = false;
+} else {
+  console.log("OK [client=log format] bullets:", client.bullets.length);
+}
 
 process.exit(allOk ? 0 : 1);
