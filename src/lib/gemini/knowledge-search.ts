@@ -19,6 +19,7 @@ import {
   expandSpecSearchTerms,
   isSpecNumericQuery,
 } from "@/lib/gemini/spec-query-expand";
+import { getHeroProduct } from "@/lib/gemini/sales-question-profile";
 import type { ScriptCitation } from "@/lib/gemini/reply-format";
 import { dedupeCitations } from "@/lib/gemini/citation-utils";
 import { enrichCitation } from "@/lib/gemini/citation-labels";
@@ -298,7 +299,9 @@ export async function searchKnowledgeRawHits(
   scope: KnowledgeSearchScope = {},
   poolLimit?: number | null,
 ): Promise<ScoredKnowledgeHit[]> {
-  const searchMessage = augmentCostQueryForSearch(augmentSpecQueryForSearch(message));
+  const searchMessage = augmentCostQueryForSearch(
+    augmentSpecQueryForSearch(message, getHeroProduct().displayName),
+  );
   const recallLimit =
     poolLimit === null
       ? sqlRecallLimit(null)

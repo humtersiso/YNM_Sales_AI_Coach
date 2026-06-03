@@ -1,6 +1,6 @@
 import { getDataAgentConfig, getGeminiApiKey } from "@/lib/gemini/gemini-client";
 
-export type SalesChatMode = "agent" | "hybrid" | "bq-fast" | "data-agent" | "grounded";
+export type SalesChatMode = "agent" | "hybrid" | "bq-fast" | "data-agent" | "grounded" | "rag-raw";
 
 /** 對外別名：function-calling = agent（FC 分流 + 固定 BQ + Gemini 摘要） */
 export function resolveSalesChatMode(): SalesChatMode {
@@ -9,6 +9,7 @@ export function resolveSalesChatMode(): SalesChatMode {
   if (mode === "data-agent" || mode === "gemini" || mode === "analytics") return "data-agent";
   if (mode === "hybrid") return "hybrid";
   if (mode === "grounded" || mode === "rag-grounded") return "grounded";
+  if (mode === "rag-raw" || mode === "raw-rag") return "rag-raw";
   if (
     mode === "agent" ||
     mode === "function-calling" ||

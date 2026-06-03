@@ -1,5 +1,13 @@
 import type { RagChunkHit } from "@/lib/rag/discovery-engine-search";
 
+const PDF_NAME = /([^/\\]+\.pdf)/i;
+
+/** 自 RAG hit 標題／URI 抽出 PDF 檔名（無 Node/BQ 依賴，可供 citation-card 使用） */
+export function pdfNameFromHit(hit: RagChunkHit): string {
+  const m = hit.title.match(PDF_NAME) ?? hit.uri?.match(PDF_NAME);
+  return m?.[1] ?? hit.title.split("·").pop()?.trim() ?? hit.title;
+}
+
 const BOILERPLATE =
   /All rights reserved|All right reserved|Confidentiality Classification:\s*Confidential|Confidentiality Classification|Do not use without any permission|Yulon Nissan|Yulon NISSAN|Motor Co\.,?\s*Ltd\.?/gi;
 

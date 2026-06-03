@@ -21,6 +21,10 @@ export type RagChunkHit = {
   /** Discovery Engine 相關度（愈高愈相關） */
   relevance: number;
   productLine?: string;
+  /** 原始檔名（不含 gs:// 路徑） */
+  sourceFileName?: string;
+  /** UI 顯示用，如「第 11 頁」 */
+  pageLabel?: string;
 };
 
 export class RagSearchError extends Error {

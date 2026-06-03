@@ -1,4 +1,4 @@
-import type { ScriptCitation } from "@/lib/gemini/reply-format";
+import type { CitationCard } from "@/lib/gemini/citation-card";
 
 const MAX_LEN = 6000;
 
@@ -6,7 +6,7 @@ const MAX_LEN = 6000;
 export function formatSalesReplyForUsageLog(input: {
   reply: string;
   bullets?: string[];
-  citations?: Pick<ScriptCitation, "question">[];
+  citations?: Pick<CitationCard, "title" | "page">[];
 }): string {
   const parts: string[] = [];
   const intro = input.reply.trim();
@@ -18,7 +18,7 @@ export function formatSalesReplyForUsageLog(input: {
   }
 
   const cites = (input.citations ?? [])
-    .map((c) => c.question.trim())
+    .map((c) => `${c.title}${c.page && c.page !== "—" ? ` ${c.page}` : ""}`.trim())
     .filter(Boolean);
   if (cites.length > 0) {
     parts.push(`[引用] ${cites.join("、")}`);

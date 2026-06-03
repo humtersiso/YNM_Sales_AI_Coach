@@ -48,6 +48,17 @@ next-env.d.ts
 dev.db
 *.db
 
+# 測試 log（本地產生；保留目錄結構即可）
+data/test-logs/*
+!data/test-logs/.gitkeep
+
+# 除錯腳本歸檔（僅本機參考，不進版控）
+scripts/debug-archive/
+
+# 建置殘留
+source.tgz
+*.tsbuildinfo
+
 # 話術 Excel（請放於 data/，見 data/README.md）
 /data/*.xlsx
 /data/~$*

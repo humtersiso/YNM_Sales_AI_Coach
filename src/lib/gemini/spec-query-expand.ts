@@ -13,13 +13,24 @@ export function isSpecNumericQuery(message: string): boolean {
   );
 }
 
-/** 過短規格追問（如「馬力」）補上預設本品，避免只命中無關表格列 */
-export function augmentSpecQueryForSearch(message: string): string {
+/** 過短規格追問（如「馬力如何」）補上本品主體，避免向量搜尋命中競品庫 */
+export function augmentSpecQueryForSearch(
+  message: string,
+  heroDisplayName = "X-TRAIL ICE",
+): string {
   const t = message.trim();
   if (!isSpecNumericQuery(t)) return message;
   if (/x-?trail|xtrail|勁客|\bkicks\b/i.test(t)) return message;
-  if (t.length > 16) return message;
-  return `X-TRAIL ICE ${t}`;
+
+  const hasCompetitor = /tucson|途勝|sportage|rav4|cr-?v|x-?\s*force|xforce|territory|mufasa|kuga/i.test(
+    t,
+  );
+  if (hasCompetitor && !/x-?trail|xtrail/i.test(t)) {
+    return `${t} 規格`;
+  }
+
+  if (t.length > 20) return message;
+  return `${heroDisplayName} ${t} 規格`.trim();
 }
 
 export function expandSpecSearchTerms(message: string, baseTerms: string[]): string[] {

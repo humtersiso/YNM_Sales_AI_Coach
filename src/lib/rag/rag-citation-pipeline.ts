@@ -8,12 +8,16 @@ import { questionSimilarity } from "@/lib/analytics/question-dedup";
 import { extractSearchKeywords } from "@/lib/gemini/knowledge-search";
 import { extractMentionedCompetitor } from "@/lib/gemini/sales-question-profile";
 import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
+import { isSpecNumericQuery } from "@/lib/gemini/spec-query-expand";
 import { blobContainsTerm } from "@/lib/gemini/han-fold";
 import type { RagChunkHit } from "@/lib/rag/discovery-engine-search";
-import { extractCustomerQuestionFromRagSnippet, stripRagBoilerplate } from "@/lib/rag/rag-citation-format";
+import {
+  extractCustomerQuestionFromRagSnippet,
+  pdfNameFromHit,
+  stripRagBoilerplate,
+} from "@/lib/rag/rag-citation-format";
 
 const TABLE_DUMP = /客戶疑問\s*[\(（]?問|提供DLR\s*興趣車/i;
-const PDF_NAME = /([^/\\]+\.pdf)/i;
 const QA_ROW_CODE = /(?:^|\s)([A-Z]{2}\s+X-TRAIL)/g;
 const DISPLAY_EXCERPT_MAX = Number(process.env.RAG_CITATION_EXCERPT_MAX ?? "360") || 360;
 
@@ -36,11 +40,6 @@ function queryNeedles(message: string): string[] {
     }
   }
   return [...out].sort((a, b) => b.length - a.length).slice(0, 24);
-}
-
-export function pdfNameFromHit(hit: RagChunkHit): string {
-  const m = hit.title.match(PDF_NAME) ?? hit.uri?.match(PDF_NAME);
-  return m?.[1] ?? hit.title.split("·").pop()?.trim() ?? hit.title;
 }
 
 function detectChunkKind(snippet: string): RagChunkKind {
@@ -205,8 +204,8 @@ function scoreDisplayHit(message: string, hit: RagChunkHit): number {
 }
 
 function displayCitationMax(profile?: SalesQuestionProfile): number {
-  const raw = Number(process.env.RAG_CITATION_DISPLAY_MAX ?? "1");
-  const envMax = Number.isNaN(raw) || raw <= 0 ? 1 : Math.min(raw, 5);
+  const raw = Number(process.env.RAG_CITATION_DISPLAY_MAX ?? "5");
+  const envMax = Number.isNaN(raw) || raw <= 0 ? 5 : Math.min(raw, 8);
   if (profile?.category === "sales_qa") {
     const qaRaw = Number(process.env.RAG_SALES_QA_MAX_CITATIONS ?? "1");
     return Number.isNaN(qaRaw) || qaRaw <= 0 ? 1 : Math.min(qaRaw, 3);
@@ -240,6 +239,22 @@ export function refineRagHitsForDisplay(
   if (hits.length === 0) return hits;
 
   const maxOut = displayCitationMax(profile);
+
+  /** 規格題：保留含 ps/kgm/油耗等數字的 chunk，避免 QA 摘錄器把短句問法濾光 */
+  if (profile?.category === "spec" || isSpecNumericQuery(message)) {
+    const specHits = hits
+      .map((h) => {
+        const excerpt = stripRagBoilerplate(h.snippet).slice(0, DISPLAY_EXCERPT_MAX);
+        if (excerpt.length < 8) return null;
+        return {
+          ...h,
+          title: pdfNameFromHit(h).replace(/\.pdf$/i, ""),
+          snippet: excerpt,
+        };
+      })
+      .filter((h): h is RagChunkHit => h != null);
+    return collapseByPdf(specHits).slice(0, Math.max(maxOut, 3));
+  }
 
   let prepared = hits
     .map((h) => prepareRagHitForDisplay(message, h))

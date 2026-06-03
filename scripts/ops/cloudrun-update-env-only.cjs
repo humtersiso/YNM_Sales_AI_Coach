@@ -2,7 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 
-const webRoot = path.join(__dirname, "..");
+const webRoot = path.join(__dirname, "..", "..");
 const envFile = path.join(webRoot, "deploy/cloudrun-test.env.yaml");
 const secretsYaml = path.join(webRoot, "deploy/cloudrun-test.secrets.yaml");
 

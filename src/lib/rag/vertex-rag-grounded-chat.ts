@@ -1,11 +1,41 @@
+import { buildKnowledgeReply } from "@/lib/gemini/knowledge-reply";
 import { geminiGenerateText, getGcpAccessToken } from "@/lib/gemini/gemini-client";
 import {
-  formatMarkdownReplyToDisplay,
+  prepareCitationCards,
+  visibleCitationDocCount,
+} from "@/lib/gemini/citation-utils";
+import type { SalesChatStreamEvent } from "@/lib/gemini/sales-chat-types";
+import { groundingMaxOutputTokens } from "@/lib/gemini/sales-chat-speed";
+import { SALES_REPLY_LENGTH_HINT } from "@/lib/gemini/sales-reply-config";
+import {
   normalizeReplyLine,
+  parseGroundedReplyDisplay,
+  sanitizeReplyCitationMarkers,
   type ScriptCitation,
 } from "@/lib/gemini/reply-format";
-import { SALES_DIRECT_REPLY_RULES } from "@/lib/gemini/sales-reply-directives";
+import {
+  buildCompetitorDefenseRules,
+  SALES_DIRECT_REPLY_RULES,
+} from "@/lib/gemini/sales-reply-directives";
+import {
+  buildCitationMarkerHardLimit,
+  buildCitationMarkerRules,
+  buildKnowledgeXmlContext,
+  parseCitationSourceParts,
+  type CitationCard,
+} from "@/lib/gemini/citation-card";
+import {
+  buildPrimarySearchQuery,
+  buildRetrievalChannels,
+  isDualChannelComparison,
+  isSpecRetrievalRoute,
+} from "@/lib/gemini/retrieval-query-builder";
+import { isSpecNumericQuery } from "@/lib/gemini/spec-query-expand";
 import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
+import {
+  classifySalesQuestion,
+  extractMentionedCompetitor,
+} from "@/lib/gemini/sales-question-profile";
 import { RagSearchError } from "@/lib/rag/discovery-engine-search";
 import {
   buildRagRetrievalConfig,
@@ -15,11 +45,15 @@ import {
   listConfiguredRagCorpora,
   normalizeRagCorpusResource,
 } from "@/lib/rag/rag-engine-config";
-import { isSpecNumericQuery } from "@/lib/gemini/spec-query-expand";
 import type { MaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
-import { prepareRagHitForDisplay, pdfNameFromHit } from "@/lib/rag/rag-citation-pipeline";
 import type { RagChunkHit } from "@/lib/rag/discovery-engine-search";
 import { stripRagBoilerplate } from "@/lib/rag/rag-citation-format";
+import { searchVertexRagCorpus } from "@/lib/rag/vertex-rag-search";
+import { mergeRagHitsByRrf } from "@/lib/rag/rag-hit-merge";
+import {
+  extractRagChunkSourceMeta,
+  parseAugmentFactsFromResponse,
+} from "@/lib/rag/vertex-rag-chunk-parse";
 
 export type GroundedChatResult = {
   intro: string;
@@ -37,6 +71,14 @@ function groundingImplMode(): "generate" | "augment" | "auto" {
   if (raw === "generate" || raw === "native") return "generate";
   if (raw === "augment" || raw === "augment-prompt") return "augment";
   return "auto";
+}
+
+/** 與 2026-06-03 grounded-full log 對齊：augment 預設不先走 retrieve-first */
+function useGroundedRetrieveFirst(): boolean {
+  const raw = (process.env.SALES_GROUNDED_RETRIEVE_FIRST ?? "").trim().toLowerCase();
+  if (raw === "true" || raw === "1") return true;
+  if (raw === "false" || raw === "0") return false;
+  return groundingImplMode() !== "augment";
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -58,10 +100,15 @@ function groundingModelCandidates(): string[] {
   return [...new Set([preferred, ...defaults].filter(Boolean))];
 }
 
-function buildSystemInstruction(profile?: SalesQuestionProfile): string {
+function buildSystemInstruction(
+  profile?: SalesQuestionProfile,
+  userQuestion = "",
+): string {
   const hero = profile?.heroProduct.displayName ?? "X-TRAIL ICE";
+  const defense = buildCompetitorDefenseRules(profile, userQuestion);
   return `你是裕隆日產 ${hero} 銷售話術助手。請依「檢索到的知識庫片段」回答，勿捏造。
 ${SALES_DIRECT_REPLY_RULES}
+${defense ? `\n${defense}` : ""}
 - 規格數字（馬力 ps、扭力 kgm、油耗 km/l）若片段有，必須寫出
 - 可分段小標，但勿用 markdown 列點符號（- *）`;
 }
@@ -73,7 +120,10 @@ function selectGroundingCorpus(message: string, profile?: SalesQuestionProfile):
   let category: MaterialCategory = "product_info";
   if (profile?.category === "competitor") category = "competitor_compare";
   else if (profile?.category === "sales_qa") category = "sales_script";
-  else if (
+  else if (profile?.category === "spec") category = "product_info";
+  else if (isSpecNumericQuery(message) && !extractMentionedCompetitor(message)) {
+    category = "product_info";
+  } else if (
     isSpecNumericQuery(message) ||
     /馬力|扭力|功率|\bps\b|kgm|km\/l/i.test(message)
   ) {
@@ -141,23 +191,37 @@ function parseResponseText(json: JsonRecord): string {
 function chunksToCitations(message: string, chunks: Array<{ title: string; text: string; uri?: string }>): ScriptCitation[] {
   const citations: ScriptCitation[] = [];
   for (const chunk of chunks) {
+    const body = String(chunk.text ?? "").trim();
+    if (body.length < 4) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[rag] 略過無正文 chunk", { title: chunk.title });
+      }
+      continue;
+    }
     const hit: RagChunkHit = {
       title: chunk.title,
-      snippet: chunk.text,
+      snippet: body,
       uri: chunk.uri,
       materialCategory: "general",
       relevance: 100 - citations.length,
     };
-    const prepared = prepareRagHitForDisplay(message, hit) ?? {
-      ...hit,
-      snippet: stripRagBoilerplate(chunk.text).slice(0, 380),
-      title: pdfNameFromHit(hit).replace(/\.pdf$/i, "") || chunk.title,
-    };
+    const meta = extractRagChunkSourceMeta({ text: body, sourceUri: chunk.uri, title: chunk.title });
+    const fileTitle =
+      meta.fileName.replace(/^gs:\/\/.*?\//, "").replace(/\.pdf$/i, "") ||
+      parseCitationSourceParts(chunk.title).title;
+    const page =
+      meta.page?.first != null
+        ? meta.page.last != null && meta.page.last !== meta.page.first
+          ? `第 ${meta.page.first}–${meta.page.last} 頁`
+          : `第 ${meta.page.first} 頁`
+        : parseCitationSourceParts(chunk.title).page;
+    const excerpt = stripRagBoilerplate(body);
     citations.push({
       index: citations.length + 1,
-      question: prepared.title,
-      script: prepared.snippet,
-      sourceLabel: "RAG Grounding",
+      question: fileTitle,
+      script: excerpt,
+      page,
+      sourceLabel: fileTitle,
       scriptLabel: chunk.uri ? "向量檢索摘錄" : "摘錄",
       sourceKind: "rag-grounding",
     });
@@ -165,18 +229,94 @@ function chunksToCitations(message: string, chunks: Array<{ title: string; text:
   return citations;
 }
 
-function textToIntroBullets(raw: string): { intro: string; bullets: string[] } {
-  const parsed = formatMarkdownReplyToDisplay(raw);
-  if (parsed.bullets.length > 0) return parsed;
+function buildGroundedGenPrompt(
+  profile: SalesQuestionProfile | undefined,
+  cards: CitationCard[],
+  userQuestion: string,
+  extraInstruction = "",
+): string {
+  const xml = buildKnowledgeXmlContext(cards);
+  const docCount = cards.length;
+  const markerRules = buildCitationMarkerRules(docCount);
+  const markerHardLimit = buildCitationMarkerHardLimit(docCount);
+  return [
+    buildSystemInstruction(profile, userQuestion),
+    "",
+    markerHardLimit,
+    "",
+    markerRules,
+    "",
+    "以下為知識庫檢索注入內容（請僅依此回答）：",
+    `<Knowledge_Base>\n${xml}\n</Knowledge_Base>`,
+    "",
+    `使用者問題：${userQuestion}`,
+    "請直接回答，規格數字若片段有必須寫出。",
+    SALES_REPLY_LENGTH_HINT,
+    "手機現場查閱：先一句結論，列點最多 3 條、每條精簡可複誦，勿長篇展開。",
+    "輸出結構（必守）：第一行一句結論（可含 [n]）；空一行；最多 3 行，每行以「建議可強調／重點在於／可回覆客戶」等開頭，勿用 - 或 * 列點符號，勿寫長段落。",
+    extraInstruction,
+    "",
+    markerHardLimit,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
-  const lines = raw
-    .split(/\n+/)
-    .map((l) => normalizeReplyLine(l.replace(/^#{1,6}\s*/, "")))
-    .filter((l) => l.length >= 8);
-  if (lines.length <= 1) {
-    return { intro: normalizeReplyLine(raw).slice(0, 280), bullets: [] };
+function groundingMaterialCategory(profile?: SalesQuestionProfile): MaterialCategory {
+  if (profile?.category === "competitor") return "competitor_compare";
+  if (profile?.category === "sales_qa") return "sales_script";
+  return "product_info";
+}
+
+/** 單庫 retrieveContexts（比 augmentPrompt 少一輪 API，利於串流與降延遲） */
+async function retrieveSingleCorpusFacts(
+  message: string,
+  profile: SalesQuestionProfile | undefined,
+  ragCorpus: string,
+  topK: number,
+): Promise<Array<{ title: string; text: string; uri?: string }>> {
+  const q = buildPrimarySearchQuery(message, profile).trim();
+  const category = groundingMaterialCategory(profile);
+  const hits = await searchVertexRagCorpus(ragCorpus, q, category, topK, {
+    specQuery: isSpecRetrievalRoute(message, profile),
+  });
+  return hits.map((h) => ({ title: h.title, text: h.snippet, uri: h.uri }));
+}
+
+/** 多通道或單庫檢索（不呼叫 Gemini） */
+export async function retrieveGroundedFacts(
+  message: string,
+  profile?: SalesQuestionProfile,
+): Promise<Array<{ title: string; text: string; uri?: string }>> {
+  const topK = groundingTopK();
+
+  if (
+    profile &&
+    (isDualChannelComparison(message, profile) || isSpecRetrievalRoute(message, profile))
+  ) {
+    const perChannel = isSpecRetrievalRoute(message, profile)
+      ? Number(process.env.RAG_SPEC_RETRIEVAL_TOP_K ?? "6") || 6
+      : Math.max(4, Math.ceil(topK / 2));
+    const facts = await retrieveMultiChannelFacts(message, profile, perChannel);
+    if (facts.length > 0) return facts;
   }
-  return { intro: lines[0]!, bullets: lines.slice(1, 6) };
+
+  const q = buildPrimarySearchQuery(message, profile).trim();
+  const ragCorpus = selectGroundingCorpus(q, profile);
+  if (!ragCorpus.includes("/ragCorpora/")) return [];
+  return retrieveSingleCorpusFacts(message, profile, ragCorpus, topK);
+}
+
+function textToIntroBullets(raw: string): { intro: string; bullets: string[] } {
+  return parseGroundedReplyDisplay(raw);
+}
+
+function parseAndSanitizeGroundedReply(
+  rawText: string,
+  maxDocId: number,
+): { intro: string; bullets: string[] } {
+  const parsed = textToIntroBullets(rawText);
+  return sanitizeReplyCitationMarkers(parsed.intro, parsed.bullets, maxDocId);
 }
 
 function vertexRagStorePayload(ragCorpus: string, retrievalConfig: Record<string, unknown>) {
@@ -196,29 +336,89 @@ function parseContentText(content: unknown): string {
     .trim();
 }
 
-function parseAugmentFacts(json: JsonRecord): Array<{ title: string; text: string; uri?: string }> {
-  const out: Array<{ title: string; text: string; uri?: string }> = [];
-  for (const item of asArray(json.facts)) {
-    const fact = asRecord(item);
-    const chunk = asRecord(pick(fact, "chunk"));
-    const text = String(
-      pick(fact, "content") ?? pick(chunk, "text") ?? pick(fact, "text") ?? "",
-    ).trim();
-    if (text.length < 4) continue;
-    const title = String(
-      pick(fact, "title") ??
-        pick(fact, "sourceDisplayName", "source_display_name") ??
-        pick(chunk, "sourceDisplayName", "source_display_name") ??
-        "RAG 片段",
-    ).trim();
-    const uri =
-      String(pick(fact, "uri", "sourceUri", "source_uri") ?? "").trim() || undefined;
-    out.push({ title, text, uri });
-  }
-  return out;
+/** augmentPrompt：RAG 注入 + 任意 Gemini 生成（asia-east1 無 native grounding 模型時的 Console 等價路徑） */
+async function retrieveMultiChannelFacts(
+  message: string,
+  profile: SalesQuestionProfile,
+  perChannelTopK: number,
+): Promise<Array<{ title: string; text: string; uri?: string }>> {
+  const channels = buildRetrievalChannels(message, profile);
+  const lists = await Promise.all(
+    channels.map(async (ch) => {
+      const corpus = getRagCorpusForCategory(ch.materialCategory);
+      if (!corpus?.ragCorpusResource.includes("/ragCorpora/")) return [] as RagChunkHit[];
+      return searchVertexRagCorpus(
+        corpus.ragCorpusResource,
+        ch.query,
+        ch.materialCategory,
+        perChannelTopK,
+        { specQuery: isSpecRetrievalRoute(message, profile) },
+      );
+    }),
+  );
+  const merged = mergeRagHitsByRrf(lists.filter((l) => l.length > 0));
+  return merged.slice(0, perChannelTopK * 2).map((h) => ({
+    title: h.title,
+    text: h.snippet,
+    uri: h.uri,
+  }));
 }
 
-/** augmentPrompt：RAG 注入 + 任意 Gemini 生成（asia-east1 無 native grounding 模型時的 Console 等價路徑） */
+async function chatWithMergedFactsGrounding(
+  originalMessage: string,
+  profile: SalesQuestionProfile,
+  facts: Array<{ title: string; text: string; uri?: string }>,
+): Promise<GroundedChatResult> {
+  const citations = chunksToCitations(originalMessage, facts);
+  const cards = prepareCitationCards(citations).cards;
+  const extra = isDualChannelComparison(originalMessage, profile)
+    ? "比較題需同時引用本品與競品片段。"
+    : "";
+  const genPrompt = buildGroundedGenPrompt(profile, cards, originalMessage, extra);
+
+  const rawText =
+    (await geminiGenerateText(genPrompt, {
+      temperature: 0.25,
+      maxOutputTokens: groundingMaxOutputTokens(),
+    })) ?? "";
+
+  if (!rawText.trim() && facts.length === 0) {
+    throw new RagSearchError("多通道 RAG 未回傳可用內容");
+  }
+
+  const maxDocId = cards.length;
+  let { intro, bullets } = parseAndSanitizeGroundedReply(rawText, maxDocId);
+
+  if (!intro.trim() && bullets.length === 0 && citations.length > 0) {
+    const local = buildKnowledgeReply(originalMessage, citations);
+    intro = local.intro;
+    bullets = local.bullets;
+  }
+
+  if (bullets.length > 0 && intro.includes("\n")) {
+    intro = intro.split("\n")[0]!.trim();
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.info("[rag] multi-channel grounding", {
+      facts: facts.length,
+      answerLen: rawText.length,
+    });
+  }
+
+  return {
+    intro:
+      intro.trim() ||
+      (bullets.length > 0 ? "" : rawText.trim().slice(0, 280)),
+    bullets,
+    citations,
+    model: `multi-channel+${process.env.GEMINI_MODEL ?? "gemini"}`,
+    chunkCount: facts.length,
+    rawText,
+    impl: "augment",
+  };
+}
+
 async function chatWithAugmentPromptGrounding(
   q: string,
   profile: SalesQuestionProfile | undefined,
@@ -259,33 +459,27 @@ async function chatWithAugmentPromptGrounding(
     augmentedParts.map((c) => parseContentText(c)).filter(Boolean).join("\n\n") ||
     parseContentText(json.augmentedPrompt);
 
-  const facts = parseAugmentFacts(json);
+  const facts = parseAugmentFactsFromResponse(json);
 
-  const genPrompt = [
-    buildSystemInstruction(profile),
-    "",
-    "以下為知識庫檢索注入內容（請僅依此回答）：",
-    augmentedText || facts.map((f) => f.text).join("\n\n---\n\n"),
-    "",
-    `使用者問題：${q}`,
-    "請直接回答，規格數字若片段有必須寫出。",
-  ].join("\n");
+  const citeChunks =
+    facts.length > 0
+      ? facts
+      : [{ title: "RAG 注入", text: augmentedText.slice(0, 2400) }];
+  const citations = chunksToCitations(q, citeChunks);
+  const cards = prepareCitationCards(citations).cards;
+  const genPrompt = buildGroundedGenPrompt(profile, cards, q);
 
   const rawText = (await geminiGenerateText(genPrompt, {
     temperature: 0.25,
-    maxOutputTokens: Number(process.env.RAG_GROUNDING_MAX_OUTPUT_TOKENS ?? "2048") || 2048,
+    maxOutputTokens: groundingMaxOutputTokens(),
   })) ?? "";
 
   if (!rawText.trim() && facts.length === 0) {
     throw new RagSearchError("augmentPrompt 未回傳可用內容");
   }
 
-  const citeChunks =
-    facts.length > 0
-      ? facts
-      : [{ title: "RAG 注入", text: augmentedText.slice(0, 1200) }];
-  const { intro, bullets } = textToIntroBullets(rawText);
-  const citations = chunksToCitations(q, citeChunks);
+  const maxDocId = cards.length;
+  const { intro, bullets } = parseAndSanitizeGroundedReply(rawText, maxDocId);
 
   if (process.env.NODE_ENV === "development") {
     console.info("[rag] augmentPrompt grounding", {
@@ -297,7 +491,9 @@ async function chatWithAugmentPromptGrounding(
   }
 
   return {
-    intro: intro || rawText.slice(0, 280),
+    intro:
+      intro.trim() ||
+      (bullets.length > 0 ? "" : rawText.trim().slice(0, 280)),
     bullets,
     citations,
     model: `augment+${process.env.GEMINI_MODEL ?? "gemini"}`,
@@ -319,7 +515,7 @@ async function chatWithNativeGrounding(
   retrievalConfig: Record<string, unknown>,
 ): Promise<GroundedChatResult> {
   const body = {
-    systemInstruction: { parts: [{ text: buildSystemInstruction(profile) }] },
+    systemInstruction: { parts: [{ text: buildSystemInstruction(profile, q) }] },
     contents: [{ role: "user", parts: [{ text: q }] }],
     tools: [
       {
@@ -331,7 +527,7 @@ async function chatWithNativeGrounding(
     ],
     generationConfig: {
       temperature: 0.25,
-      maxOutputTokens: Number(process.env.RAG_GROUNDING_MAX_OUTPUT_TOKENS ?? "2048") || 2048,
+      maxOutputTokens: groundingMaxOutputTokens(),
     },
   };
 
@@ -363,8 +559,9 @@ async function chatWithNativeGrounding(
 
     const rawText = parseResponseText(json);
     const chunks = parseGroundingChunks(json);
-    const { intro, bullets } = textToIntroBullets(rawText);
     const citations = chunksToCitations(q, chunks);
+    const maxDocId = visibleCitationDocCount(citations);
+    const { intro, bullets } = parseAndSanitizeGroundedReply(rawText, maxDocId);
 
     if (process.env.NODE_ENV === "development") {
       console.info("[rag] native grounding", {
@@ -377,7 +574,9 @@ async function chatWithNativeGrounding(
     }
 
     return {
-      intro: intro || rawText.slice(0, 280),
+      intro:
+        intro.trim() ||
+        (bullets.length > 0 ? "" : rawText.trim().slice(0, 280)),
       bullets,
       citations,
       model,
@@ -400,9 +599,28 @@ export async function chatWithVertexRagGrounding(
   message: string,
   profile?: SalesQuestionProfile,
 ): Promise<GroundedChatResult> {
-  const q = message.trim();
+  const q = buildPrimarySearchQuery(message, profile).trim();
   if (!q) {
     return { intro: "", bullets: [], citations: [], model: "", chunkCount: 0, rawText: "" };
+  }
+
+  const topK = groundingTopK();
+
+  if (
+    profile &&
+    (isDualChannelComparison(message, profile) || isSpecRetrievalRoute(message, profile))
+  ) {
+    try {
+      const perChannel = isSpecRetrievalRoute(message, profile)
+        ? Number(process.env.RAG_SPEC_RETRIEVAL_TOP_K ?? "6") || 6
+        : Math.max(4, Math.ceil(topK / 2));
+      const facts = await retrieveMultiChannelFacts(message, profile, perChannel);
+      if (facts.length > 0) {
+        return chatWithMergedFactsGrounding(message, profile, facts);
+      }
+    } catch (e) {
+      console.warn("[rag] multi-channel retrieval failed, fallback single corpus", e);
+    }
   }
 
   const ragCorpus = selectGroundingCorpus(q, profile);
@@ -413,8 +631,9 @@ export async function chatWithVertexRagGrounding(
   const projectId = getRagProjectId();
   const location = getRagEngineLocation();
   const parent = `projects/${projectId}/locations/${location}`;
-  const topK = groundingTopK();
-  const retrievalConfig = buildRagRetrievalConfig(topK);
+  const retrievalConfig = buildRagRetrievalConfig(topK, {
+    specQuery: isSpecNumericQuery(message),
+  });
 
   let token: string;
   try {
@@ -422,6 +641,21 @@ export async function chatWithVertexRagGrounding(
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     throw new RagSearchError(`無法取得 Google 憑證：${msg}`, /invalid_grant|reauth/i.test(msg));
+  }
+
+  if (useGroundedRetrieveFirst()) {
+    try {
+      const facts = await retrieveGroundedFacts(message, profile);
+      if (facts.length > 0) {
+        return chatWithMergedFactsGrounding(
+          message,
+          profile ?? classifySalesQuestion(message),
+          facts,
+        );
+      }
+    } catch (e) {
+      console.warn("[rag] retrieve-first failed, fallback augment/native", e);
+    }
   }
 
   const impl = groundingImplMode();
@@ -475,6 +709,127 @@ export async function chatWithVertexRagGrounding(
       retrievalConfig,
     );
   }
+}
+
+/** 串流：與 chatWithVertexRagGrounding 同一路徑（augment 時勿強制 retrieve-first） */
+export async function* streamVertexRagGroundedChat(
+  message: string,
+  profile?: SalesQuestionProfile,
+): AsyncGenerator<SalesChatStreamEvent> {
+  const resolved = profile ?? classifySalesQuestion(message);
+
+  yield { type: "status", text: "正在檢索知識庫…" };
+
+  if (!useGroundedRetrieveFirst()) {
+    try {
+      const grounded = await chatWithVertexRagGrounding(message, resolved);
+      if (!grounded.rawText.trim() && grounded.citations.length === 0) {
+        yield {
+          type: "done",
+          result: {
+            reply:
+              "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+            bullets: [],
+            citations: [],
+            inQuestionBank: false,
+            allowAddRequest: true,
+            question: message,
+          },
+        };
+        return;
+      }
+
+      const prep = prepareCitationCards(grounded.citations);
+      yield {
+        type: "citations_ready",
+        citations: prep.cards,
+        citationsOverflow: prep.overflowCount > 0 ? prep.overflowCount : undefined,
+      };
+
+      yield { type: "status", text: "正在整理回覆…" };
+
+      const maxDocId = visibleCitationDocCount(grounded.citations);
+      const clean = sanitizeReplyCitationMarkers(grounded.intro, grounded.bullets, maxDocId);
+      const replyText = clean.intro.trim();
+
+      if (replyText) {
+        yield { type: "intro_delta", text: replyText };
+      }
+
+      yield {
+        type: "done",
+        result: {
+          reply:
+            replyText ||
+            clean.bullets[0]?.slice(0, 120) ||
+            "暫時無法產生回覆，請換個方式提問。",
+          bullets: clean.bullets,
+          citations: prep.cards,
+          citationsOverflow: prep.overflowCount > 0 ? prep.overflowCount : undefined,
+          inQuestionBank: true,
+        },
+      };
+      return;
+    } catch (e) {
+      console.error("[rag] stream augment/native grounding failed", e);
+      yield { type: "error", message: e instanceof Error ? e.message : "RAG 回答失敗" };
+      return;
+    }
+  }
+
+  let facts: Array<{ title: string; text: string; uri?: string }> = [];
+  try {
+    facts = await retrieveGroundedFacts(message, resolved);
+  } catch (e) {
+    console.error("[rag] stream retrieve failed", e);
+    yield { type: "error", message: e instanceof Error ? e.message : "檢索失敗" };
+    return;
+  }
+
+  if (facts.length === 0) {
+    yield {
+      type: "done",
+      result: {
+        reply: "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+        bullets: [],
+        citations: [],
+        inQuestionBank: false,
+        allowAddRequest: true,
+        question: message,
+      },
+    };
+    return;
+  }
+
+  const citations = chunksToCitations(message, facts);
+  const prep = prepareCitationCards(citations);
+  yield {
+    type: "citations_ready",
+    citations: prep.cards,
+    citationsOverflow: prep.overflowCount > 0 ? prep.overflowCount : undefined,
+  };
+
+  yield { type: "status", text: "正在整理回覆…" };
+
+  const merged = await chatWithMergedFactsGrounding(message, resolved, facts);
+  const maxDocId = visibleCitationDocCount(merged.citations);
+  const clean = sanitizeReplyCitationMarkers(merged.intro, merged.bullets, maxDocId);
+  const replyText = clean.intro.trim();
+
+  if (replyText) {
+    yield { type: "intro_delta", text: replyText };
+  }
+
+  yield {
+    type: "done",
+    result: {
+      reply: replyText || clean.bullets[0]?.slice(0, 120) || "暫時無法產生回覆，請換個方式提問。",
+      bullets: clean.bullets,
+      citations: prep.cards,
+      citationsOverflow: prep.overflowCount > 0 ? prep.overflowCount : undefined,
+      inQuestionBank: true,
+    },
+  };
 }
 
 export function isRagGroundedAnswerMode(): boolean {

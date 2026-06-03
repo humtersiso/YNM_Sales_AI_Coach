@@ -1,5 +1,11 @@
 import type { ScriptCitation } from "@/lib/gemini/reply-format";
-import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
+import {
+  extractMentionedCompetitor,
+  getHeroProduct,
+  mentionsCompetitor,
+  mentionsHeroProduct,
+  type SalesQuestionProfile,
+} from "@/lib/gemini/sales-question-profile";
 import {
   DATA_AGENT_FORMAT_BULLET_MAX_CHARS,
   DATA_AGENT_FORMAT_MAX_BULLETS,
@@ -16,6 +22,42 @@ export const SALES_DIRECT_REPLY_RULES = `回覆格式（必守）：
 - ${SALES_REPLY_LENGTH_HINT}；每點以事實或話術動作開頭（建議、可強調、重點、可回覆），保留關鍵數據或連結即可，避免長篇鋪陳
 - 不要表格、SQL、英文標題、### 小標、**粗體**、markdown 列點符號（- 或 * 開頭）
 - 只寫知識庫有的內容；與汽車銷售無關的問題請明說題庫無法回答，勿硬扯產品`;
+
+/** 競品素材防禦：避免 Gemini 變成對手業務（Grounded / 摘要共用） */
+export const SALES_COMPETITOR_DEFENSE_RULES = `【競品特色防禦性轉化規範（嚴格執行）】
+1. 你的唯一身份是「裕隆日產汽車銷售培訓助理」。任務是協助 NISSAN 業代賣車，不是幫競品（如 XFORCE、TUCSON L、MUFASA、CR-V、Sportage）做廣告。
+2. 知識庫若出現對手優點、配備或感性讚美（如：頭等享受、超乎想像、同級最寬敞、霸氣姿態、省油霸主），「絕對禁止」直接認同或以推銷口吻複製。
+3. 必須將競品資訊轉化為「業代可發揮的抗衡點」或「攻防引導話術」：先中性一句帶過競品宣稱，再轉向本品可強調之處。
+4. 列點（Bullets）語氣：
+   - 嚴禁：「強調競品具備…」「推銷競品擁有…」「可強調 XFORCE 的…」「建議可強調競品…」等替競品背書的句型。
+   - 必須：「提醒業代，競品主打…，可引導客戶對比本品 ○○ 擁有…」「若客戶提到…，可回覆…」等防守型對戰語氣。
+5. 若片段僅有競品行銷、無本品對比，intro 應寫「可這樣轉化話術…」，勿當競品代言人。`;
+
+/** 問句或分類涉及競品時注入防禦規範 */
+export function shouldApplyCompetitorDefense(
+  profile?: SalesQuestionProfile,
+  message = "",
+): boolean {
+  const rival =
+    profile?.mentionedCompetitor ??
+    (message ? extractMentionedCompetitor(message) : null);
+  if (profile?.category === "competitor") return true;
+  if (!rival) return false;
+  if (mentionsHeroProduct(message) && /比較|對比|vs|相較|對戰/i.test(message)) return true;
+  return mentionsCompetitor(message) && !mentionsHeroProduct(message);
+}
+
+export function buildCompetitorDefenseRules(
+  profile?: SalesQuestionProfile,
+  message = "",
+): string {
+  if (!shouldApplyCompetitorDefense(profile, message)) return "";
+  const rival =
+    profile?.mentionedCompetitor ??
+    (message ? extractMentionedCompetitor(message) : null);
+  const hero = profile?.heroProduct.displayName ?? getHeroProduct().displayName;
+  return `${SALES_COMPETITOR_DEFENSE_RULES}\n- 本品主力：${hero}${rival ? `；題庫競品／問句焦點：${rival}` : ""}`;
+}
 
 /** 要求 Data Agent 從 BQ 拉出可核對的具體內容（勿只回「有檔案／可試算」） */
 export const SALES_DATA_AGENT_QUERY_RULES = `請查詢已連結的 BigQuery 知識庫，**以資料內容為主**回答。
@@ -62,9 +104,10 @@ export function buildCategoryFormatRules(profile: SalesQuestionProfile): string 
     const label = rival ?? "競品";
     return `
 【競品整理】
-- 小結第一句必須寫「${label} vs ${hero}」的關鍵差異（含金額或配備差）
+- 小結第一句必須寫「${label} vs ${hero}」的關鍵差異（含金額或配備差）；若問句只問競品特色，仍須點出可如何轉化話術對比 ${hero}
 - 至少一列「競品比較：…」彙整差額；同車系油電/汽油內比只能放在其他列點，不可取代競品小結
-- 摘錄有 ${hero} 數字而原文未寫者，必須納入`;
+- 摘錄有 ${hero} 數字而原文未寫者，必須納入
+- 列點禁止替競品推銷；須用防守型對戰語氣（見競品防禦規範）`;
   }
 
   if (profile.category === "sales_qa") {

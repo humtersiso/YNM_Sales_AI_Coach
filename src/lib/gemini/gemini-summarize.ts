@@ -1,9 +1,17 @@
 import type { ScriptCitation } from "@/lib/gemini/reply-format";
 import {
+  buildCitationMarkerHardLimit,
+  buildCitationMarkerRules,
+  buildKnowledgeXmlContext,
+  type CitationCard,
+} from "@/lib/gemini/citation-card";
+import { prepareCitationCards } from "@/lib/gemini/citation-utils";
+import {
   buildBulletReplyFromText,
   isUsableReply,
   normalizeReplyLine,
   polishSalesReply,
+  sanitizeReplyCitationMarkers,
 } from "@/lib/gemini/reply-format";
 import {
   SALES_REPLY_LENGTH_HINT,
@@ -16,12 +24,12 @@ import {
   getDataAgentConfig,
 } from "@/lib/gemini/gemini-client";
 import {
+  buildCompetitorDefenseRules,
   buildSummarizeCategoryRules,
 } from "@/lib/gemini/sales-reply-directives";
 import {
   isSalesChatFastMode,
   summarizeContextCharLimit,
-  summarizeMaxCitations,
   summarizeMaxOutputTokens,
 } from "@/lib/gemini/sales-chat-speed";
 import {
@@ -43,18 +51,25 @@ function looksLikeTableDump(text: string): boolean {
   return false;
 }
 
-function buildContextBlock(citations: ScriptCitation[]): string {
-  const maxCites = isSalesChatFastMode()
-    ? Math.min(4, summarizeMaxCitations())
-    : summarizeMaxCitations();
+function buildContextBlock(citations: ScriptCitation[]): {
+  xml: string;
+  maxDocId: number;
+  markerRules: string;
+} {
   const charLimit = summarizeContextCharLimit();
-  return citations
-    .slice(0, maxCites)
-    .map((c) => {
-      const script = c.script.slice(0, charLimit);
-      return `[來源${c.index}] 檔名/標題：${c.question}\n內容：${script}`;
-    })
-    .join("\n\n---\n\n");
+  const prep = prepareCitationCards(citations);
+  const cards: CitationCard[] = prep.cards.map((c) => ({
+    ...c,
+    excerpt: c.excerpt.slice(0, charLimit),
+  }));
+  const markerRules = buildCitationMarkerRules(cards.length);
+  const markerHardLimit = buildCitationMarkerHardLimit(cards.length);
+  return {
+    xml: buildKnowledgeXmlContext(cards, charLimit),
+    maxDocId: cards.length,
+    markerRules,
+    markerHardLimit,
+  };
 }
 
 function extractJsonPayload(raw: string): string {
@@ -96,21 +111,28 @@ export async function summarizeCitationsWithGemini(
 
   const resolvedProfile = profile ?? classifySalesQuestion(userQuestion);
   const categoryRules = buildSummarizeCategoryRules(resolvedProfile);
+  const competitorDefense = buildCompetitorDefenseRules(resolvedProfile, userQuestion);
   const context = buildContextBlock(citations);
-  const prompt = `你是裕隆日產汽車銷售培訓助理。只能根據下方「知識庫摘錄」回答，不可編造摘錄中沒有的資訊。
+  const prompt = `你是裕隆日產汽車銷售培訓助理。只能根據下方 <Knowledge_Base> 回答，不可編造。
+
+${context.markerHardLimit}
+
+${context.markerRules}
+${competitorDefense ? `\n${competitorDefense}\n` : ""}
 
 業務問題：${userQuestion}
 問題分類：${resolvedProfile.category}
 
 ${categoryRules}
 
-知識庫摘錄：
-${context}
+<Knowledge_Base>
+${context.xml}
+</Knowledge_Base>
 
 輸出 JSON（勿加 markdown 程式碼區塊）：
 {
-  "intro": "直接回答問題的一句話（可含來源檔名；禁止「這份摘要」「以下整理」）",
-  "bullets": ["重點1", "重點2", "..."]
+  "intro": "直接回答（引用處加 [id]；禁止「這份摘要」「以下整理」）",
+  "bullets": ["重點1[1]", "重點2[2]", "..."]
 }
 
 規則：
@@ -124,7 +146,10 @@ ${context}
 - 若業務問題問馬力、扭力、油耗、尺寸等規格，摘錄中有具體數字必須寫入 intro 或 bullets；摘錄僅有形容詞而無數字時，intro 須說明「引用段落未載明具體數值」
 - 若問持有成本、用車成本、長期成本或「詳細數字」：必須逐項列出摘錄中的金額（元、萬元）、里程前提（如 8 萬公里、16 萬公里）、X-TRAIL 與競品差額；禁止只寫「項目架構」「未載明數據」而摘錄中其實有數字
 - 若業務問題提及摘錄中未出現的車款、代號或名詞（例如 UFO、非題庫車型），intro 必須明確說明「知識庫無此名詞資料」，不可改介紹其他車款來代替回答
-- 禁止答非所問：不可忽略問題主體，僅介紹摘錄裡與另一車款有關的內容`;
+- 禁止答非所問：不可忽略問題主體，僅介紹摘錄裡與另一車款有關的內容
+
+${context.markerHardLimit}
+${context.markerRules}`;
 
   const raw = await geminiGenerateText(prompt, {
     json: true,
@@ -134,16 +159,20 @@ ${context}
   if (!raw) return null;
 
   const parsed = parseJsonReply(raw);
-  if (parsed) return parsed;
+  if (parsed) {
+    const clean = sanitizeReplyCitationMarkers(parsed.intro, parsed.bullets, context.maxDocId);
+    return { intro: clean.intro, bullets: clean.bullets, source: parsed.source };
+  }
 
   if (looksLikeTableDump(raw) || !isUsableReply(raw)) return null;
   if (raw.includes('"intro"') || raw.includes('"bullets"')) return null;
 
   const fallback = buildBulletReplyFromText(raw);
   if (fallback.bullets.length === 0) return null;
+  const clean = sanitizeReplyCitationMarkers(fallback.intro, fallback.bullets, context.maxDocId);
   return {
-    intro: fallback.intro,
-    bullets: fallback.bullets,
+    intro: clean.intro,
+    bullets: clean.bullets,
     source: "parse-fallback",
   };
 }

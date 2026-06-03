@@ -2,7 +2,7 @@ import type { KnowledgeSearchScope } from "@/lib/knowledge/search-scope";
 import { searchKnowledgeByPlan } from "@/lib/gemini/knowledge-search-planned";
 import { buildKnowledgeReply } from "@/lib/gemini/knowledge-reply";
 import { streamIntroFromCitations, summarizeCitationsWithGemini } from "@/lib/gemini/gemini-summarize";
-import { prepareDisplayCitations } from "@/lib/gemini/citation-utils";
+import { prepareCitationCards } from "@/lib/gemini/citation-utils";
 import { notInQuestionBankMessage, type ScriptCitation } from "@/lib/gemini/reply-format";
 import {
   resolveSearchPlanWithProfile,
@@ -15,6 +15,7 @@ import {
   inactiveProductLineMessage,
 } from "@/lib/gemini/inactive-product-guard";
 import { assessSalesQueryAnswerability } from "@/lib/gemini/query-relevance-guard";
+import { isSpecQuestion } from "@/lib/gemini/sales-question-profile";
 import { outOfScopeKnowledgeMessage } from "@/lib/gemini/reply-format";
 
 export type { SalesChatStreamEvent, KnowledgeSearchPlan };
@@ -40,11 +41,13 @@ function noMatch(message: string): SalesChatResult {
   };
 }
 
-function success(intro: string, bullets: string[], citations: ScriptCitation[]): SalesChatResult {
+function success(intro: string, bullets: string[], rawCitations: ScriptCitation[]): SalesChatResult {
+  const prep = prepareCitationCards(rawCitations);
   return {
     reply: intro,
     bullets,
-    citations: prepareDisplayCitations(citations),
+    citations: prep.cards,
+    citationsOverflow: prep.overflowCount > 0 ? prep.overflowCount : undefined,
     inQuestionBank: true,
   };
 }
@@ -96,11 +99,10 @@ export async function chatWithSalesAgent(
 
   if (citations.length === 0) return noMatch(message);
 
-  const displayCitations = prepareDisplayCitations(citations);
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
   });
-  if (!answerability.ok) {
+  if (!answerability.ok && !isSpecQuestion(message, profile)) {
     return {
       reply: answerability.userReply ?? outOfScopeKnowledgeMessage(answerability.unknownTerms),
       bullets: [],
@@ -115,7 +117,7 @@ export async function chatWithSalesAgent(
     const gemini = await summarizeCitationsWithGemini(message, citations, profile);
     if (gemini && gemini.bullets.length > 0) {
       const intro = gemini.intro || buildKnowledgeReply(message, citations).intro;
-      return success(intro, gemini.bullets, displayCitations);
+      return success(intro, gemini.bullets, citations);
     }
   } catch (e) {
     console.error("Gemini summarize failed in agent mode", e);
@@ -123,7 +125,7 @@ export async function chatWithSalesAgent(
 
   const local = buildKnowledgeReply(message, citations);
   if (local.bullets.length === 0) return noMatch(message);
-  return success(local.intro, local.bullets, local.displayCitations);
+  return success(local.intro, local.bullets, citations);
 }
 
 /** 串流：先吐 intro 打字，再回傳完整 bullets */
@@ -191,11 +193,10 @@ export async function* streamSalesAgentChat(
     return;
   }
 
-  const displayCitations = prepareDisplayCitations(citations);
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
   });
-  if (!answerability.ok) {
+  if (!answerability.ok && !isSpecQuestion(message, profile)) {
     yield {
       type: "done",
       result: {
@@ -225,7 +226,7 @@ export async function* streamSalesAgentChat(
     if (gemini && gemini.bullets.length > 0) {
       yield {
         type: "done",
-        result: success(gemini.intro || "", gemini.bullets, displayCitations),
+        result: success(gemini.intro || "", gemini.bullets, citations),
       };
       return;
     }
@@ -236,6 +237,6 @@ export async function* streamSalesAgentChat(
   const local = buildKnowledgeReply(message, citations);
   yield {
     type: "done",
-    result: success(local.intro, local.bullets, local.displayCitations),
+    result: success(local.intro, local.bullets, citations),
   };
 }

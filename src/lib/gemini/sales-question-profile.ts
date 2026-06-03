@@ -1,10 +1,11 @@
 import type { MaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
 import { getProductLine } from "@/lib/ingest/contracts/training-product-registry";
+import { isSpecNumericQuery } from "@/lib/gemini/spec-query-expand";
 import type { KnowledgeSearchScope } from "@/lib/knowledge/search-scope";
 import { getDefaultSalesProductLine } from "@/lib/knowledge/search-scope";
 
-/** 業代問題三類（後端隱藏，不送前端） */
-export type SalesQuestionCategory = "own_product" | "competitor" | "sales_qa";
+/** 業代問題分類（後端隱藏，不送前端） */
+export type SalesQuestionCategory = "own_product" | "competitor" | "sales_qa" | "spec";
 
 export type SalesQuestionProfile = {
   category: SalesQuestionCategory;
@@ -75,6 +76,7 @@ export function salesCategoryToMaterialCategory(
 ): MaterialCategory {
   if (category === "competitor") return "competitor_compare";
   if (category === "sales_qa") return "sales_script";
+  if (category === "spec") return "product_info";
   return "product_info";
 }
 
@@ -85,6 +87,14 @@ export function materialCategoryToSalesCategory(
   if (cat === "sales_script") return "sales_qa";
   if (cat === "product_info") return "own_product";
   return null;
+}
+
+/** 純硬體規格追問（馬力、扭力、油耗等） */
+export function isSpecQuestion(
+  message: string,
+  profile?: { category?: SalesQuestionCategory },
+): boolean {
+  return profile?.category === "spec" || isSpecNumericQuery(message);
 }
 
 export function isOffTopicMessage(message: string): boolean {
@@ -106,7 +116,9 @@ export function classifySalesQuestionByRules(message: string): SalesQuestionProf
 
   let category: SalesQuestionCategory;
 
-  if (hasQa && !competitor && !hasBattle) {
+  if (isSpecNumericQuery(t) && !hasQa) {
+    category = "spec";
+  } else if (hasQa && !competitor && !hasBattle) {
     category = "sales_qa";
   } else if (
     competitor ||
@@ -141,7 +153,7 @@ export function classifySalesQuestionByRules(message: string): SalesQuestionProf
     materialCategory: salesCategoryToMaterialCategory(category),
     confidence,
     heroProduct,
-    mentionedCompetitor: category === "competitor" ? competitor : null,
+    mentionedCompetitor: competitor,
     routedBy: "rules",
   };
 }
@@ -202,8 +214,7 @@ export function profileFromMaterialCategory(
     materialCategory: salesCategoryToMaterialCategory(mapped),
     confidence: base.confidence,
     heroProduct: base.heroProduct,
-    mentionedCompetitor:
-      mapped === "competitor" ? extractMentionedCompetitor(message) : null,
+    mentionedCompetitor: extractMentionedCompetitor(message),
     routedBy,
   };
 }

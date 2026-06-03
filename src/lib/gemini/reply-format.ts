@@ -12,6 +12,8 @@ export type ScriptCitation = {
   index: number;
   question: string;
   script: string;
+  /** 引用位置，如「第 11 頁」 */
+  page?: string;
   /** 引用標題列顯示用，如「客戶問」「素材來源」 */
   sourceLabel?: string;
   /** 引用內文列顯示用，如「建議話術」「報導摘要」 */
@@ -323,7 +325,7 @@ export function extractBulletPoints(text: string, maxBullets = MAX_BULLETS): str
   }
 
   const byKeyword = normalized
-    .split(/(?=(?:建議|強調|說明|可強調|可回覆|重點是|最後|應將|可再以|亦可|重申))/g)
+    .split(/(?=(?:建議|強調|說明|可強調|可回覆|重點在於|重點是|最後|應將|可再以|亦可|重申))/g)
     .map((c) => c.trim())
     .filter((c) => c.length > 8)
     .map(trimBullet);
@@ -360,6 +362,26 @@ export function isUsableReply(text: string): boolean {
   const t = text.trim();
   if (!t || t.includes("[object Object]")) return false;
   return true;
+}
+
+/** 移除超出本次 Doc 範圍的 [id] 幻覺標籤（如僅 5 則卻出現 [10]） */
+export function stripInvalidCitationMarkers(text: string, maxDocId: number): string {
+  const max = Math.max(1, maxDocId);
+  return text.replace(/\[(\d{1,2})\]/g, (full, n) => {
+    const id = Number(n);
+    return id >= 1 && id <= max ? full : "";
+  });
+}
+
+export function sanitizeReplyCitationMarkers(
+  intro: string,
+  bullets: string[],
+  maxDocId: number,
+): { intro: string; bullets: string[] } {
+  return {
+    intro: stripInvalidCitationMarkers(intro, maxDocId),
+    bullets: bullets.map((b) => stripInvalidCitationMarkers(b, maxDocId)),
+  };
 }
 
 export function isValidCitation(c: ScriptCitation): boolean {
@@ -490,6 +512,72 @@ export function sanitizeDataAgentDisplay(intro: string, bullets: string[]): {
     intro: summary,
     bullets: deduped.length > 0 ? deduped : cleanedBullets,
   };
+}
+
+/** 從 Gemini 原文取出「列點前」的一句結論（對齊早上 grounded log 格式） */
+export function extractIntroBeforeBullets(raw: string): string {
+  const lines = raw.replace(/\r\n/g, "\n").split("\n");
+  const parts: string[] = [];
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t || /^[-–—*]+$/.test(t)) continue;
+    if (/^[-*•]\s+/.test(t)) break;
+    if (/^\d+[.)）]\s/.test(t)) break;
+    parts.push(normalizeReplyLine(t.replace(/^#{1,6}\s*/, "")));
+  }
+  return parts.join(" ").trim().slice(0, SALES_REPLY_INTRO_MAX_CHARS);
+}
+
+/**
+ * Grounded 回覆：一句 intro + 列點（勿用 rawText 前 280 字當 intro，否則列點會重複顯示兩次）
+ */
+export function parseGroundedReplyDisplay(raw: string): { intro: string; bullets: string[] } {
+  const text = raw.replace(/\r\n/g, "\n").trim();
+  if (!text) return { intro: "", bullets: [] };
+
+  const markerParts = text.split(/\n---\s*條列\s*---\n/i);
+  if (markerParts.length > 1) {
+    const intro = markerParts[0]!.trim();
+    const bulletBlock = markerParts.slice(1).join("\n");
+    const listed = formatMarkdownReplyToDisplay(bulletBlock);
+    if (listed.bullets.length > 0) {
+      return {
+        intro: intro || extractIntroBeforeBullets(text),
+        bullets: listed.bullets,
+      };
+    }
+  }
+
+  const parsed = formatMarkdownReplyToDisplay(text);
+  if (parsed.bullets.length > 0) {
+    const intro = parsed.intro.trim() || extractIntroBeforeBullets(text);
+    return { intro, bullets: parsed.bullets };
+  }
+
+  const fromKeywords = buildBulletReplyFromText(text);
+  if (fromKeywords.bullets.length >= 2) {
+    return {
+      intro: fromKeywords.intro.trim() || extractIntroBeforeBullets(text),
+      bullets: fromKeywords.bullets,
+    };
+  }
+
+  const paras = text
+    .split(/\n{2,}/)
+    .map((p) => normalizeReplyLine(p.trim()))
+    .filter((p) => p.length > 24 && !isMetaSentence(p));
+  if (paras.length >= 2) {
+    return {
+      intro: extractIntroBeforeBullets(paras[0]!) || paras[0]!,
+      bullets: paras.slice(1).slice(0, SALES_REPLY_MAX_BULLETS),
+    };
+  }
+
+  const intro =
+    parsed.intro.trim() ||
+    extractIntroBeforeBullets(text) ||
+    normalizeReplyLine(text).trim().slice(0, SALES_REPLY_INTRO_MAX_CHARS);
+  return { intro, bullets: fromKeywords.bullets };
 }
 
 /** 有列點時只顯示重點，不顯示 Insights 等標題／導言 */

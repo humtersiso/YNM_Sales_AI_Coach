@@ -58,11 +58,25 @@ export function getRagHybridSearchAlpha(): number | null {
   return 0.45;
 }
 
-export function buildRagRetrievalConfig(topK: number): Record<string, unknown> {
+function specHybridAlphaForWeaviate(): number | null {
+  const vectorDb = (process.env.RAG_VECTOR_DB ?? "ragManagedDb").trim().toLowerCase();
+  if (vectorDb !== "weaviate") return null;
+
+  const raw = (process.env.RAG_SPEC_HYBRID_ALPHA ?? "0.25").trim();
+  const n = Number(raw);
+  if (Number.isNaN(n)) return null;
+  return Math.min(1, Math.max(0, n));
+}
+
+export function buildRagRetrievalConfig(
+  topK: number,
+  options?: { specQuery?: boolean },
+): Record<string, unknown> {
   const config: Record<string, unknown> = {
     top_k: Math.min(Math.max(topK, 1), 20),
   };
-  const alpha = getRagHybridSearchAlpha();
+  /** ragManagedDb（KNN）不支援 hybrid_search；規格題勿強送否則 retrieveContexts 400 → 0 hits */
+  const alpha = options?.specQuery ? specHybridAlphaForWeaviate() : getRagHybridSearchAlpha();
   if (alpha != null) {
     config.hybrid_search = { alpha };
   }

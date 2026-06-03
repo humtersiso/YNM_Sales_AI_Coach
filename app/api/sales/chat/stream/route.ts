@@ -3,11 +3,9 @@ import { readSalesSession, readSession } from "@/lib/auth/session";
 import { formatSalesReplyForUsageLog } from "@/lib/analytics/reply-log-format";
 import { insertUsageEvent } from "@/lib/bq/usage-events";
 import type { SalesChatResult } from "@/lib/gemini/sales-chat-types";
-import { streamSalesAgentChat } from "@/lib/gemini/sales-agent-orchestrator";
 import type { MaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
 import { normalizeMaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
-import { resolveSalesChatMode } from "@/lib/gemini/sales-chat-mode";
-import { chatWithDataAgent } from "@/lib/gemini/conversational-analytics";
+import { streamSalesChat } from "@/lib/gemini/conversational-analytics";
 import { getDefaultSalesProductLine } from "@/lib/knowledge/search-scope";
 
 export const runtime = "nodejs";
@@ -43,7 +41,6 @@ export async function POST(request: NextRequest) {
     materialCategory: materialCategory as MaterialCategory | null,
   };
 
-  const mode = resolveSalesChatMode();
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -51,29 +48,8 @@ export async function POST(request: NextRequest) {
       const push = (obj: unknown) => controller.enqueue(encoder.encode(ndjson(obj)));
 
       try {
-        if (mode !== "agent") {
-          push({
-            type: "status",
-            text: mode === "data-agent" ? "Data Agent 查詢知識庫中…" : "正在查詢知識庫…",
-          });
-          const result = await chatWithDataAgent(message, scope);
-          push({ type: "done", result });
-          await insertUsageEvent({
-            userId: session.userId,
-            username: session.displayName || session.username,
-            branch: session.branch ?? "",
-            assistantType: "sales",
-            questionKind: "bank",
-            question: message,
-            replySummary: formatSalesReplyForUsageLog(result),
-            inQuestionBank: result.inQuestionBank,
-          }).catch(() => null);
-          controller.close();
-          return;
-        }
-
         let finalResult: SalesChatResult | null = null;
-        for await (const event of streamSalesAgentChat(message, scope)) {
+        for await (const event of streamSalesChat(message, scope)) {
           push(event);
           if (event.type === "done") finalResult = event.result;
         }

@@ -7,6 +7,13 @@ import {
   formatRagSourceTitle,
 } from "@/lib/rag/rag-citation-format";
 import {
+  extractRagChunkSourceMeta,
+  extractRagChunkText,
+  logRawRagHit,
+} from "@/lib/rag/vertex-rag-chunk-parse";
+
+const GS_PREFIX = /^gs:\/\/[^/]+\//;
+import {
   buildRagRetrievalConfig,
   getRagCorpusForCategory,
   getRagEngineLocation,
@@ -38,11 +45,17 @@ function isReauthError(message: string): boolean {
 /**
  * Vertex AI RAG Engine（retrieveContexts，Spanner / 託管向量庫）
  */
+export type VertexRagSearchOptions = {
+  /** 規格題：提高 BM25 權重（hybrid alpha≈0.25） */
+  specQuery?: boolean;
+};
+
 export async function searchVertexRagCorpus(
   ragCorpusResource: string,
   query: string,
   materialCategory: MaterialCategory,
   topK = 8,
+  options?: VertexRagSearchOptions,
 ): Promise<RagChunkHit[]> {
   const q = query.trim();
   if (!q || !ragCorpusResource.includes("/ragCorpora/")) return [];
@@ -63,7 +76,7 @@ export async function searchVertexRagCorpus(
     );
   }
 
-  const retrievalConfig = buildRagRetrievalConfig(topK);
+  const retrievalConfig = buildRagRetrievalConfig(topK, { specQuery: options?.specQuery });
   if (process.env.NODE_ENV === "development") {
     const alpha = getRagHybridSearchAlpha();
     console.info("[rag] retrieveContexts config", {
@@ -106,28 +119,38 @@ export async function searchVertexRagCorpus(
   }
 
   const rows = json.contexts?.contexts ?? [];
+  if (
+    rows.length > 0 &&
+    (process.env.NODE_ENV === "development" || process.env.RAG_DEBUG_RAW_HIT === "1")
+  ) {
+    console.info("[rag] GCP RAG RAW retrieveContexts[0]:", JSON.stringify(rows[0]).slice(0, 1200));
+  }
   const hits: RagChunkHit[] = [];
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
-    const snippet = (row.chunk?.text ?? row.text ?? "").trim();
+    logRawRagHit("retrieveContexts", row, i);
+    const snippet = extractRagChunkText(row).trim();
     if (!snippet || snippet.length < 4) continue;
-    const fileName = (row.sourceDisplayName ?? row.sourceUri ?? "RAG 片段").trim();
-    const pageSpan = row.chunk?.pageSpan;
-    const page =
-      pageSpan?.firstPage != null
-        ? { first: pageSpan.firstPage, last: pageSpan.lastPage }
-        : undefined;
+    const { fileName, page, uri } = extractRagChunkSourceMeta(row);
     const title = formatRagSourceTitle(fileName, page);
     const relevance = typeof row.score === "number" ? Math.round((1 - row.score) * 100) : 100 - i;
+    const pageLabel =
+      page?.first != null
+        ? page.last != null && page.last !== page.first
+          ? `第 ${page.first}–${page.last} 頁`
+          : `第 ${page.first} 頁`
+        : undefined;
     const cq = extractCustomerQuestionFromRagSnippet(snippet);
     hits.push({
       title: cq ? `${cq.slice(0, 80)} · ${title}` : title,
       snippet,
-      uri: row.sourceUri
-        ? `${row.sourceUri}${page?.first ? `#page=${page.first}` : ""}`
+      uri: uri
+        ? `${uri}${page?.first ? `#page=${page.first}` : ""}`
         : undefined,
       materialCategory,
       relevance: Math.max(relevance, 1),
+      sourceFileName: fileName.replace(GS_PREFIX, ""),
+      pageLabel,
     });
   }
   return hits;

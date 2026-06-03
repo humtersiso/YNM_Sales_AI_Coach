@@ -3,10 +3,12 @@ import { prioritizeHitsForQuestion } from "@/lib/gemini/citation-prioritize";
 import type { KnowledgeSearchPlan } from "@/lib/gemini/sales-intent-router";
 import { extractFileHints } from "@/lib/gemini/knowledge-search";
 import {
-  augmentSpecQueryForSearch,
-  expandSpecSearchTerms,
-  isSpecNumericQuery,
-} from "@/lib/gemini/spec-query-expand";
+  buildPrimarySearchQuery,
+  buildRetrievalChannels,
+  isDualChannelComparison,
+  isSpecRetrievalRoute,
+} from "@/lib/gemini/retrieval-query-builder";
+import { expandSpecSearchTerms, isSpecNumericQuery } from "@/lib/gemini/spec-query-expand";
 import { rerankKnowledgeHits, type RerankedKnowledgeHit } from "@/lib/gemini/knowledge-rerank";
 import { blobContainsTerm } from "@/lib/gemini/han-fold";
 import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
@@ -51,8 +53,8 @@ function corporaForPlan(
   profile?: SalesQuestionProfile,
   message = "",
 ): MaterialCategory[] {
-  if (isSpecNumericQuery(message)) {
-    return ["competitor_compare", "product_info", "sales_script"];
+  if (isSpecNumericQuery(message) || profile?.category === "spec") {
+    return ["product_info", "competitor_compare"];
   }
 
   const mentionedCompetitor = extractMentionedCompetitor(message);
@@ -84,8 +86,8 @@ function corporaForPlan(
   return ["sales_script", "competitor_compare", "product_info"];
 }
 
-function buildSearchQuery(message: string, plan: KnowledgeSearchPlan): string {
-  let q = augmentSpecQueryForSearch(message);
+function buildSearchQuery(message: string, plan: KnowledgeSearchPlan, profile?: SalesQuestionProfile): string {
+  let q = buildPrimarySearchQuery(message, profile);
   const parts = new Set<string>();
   for (const h of [...(plan.extraFileHints ?? []), ...extractFileHints(message)]) {
     if (h) parts.add(h);
@@ -98,6 +100,8 @@ function buildSearchQuery(message: string, plan: KnowledgeSearchPlan): string {
   if (parts.size === 0) return q.trim();
   return `${[...parts].slice(0, 8).join(" ")} ${q}`.trim();
 }
+
+import { mergeRagHitsByRrf } from "@/lib/rag/rag-hit-merge";
 
 /** 將本次要查的 category 對應到不重複的 data store */
 function storesForCategories(
@@ -181,36 +185,73 @@ export async function searchKnowledgeByPlanRag(
   warnIfRagPartiallyConfigured();
   assertRagConfigured();
 
-  const query = buildSearchQuery(message, plan);
+  const query = buildSearchQuery(message, plan, profile);
   const categories = corporaForPlan(plan, profile, message);
   const topK = retrievalResultLimit(plan.limit ?? 8) ?? 8;
   const mentionedCompetitor = extractMentionedCompetitor(message);
   const basePerStore = Math.max(4, Math.ceil(topK / Math.max(categories.length, 1)));
-
-  const targets = storesForCategories(categories);
-  if (targets.length === 0) return [];
-
   const vertex = useVertexRagEngineApi();
-  const lists = await Promise.all(
-    targets.map(async ({ ragCorpusResource, dataStoreResource, categories: cats, primary }) => {
-      const perStore =
-        mentionedCompetitor && cats.includes("competitor_compare")
-          ? Math.max(basePerStore, 12)
-          : basePerStore;
-      const raw =
-        vertex && ragCorpusResource.includes("/ragCorpora/")
-          ? await searchVertexRagCorpus(ragCorpusResource, query, primary, perStore)
-          : await searchDiscoveryEngineDatastore(
-              dataStoreResource ?? "",
-              query,
-              primary,
-              perStore,
-            );
-      return filterHitsForCategories(raw, cats);
-    }),
-  );
+  const specRoute = isSpecRetrievalRoute(message, profile);
+  const dualChannel = profile && isDualChannelComparison(message, profile);
+  const multiChannel = vertex && (dualChannel || specRoute);
+  const specPerChannelK = Number(process.env.RAG_SPEC_RETRIEVAL_TOP_K ?? "6") || 6;
+  const perChannelTopK = multiChannel
+    ? specRoute
+      ? specPerChannelK
+      : Math.max(4, Math.ceil(topK / 2))
+    : basePerStore;
 
-  let merged = dedupeRagHits(lists.flat());
+  let merged: RagChunkHit[];
+
+  if (multiChannel) {
+    const channels = buildRetrievalChannels(message, profile);
+    const lists = await Promise.all(
+      channels.map(async (ch) => {
+        const corpus = getRagCorpusForCategory(ch.materialCategory);
+        if (!corpus?.ragCorpusResource.includes("/ragCorpora/")) return [] as RagChunkHit[];
+        return searchVertexRagCorpus(
+          corpus.ragCorpusResource,
+          ch.query,
+          ch.materialCategory,
+          perChannelTopK,
+          { specQuery: specRoute },
+        );
+      }),
+    );
+    merged = mergeRagHitsByRrf(lists.filter((l) => l.length > 0));
+    if (process.env.NODE_ENV === "development") {
+      console.info("[sales] rag multi-channel", {
+        specRoute,
+        dualChannel: !!dualChannel,
+        channels: channels.map((c) => ({ label: c.label, cat: c.materialCategory, q: c.query.slice(0, 48) })),
+        hits: merged.length,
+        perChannelTopK,
+      });
+    }
+  } else {
+    const targets = storesForCategories(categories);
+    if (targets.length === 0) return [];
+
+    const lists = await Promise.all(
+      targets.map(async ({ ragCorpusResource, dataStoreResource, categories: cats, primary }) => {
+        const perStore =
+          mentionedCompetitor && cats.includes("competitor_compare")
+            ? Math.max(basePerStore, 12)
+            : basePerStore;
+        const raw =
+          vertex && ragCorpusResource.includes("/ragCorpora/")
+            ? await searchVertexRagCorpus(ragCorpusResource, query, primary, perStore)
+            : await searchDiscoveryEngineDatastore(
+                dataStoreResource ?? "",
+                query,
+                primary,
+                perStore,
+              );
+        return filterHitsForCategories(raw, cats);
+      }),
+    );
+    merged = dedupeRagHits(lists.flat());
+  }
 
   /** 競品名素材在向量排序常落在中後段；主池仍缺時以較大 topK 補查 competitor 庫 */
   if (
@@ -243,7 +284,8 @@ export async function searchKnowledgeByPlanRag(
   reranked = prioritizeHitsForQuestion(message, reranked);
   reranked = ensureMentionedCompetitorInRerank(message, reranked, topK ?? 8);
 
-  const finalHits: RagChunkHit[] = reranked.slice(0, topK).map((s) => ({
+  const rerankPoolCap = specRoute ? Math.max(topK, 12) : topK;
+  const finalHits: RagChunkHit[] = reranked.slice(0, rerankPoolCap).map((s) => ({
     title: s.customer_question ?? s.title ?? "",
     snippet: s.standard_script ?? "",
     materialCategory: (s.material_category ?? "general") as MaterialCategory,
@@ -270,7 +312,8 @@ export async function searchKnowledgeByPlanRag(
       api: vertex ? "vertex-rag-engine" : "discovery-engine",
       corpora: listConfiguredRagCorpora().map((c) => c.materialCategory),
       queried: categories,
-      stores: targets.length,
+      dualChannel: !!dualChannel,
+      specRoute,
       hits: displayHits.length,
       pool: finalHits.length,
       top: displayHits[0].title?.slice(0, 40),

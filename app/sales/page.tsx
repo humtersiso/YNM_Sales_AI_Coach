@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChatThread, type ChatMessage } from "@/components/mobile/ChatThread";
-import type { ScriptCitation } from "@/lib/gemini/reply-format";
+import type { CitationCard } from "@/lib/gemini/citation-display";
 import type { SessionUser } from "@/lib/auth/session";
 
 function newId() {
@@ -64,7 +64,8 @@ export default function SalesChatPage() {
           reply?: string;
           error?: string;
           bullets?: string[];
-          citations?: ScriptCitation[];
+          citations?: CitationCard[];
+          citationsOverflow?: number;
           allowAddRequest?: boolean;
           question?: string;
         };
@@ -82,6 +83,7 @@ export default function SalesChatPage() {
                   content: data.reply ?? "暫時無法產生回覆，請換個方式提問。",
                   bullets: data.bullets,
                   citations: data.citations,
+                  citationsOverflow: data.citationsOverflow,
                   allowAddRequest: data.allowAddRequest,
                   questionForAdd: data.allowAddRequest ? (data.question ?? text) : undefined,
                 }
@@ -114,10 +116,13 @@ export default function SalesChatPage() {
             type?: string;
             text?: string;
             message?: string;
+            citations?: CitationCard[];
+            citationsOverflow?: number;
             result?: {
               reply?: string;
               bullets?: string[];
-              citations?: ScriptCitation[];
+              citations?: CitationCard[];
+              citationsOverflow?: number;
               allowAddRequest?: boolean;
               question?: string;
             };
@@ -136,6 +141,21 @@ export default function SalesChatPage() {
                   : x,
               ),
             );
+          } else if (event.type === "citations_ready" && event.citations) {
+            setMessages((m) =>
+              m.map((x) =>
+                x.id === pendingId
+                  ? {
+                      ...x,
+                      role: "assistant",
+                      content: x.content || "已找到相關資料，正在整理回覆…",
+                      citations: event.citations,
+                      citationsOverflow: event.citationsOverflow,
+                      pending: true,
+                    }
+                  : x,
+              ),
+            );
           } else if (event.type === "intro_delta" && event.text) {
             setMessages((m) =>
               m.map((x) =>
@@ -151,15 +171,22 @@ export default function SalesChatPage() {
             );
           } else if (event.type === "done" && event.result) {
             const r = event.result;
+            const finalReply = (r.reply ?? "").trim();
+            const streamed = (x: ChatMessage) =>
+              typeof x.content === "string" ? x.content.trim() : "";
             setMessages((m) =>
               m.map((x) =>
                 x.id === pendingId
                   ? {
                       id: pendingId,
                       role: "assistant",
-                      content: r.reply ?? x.content ?? "",
+                      content:
+                        finalReply ||
+                        streamed(x) ||
+                        "暫時無法產生回覆，請換個方式提問。",
                       bullets: r.bullets,
                       citations: r.citations,
+                      citationsOverflow: r.citationsOverflow,
                       allowAddRequest: r.allowAddRequest,
                       questionForAdd: r.allowAddRequest ? (r.question ?? text) : undefined,
                       pending: false,

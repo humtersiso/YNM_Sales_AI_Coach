@@ -1,14 +1,14 @@
 import type { KnowledgeSearchScope } from "@/lib/knowledge/search-scope";
 import { dataAgentChat } from "@/lib/gemini/gemini-client";
 import { tryBuildSpecNumericReply } from "@/lib/gemini/spec-value-extract";
-import { looksLikeTableDump, summarizeCitationsWithGemini } from "@/lib/gemini/gemini-summarize";
+import {
+  looksLikeTableDump,
+  streamIntroFromCitations,
+  summarizeCitationsWithGemini,
+} from "@/lib/gemini/gemini-summarize";
 import { buildKnowledgeReply } from "@/lib/gemini/knowledge-reply";
 import { searchKnowledgeCitations } from "@/lib/gemini/knowledge-search";
 import { searchKnowledgeByPlan } from "@/lib/gemini/knowledge-search-planned";
-import {
-  chatWithSalesAgent,
-  resolveSearchPlanWithProfile,
-} from "@/lib/gemini/sales-agent-orchestrator";
 import {
   formatMarkdownReplyToDisplay,
   isUsableReply,
@@ -18,7 +18,8 @@ import {
 } from "@/lib/gemini/reply-format";
 import { formatDataAgentOutputForSales } from "@/lib/gemini/data-agent-refine";
 import { buildDataAgentRawPrompt } from "@/lib/gemini/sales-reply-directives";
-import { prepareDisplayCitations } from "@/lib/gemini/citation-utils";
+import type { CitationCard } from "@/lib/gemini/citation-card";
+import { prepareCitationCards } from "@/lib/gemini/citation-utils";
 import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
 import {
   canUseDataAgent,
@@ -33,14 +34,24 @@ import {
   inactiveProductLineMessage,
 } from "@/lib/gemini/inactive-product-guard";
 import { assessSalesQueryAnswerability } from "@/lib/gemini/query-relevance-guard";
+import { isSpecQuestion } from "@/lib/gemini/sales-question-profile";
 import { outOfScopeKnowledgeMessage } from "@/lib/gemini/reply-format";
 import { RagSearchError } from "@/lib/rag/discovery-engine-search";
 import { isRagKnowledgeBackend } from "@/lib/knowledge/knowledge-backend";
-import { chatWithVertexRagGrounding } from "@/lib/rag/vertex-rag-grounded-chat";
+import {
+  chatWithVertexRagGrounding,
+  streamVertexRagGroundedChat,
+} from "@/lib/rag/vertex-rag-grounded-chat";
+import {
+  chatWithSalesAgent,
+  resolveSearchPlanWithProfile,
+  streamSalesAgentChat,
+} from "@/lib/gemini/sales-agent-orchestrator";
+import { chatWithRawRagRetrieval } from "@/lib/rag/rag-raw-chat";
 
 export type { ScriptCitation };
-export type { SalesChatResult } from "@/lib/gemini/sales-chat-types";
-import type { SalesChatResult } from "@/lib/gemini/sales-chat-types";
+export type { SalesChatResult, SalesChatStreamEvent } from "@/lib/gemini/sales-chat-types";
+import type { SalesChatResult, SalesChatStreamEvent } from "@/lib/gemini/sales-chat-types";
 
 function isMockChatEnabled() {
   const flag = (process.env.USE_MOCK_CHAT ?? "false").toLowerCase();
@@ -72,19 +83,21 @@ function outOfScopeResult(message: string, reply: string): SalesChatResult {
 function successResult(
   intro: string,
   bullets: string[],
-  citations: ScriptCitation[],
+  rawCitations: ScriptCitation[],
 ): SalesChatResult {
+  const prep = prepareCitationCards(rawCitations);
   return {
     reply: intro,
     bullets,
-    citations,
+    citations: prep.cards,
+    citationsOverflow: prep.overflowCount > 0 ? prep.overflowCount : undefined,
     inQuestionBank: true,
   };
 }
 
 function localReply(message: string, citations: ScriptCitation[]) {
-  const { intro, bullets, displayCitations } = buildKnowledgeReply(message, citations);
-  return { intro, bullets, displayCitations };
+  const { intro, bullets } = buildKnowledgeReply(message, citations);
+  return { intro, bullets };
 }
 
 async function tryDataAgentReply(
@@ -142,24 +155,39 @@ async function tryGroundedRagChat(
   try {
     const grounded = await chatWithVertexRagGrounding(message, profile);
     if (!grounded.rawText.trim() && grounded.citations.length === 0) {
+      if (isSpecQuestion(message, profile)) {
+        console.warn("[sales] spec grounded empty → fallback retrieve pipeline");
+        return "fallback";
+      }
       return noMatchResult(message);
     }
 
-    const displayCitations = prepareDisplayCitations(grounded.citations);
     const answerability = assessSalesQueryAnswerability(message, grounded.citations, {
       questionCategory: profile.category,
     });
-    if (!answerability.ok && displayCitations.length === 0) {
+    if (!answerability.ok && grounded.citations.length === 0) {
       return outOfScopeResult(
         message,
         answerability.userReply ?? outOfScopeKnowledgeMessage(),
       );
     }
 
+    const hasAnswer =
+      grounded.intro.trim().length > 0 ||
+      grounded.bullets.length > 0 ||
+      grounded.rawText.trim().length > 0;
+    if (!hasAnswer && grounded.citations.length === 0) {
+      return noMatchResult(message);
+    }
+    if (!hasAnswer) {
+      console.warn("[sales] grounded empty gemini text, fallback retrieve pipeline");
+      return "fallback";
+    }
+
     return successResult(
       grounded.intro,
       grounded.bullets,
-      displayCitations,
+      grounded.citations,
     );
   } catch (e) {
     console.error("RAG Grounding failed", e);
@@ -278,20 +306,19 @@ async function chatWithRetrievePipeline(
     return noMatchResult(message);
   }
 
-  const displayCitations = prepareDisplayCitations(citations);
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
   });
-  if (!answerability.ok) {
+  if (!answerability.ok && !isSpecQuestion(message, profile)) {
     return outOfScopeResult(
       message,
       answerability.userReply ?? outOfScopeKnowledgeMessage(answerability.unknownTerms),
     );
   }
 
-  const specDirect = tryBuildSpecNumericReply(message, displayCitations);
+  const specDirect = tryBuildSpecNumericReply(message, citations);
   if (specDirect && specDirect.bullets.length > 0) {
-    return successResult(specDirect.intro, specDirect.bullets, displayCitations);
+    return successResult(specDirect.intro, specDirect.bullets, citations);
   }
 
   // 快路徑：已有 citations 時直接用 Gemini 整理，略過 Data Agent（省 5–15 秒）
@@ -306,7 +333,7 @@ async function chatWithRetrievePipeline(
       const gemini = await summarizeCitationsWithGemini(message, citations, profile);
       if (gemini && gemini.bullets.length > 0) {
         const intro = gemini.intro || localReply(message, citations).intro;
-        return successResult(intro, gemini.bullets, displayCitations);
+        return successResult(intro, gemini.bullets, citations);
       }
     } catch (e) {
       console.error("Gemini summarize (fast path) failed", e);
@@ -314,7 +341,7 @@ async function chatWithRetrievePipeline(
     if (neverCallDataAgent()) {
       const local = localReply(message, citations);
       if (local.bullets.length > 0) {
-        return successResult(local.intro, local.bullets, local.displayCitations);
+        return successResult(local.intro, local.bullets, citations);
       }
       return noMatchResult(message);
     }
@@ -324,7 +351,7 @@ async function chatWithRetrievePipeline(
     try {
       const agent = await tryDataAgentReply(message, citations, profile);
       if (agent && (agent.intro || agent.bullets.length > 0)) {
-        return successResult(agent.intro, agent.bullets, displayCitations);
+        return successResult(agent.intro, agent.bullets, citations);
       }
     } catch (e) {
       console.error("Data Agent failed, fallback to hybrid", e);
@@ -336,7 +363,7 @@ async function chatWithRetrievePipeline(
       const gemini = await summarizeCitationsWithGemini(message, citations, profile);
       if (gemini && gemini.bullets.length > 0) {
         const intro = gemini.intro || localReply(message, citations).intro;
-        return successResult(intro, gemini.bullets, displayCitations);
+        return successResult(intro, gemini.bullets, citations);
       }
     } catch (e) {
       console.error("Gemini summarize failed, fallback to local", e);
@@ -347,7 +374,7 @@ async function chatWithRetrievePipeline(
     try {
       const agent = await tryDataAgentReply(message, citations, profile);
       if (agent && (agent.intro || agent.bullets.length > 0)) {
-        return successResult(agent.intro, agent.bullets, displayCitations);
+        return successResult(agent.intro, agent.bullets, citations);
       }
     } catch (e) {
       console.error("Data Agent hybrid fallback failed", e);
@@ -359,7 +386,7 @@ async function chatWithRetrievePipeline(
     return noMatchResult(message);
   }
 
-  return successResult(local.intro, local.bullets, local.displayCitations);
+  return successResult(local.intro, local.bullets, citations);
 }
 
 /** @deprecated 相容舊名稱 */
@@ -388,6 +415,10 @@ export async function chatWithDataAgent(
 
   const mode = resolveSalesChatMode();
 
+  if (mode === "rag-raw" && isRagKnowledgeBackend()) {
+    return chatWithRawRagRetrieval(message);
+  }
+
   if (mode === "agent") {
     return chatWithSalesAgent(message, scope);
   }
@@ -398,4 +429,162 @@ export async function chatWithDataAgent(
   }
 
   return chatWithRetrievePipeline(message, scope, mode);
+}
+
+/**
+ * 串流問答：grounded / hybrid 先推 citations，再打字輸出；agent 走原串流管線。
+ */
+export async function* streamSalesChat(
+  message: string,
+  scope: KnowledgeSearchScope = {},
+): AsyncGenerator<SalesChatStreamEvent> {
+  if (isMockChatEnabled()) {
+    yield { type: "done", result: noMatchResult(message) };
+    return;
+  }
+
+  const mode = resolveSalesChatMode();
+
+  if (mode === "rag-raw" && isRagKnowledgeBackend()) {
+    const result = await chatWithRawRagRetrieval(message);
+    yield { type: "done", result };
+    return;
+  }
+
+  if (mode === "agent") {
+    yield* streamSalesAgentChat(message, scope);
+    return;
+  }
+
+  if (mode === "grounded" && isRagKnowledgeBackend()) {
+    const inactiveProduct = detectInactiveProductLine(message, scope);
+    if (inactiveProduct) {
+      yield {
+        type: "done",
+        result: noMatchResult(message, inactiveProductLineMessage(inactiveProduct)),
+      };
+      return;
+    }
+
+    const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
+    if (plan.intent === "off_topic") {
+      yield {
+        type: "done",
+        result: {
+          reply: "此問題與汽車銷售知識庫無關，目前無法回答。若有 X-TRAIL、競品對戰、話術或配備相關問題，歡迎再問。",
+          bullets: [],
+          citations: [],
+          inQuestionBank: false,
+          allowAddRequest: false,
+          question: message,
+        },
+      };
+      return;
+    }
+
+    yield* streamVertexRagGroundedChat(message, profile);
+    return;
+  }
+
+  yield { type: "status", text: "正在查詢知識庫…" };
+
+  const inactiveProduct = detectInactiveProductLine(message, scope);
+  if (inactiveProduct) {
+    yield {
+      type: "done",
+      result: noMatchResult(message, inactiveProductLineMessage(inactiveProduct)),
+    };
+    return;
+  }
+
+  const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
+
+  const preCheck = assessSalesQueryAnswerability(message, [], {
+    questionCategory: profile.category,
+  });
+  if (!preCheck.ok && preCheck.userReply && !isSpecQuestion(message, profile)) {
+    yield { type: "done", result: outOfScopeResult(message, preCheck.userReply) };
+    return;
+  }
+
+  if (plan.intent === "off_topic") {
+    yield {
+      type: "done",
+      result: {
+        reply: "此問題與汽車銷售知識庫無關，目前無法回答。",
+        bullets: [],
+        citations: [],
+        inQuestionBank: false,
+        allowAddRequest: false,
+        question: message,
+      },
+    };
+    return;
+  }
+
+  let citations: ScriptCitation[] = [];
+  try {
+    citations = await searchKnowledgeByPlan(message, plan, profile);
+  } catch (e) {
+    console.error("stream pipeline search failed", e);
+    yield { type: "error", message: "知識庫查詢失敗" };
+    yield { type: "done", result: noMatchResult(message) };
+    return;
+  }
+
+  if (citations.length === 0) {
+    yield { type: "done", result: noMatchResult(message) };
+    return;
+  }
+
+  const answerability = assessSalesQueryAnswerability(message, citations, {
+    questionCategory: profile.category,
+  });
+  if (!answerability.ok && !isSpecQuestion(message, profile)) {
+    yield {
+      type: "done",
+      result: outOfScopeResult(
+        message,
+        answerability.userReply ?? outOfScopeKnowledgeMessage(answerability.unknownTerms),
+      ),
+    };
+    return;
+  }
+
+  const prep = prepareCitationCards(citations);
+  yield {
+    type: "citations_ready",
+    citations: prep.cards,
+    citationsOverflow: prep.overflowCount > 0 ? prep.overflowCount : undefined,
+  };
+
+  yield { type: "status", text: "正在整理回覆…" };
+
+  if (canUseGeminiSummarize()) {
+    try {
+      for await (const delta of streamIntroFromCitations(message, citations, profile)) {
+        yield { type: "intro_delta", text: delta };
+      }
+      const gemini = await summarizeCitationsWithGemini(message, citations, profile);
+      if (gemini && gemini.bullets.length > 0) {
+        yield {
+          type: "done",
+          result: successResult(
+            gemini.intro || localReply(message, citations).intro,
+            gemini.bullets,
+            citations,
+          ),
+        };
+        return;
+      }
+    } catch (e) {
+      console.error("stream summarize failed", e);
+    }
+  }
+
+  const local = localReply(message, citations);
+  yield {
+    type: "done",
+    result: successResult(local.intro, local.bullets, citations),
+  };
 }

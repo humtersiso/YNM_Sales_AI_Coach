@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { cleanInlineMarkdown, type ScriptCitation } from "@/lib/gemini/reply-format";
+import { cleanInlineMarkdown } from "@/lib/gemini/reply-format";
 import {
-  CITATION_SECTION_TITLE,
-} from "@/lib/gemini/citation-labels";
-import { AppIcon } from "@/components/icons/AppIcon";
+  stripInlineCitationMarkers,
+  type CitationCard,
+} from "@/lib/gemini/citation-display";
+import { CitationDetailSheet, CitationSourceNumbers } from "@/components/mobile/CitationPanel";
 
 export type ChatMessage = {
   id: string;
@@ -13,27 +14,45 @@ export type ChatMessage = {
   content: string;
   bullets?: string[];
   pending?: boolean;
-  citations?: ScriptCitation[];
+  citations?: CitationCard[];
+  citationsOverflow?: number;
   allowAddRequest?: boolean;
   questionForAdd?: string;
   addRequestSubmitted?: boolean;
 };
 
-function ThinkingBubble() {
+const MARKDOWN_BULLET_LINE = /^[-*•]\s+/;
+
+/** 有獨立列點區時，正文勿再顯示 markdown 列點行 */
+function introOnlyForDisplay(content: string, hasBullets: boolean): string {
+  const t = content.trim();
+  if (!hasBullets) return t;
+  return t
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !MARKDOWN_BULLET_LINE.test(line))
+    .join("\n")
+    .trim();
+}
+
+function ThinkingBubble({ hint }: { hint?: string }) {
   return (
-    <div className="flex items-center gap-2 text-[15px] text-emerald-800">
-      <span>思考中</span>
-      <span className="thinking-dots inline-flex gap-1" aria-hidden>
-        <span />
-        <span />
-        <span />
-      </span>
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-2 text-[15px] text-emerald-800">
+        <span>思考中</span>
+        <span className="thinking-dots inline-flex gap-1" aria-hidden>
+          <span />
+          <span />
+          <span />
+        </span>
+      </div>
+      {hint ? <p className="text-[13px] leading-snug text-emerald-700/90">{hint}</p> : null}
     </div>
   );
 }
 
 function formatBulletLine(text: string): ReactNode {
-  const plain = cleanInlineMarkdown(text);
+  const plain = stripInlineCitationMarkers(cleanInlineMarkdown(text));
   const kw = plain.match(/^(建議|可強調|重點|可回覆|說明)([：:，,]?\s*)([\s\S]+)/);
   if (kw) {
     return (
@@ -59,36 +78,18 @@ function formatBulletLine(text: string): ReactNode {
 function BulletList({ bullets }: { bullets: string[] }) {
   if (bullets.length === 0) return null;
   return (
-    <ul className="mt-2 list-none space-y-2.5 pl-0">
-      {bullets.map((b, i) => (
-        <li key={i} className="flex gap-2 text-[16px] leading-relaxed text-zinc-800">
-          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
-          <span className="whitespace-pre-line">{formatBulletLine(b)}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function CitationFootnotes({ citations }: { citations: ScriptCitation[] }) {
-  return (
-    <div className="mt-3 border-t border-emerald-100 pt-2">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-emerald-800">
-        <span className="mr-0.5 inline-flex items-center gap-1">
-          <AppIcon name="link" size={14} className="text-emerald-700" />
-          {CITATION_SECTION_TITLE}
-        </span>
-        {citations.map((c) => (
-          <span
-            key={c.index}
-            className="inline-flex max-w-full items-center rounded bg-emerald-50 px-2 py-0.5 text-[13px] leading-snug text-emerald-900 ring-1 ring-emerald-100"
-            title={c.sourceLabel ?? "來源"}
-          >
-            <span className="mr-1 font-semibold text-emerald-700">{c.index}.</span>
-            <span className="truncate">{c.question}</span>
-          </span>
+    <div className="mt-3">
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+        列點
+      </p>
+      <ul className="list-none space-y-2.5 pl-0">
+        {bullets.map((b, i) => (
+          <li key={i} className="flex gap-2 text-[16px] leading-relaxed text-zinc-800">
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
+            <span className="whitespace-pre-line">{formatBulletLine(b)}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -126,18 +127,31 @@ function AddToBankPrompt({
 function AssistantBubble({
   message,
   onAddToBank,
+  onOpenCitation,
 }: {
   message: ChatMessage;
   onAddToBank?: (messageId: string, question: string) => Promise<void>;
+  onOpenCitation: (id: number) => void;
 }) {
   const [addBusy, setAddBusy] = useState(false);
-  const { content, bullets, citations, allowAddRequest, questionForAdd, addRequestSubmitted } = message;
+  const {
+    content,
+    bullets,
+    citations,
+    citationsOverflow,
+    allowAddRequest,
+    questionForAdd,
+    addRequestSubmitted,
+  } = message;
 
+  const hasBullets = Boolean(bullets && bullets.length > 0);
   const safeIntro =
     typeof content === "string" && !content.includes("[object Object]")
-      ? cleanInlineMarkdown(content)
+      ? stripInlineCitationMarkers(
+          cleanInlineMarkdown(introOnlyForDisplay(content, hasBullets)),
+        )
       : "";
-  const hasBullets = Boolean(bullets && bullets.length > 0);
+  const hasCitations = Boolean(citations && citations.length > 0);
 
   async function handleAdd() {
     if (!questionForAdd || !onAddToBank || addRequestSubmitted) return;
@@ -156,23 +170,20 @@ function AssistantBubble({
       ) : (
         <>
           {safeIntro ? (
-            <div className={hasBullets ? "mb-2" : undefined}>
-              {hasBullets ? (
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
-                  小結
-                </p>
-              ) : null}
-              <p
-                className={`whitespace-pre-line text-[16px] leading-relaxed ${
-                  hasBullets ? "font-medium text-emerald-950" : "text-zinc-800"
-                }`}
-              >
-                {safeIntro}
-              </p>
-            </div>
+            <p className="whitespace-pre-line text-[16px] leading-relaxed text-zinc-800">
+              {safeIntro}
+            </p>
           ) : null}
-          {bullets && bullets.length > 0 ? <BulletList bullets={bullets} /> : null}
-          {citations && citations.length > 0 ? <CitationFootnotes citations={citations} /> : null}
+
+          {hasBullets ? <BulletList bullets={bullets!} /> : null}
+
+          {hasCitations ? (
+            <CitationSourceNumbers
+              citations={citations!}
+              overflowCount={citationsOverflow ?? 0}
+              onOpenCitation={onOpenCitation}
+            />
+          ) : null}
         </>
       )}
       {allowAddRequest && questionForAdd ? (
@@ -194,32 +205,59 @@ export function ChatThread({
   messages: ChatMessage[];
   onAddToBank?: (messageId: string, question: string) => Promise<void>;
 }) {
+  const [activeCitation, setActiveCitation] = useState<{
+    card: CitationCard;
+  } | null>(null);
+
+  function openCitation(id: number, fromMessage?: CitationCard[]) {
+    const card = fromMessage?.find((c) => c.id === id);
+    if (card) setActiveCitation({ card });
+  }
+
   return (
-    <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-1 py-2">
-      {messages.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-dashed border-emerald-200 bg-white/70 px-4 py-6 text-center text-sm text-emerald-800">
-          試著問：「TERRITORY_YT負評影片 在哪裡? 還有相關的資訊有?」或「客戶擔心 X-TRAIL 油耗怎麼回？」
-        </div>
-      ) : null}
-      {messages.map((m) => (
-        <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-          <div
-            className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-[15px] ${
-              m.role === "user"
-                ? "rounded-br-md bg-emerald-700 text-white"
-                : "rounded-bl-md border border-emerald-100 bg-white text-zinc-800 shadow-sm"
-            }`}
-          >
-            {m.pending ? (
-              <ThinkingBubble />
-            ) : m.role === "assistant" ? (
-              <AssistantBubble message={m} onAddToBank={onAddToBank} />
-            ) : (
-              <p className="whitespace-pre-wrap">{m.content}</p>
-            )}
+    <>
+      <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-1 py-2">
+        {messages.length === 0 ? (
+          <div className="mt-8 rounded-2xl border border-dashed border-emerald-200 bg-white/70 px-4 py-6 text-center text-sm text-emerald-800">
+            試著問：「TERRITORY_YT負評影片 在哪裡? 還有相關的資訊有?」或「客戶擔心 X-TRAIL 油耗怎麼回？」
           </div>
-        </div>
-      ))}
-    </div>
+        ) : null}
+        {messages.map((m) => (
+          <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-[15px] ${
+                m.role === "user"
+                  ? "rounded-br-md bg-emerald-700 text-white"
+                  : "rounded-bl-md border border-emerald-100 bg-white text-zinc-800 shadow-sm"
+              }`}
+            >
+              {m.pending ? (
+                <ThinkingBubble
+                  hint={(() => {
+                    const citeLen = m.citations?.length ?? 0;
+                    if (citeLen > 0) return `已找到 ${citeLen} 則來源，正在整理回覆…`;
+                    const status = (m.content ?? "").trim();
+                    if (status.includes("檢索") || status.includes("整理")) return status;
+                    return undefined;
+                  })()}
+                />
+              ) : m.role === "assistant" ? (
+                <AssistantBubble
+                  message={m}
+                  onAddToBank={onAddToBank}
+                  onOpenCitation={(id) => openCitation(id, m.citations)}
+                />
+              ) : (
+                <p className="whitespace-pre-wrap">{m.content}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      <CitationDetailSheet
+        card={activeCitation?.card ?? null}
+        onClose={() => setActiveCitation(null)}
+      />
+    </>
   );
 }

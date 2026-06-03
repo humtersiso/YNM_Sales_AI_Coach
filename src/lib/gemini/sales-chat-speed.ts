@@ -16,7 +16,7 @@ function isUnlimitedToken(raw: string): boolean {
 
 /** 總開關：啟用一組加速策略（略過冗餘 Data Agent、精簡檢索） */
 export function isSalesChatFastMode(): boolean {
-  return envFlag("SALES_CHAT_FAST", true);
+  return envFlag("SALES_CHAT_FAST", false);
 }
 
 /** 固定 BQ 已命中 citations 時，略過 Data Agent（通常可省 5–15 秒） */
@@ -43,8 +43,15 @@ export function summarizeContextCharLimit(): number {
 
 export function summarizeMaxOutputTokens(): number {
   const n = Number(process.env.SALES_SUMMARIZE_MAX_OUTPUT_TOKENS ?? "");
-  if (!Number.isNaN(n) && n > 0) return Math.min(n, 1200);
-  return isSalesChatFastMode() ? 480 : 900;
+  if (!Number.isNaN(n) && n > 0) return Math.min(n, 2048);
+  return isSalesChatFastMode() ? 1024 : 1536;
+}
+
+/** RAG Grounding 生成上限（串流／非串流共用；防禦話術需較長輸出） */
+export function groundingMaxOutputTokens(): number {
+  const n = Number(process.env.RAG_GROUNDING_MAX_OUTPUT_TOKENS ?? "");
+  if (!Number.isNaN(n) && n > 0) return Math.min(n, 2048);
+  return isSalesChatFastMode() ? 1024 : 1536;
 }
 
 /** 語意檢索（需 embedding 表；fast 模式預設關閉） */

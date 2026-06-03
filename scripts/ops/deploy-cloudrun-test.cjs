@@ -2,14 +2,29 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 
+const webRoot = path.join(__dirname, "..", "..");
 const projectId = process.env.DEPLOY_PROJECT_ID || "gen-lang-client-0927009312";
 const region = process.env.DEPLOY_REGION || "asia-east1";
 const service = process.env.DEPLOY_SERVICE || "ynm-web-test";
 const image = `gcr.io/${projectId}/${service}:latest`;
-const envFile = "deploy/cloudrun-test.env.yaml";
-const secretsYaml = "deploy/cloudrun-test.secrets.yaml";
+const envFile = path.join(webRoot, "deploy/cloudrun-test.env.yaml");
+const secretsYaml = path.join(webRoot, "deploy/cloudrun-test.secrets.yaml");
+
+/** Cursor 等非互動 shell 常無法用 gcloud user creds；ADC 登入後可自動 fallback */
+function ensureGcloudAuthEnv() {
+  if (process.env.CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE) return;
+  const adc = path.join(
+    process.env.APPDATA || process.env.HOME || "",
+    "gcloud",
+    "application_default_credentials.json",
+  );
+  if (adc && fs.existsSync(adc)) {
+    process.env.CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE = adc;
+  }
+}
 
 function run(command, args) {
+  ensureGcloudAuthEnv();
   const r = spawnSync(command, args, { stdio: "inherit", shell: true });
   if (r.status !== 0) {
     process.exit(r.status || 1);
@@ -49,7 +64,7 @@ function writeMergedEnvFile() {
       }
     }
   }
-  const tmp = path.join(__dirname, "..", ".deploy-tmp", "cloudrun-test-merged.env.yaml");
+  const tmp = path.join(webRoot, ".deploy-tmp", "cloudrun-test-merged.env.yaml");
   fs.mkdirSync(path.dirname(tmp), { recursive: true });
   fs.writeFileSync(tmp, merged, "utf8");
   return tmp;
@@ -67,6 +82,10 @@ function getServiceUrl() {
   return (r.stdout || "").trim();
 }
 
+const envOnly =
+  process.argv.includes("--env-only") ||
+  ["1", "true", "yes"].includes(String(process.env.DEPLOY_ENV_ONLY ?? "").trim().toLowerCase());
+
 const mergedEnv = writeMergedEnvFile();
 const geminiKey = resolveGeminiApiKey();
 if (!geminiKey) {
@@ -78,7 +97,27 @@ if (!geminiKey) {
   console.log("[deploy] 將帶入 GEMINI_API_KEY（長度 %d）", geminiKey.length);
 }
 
-run("gcloud", ["builds", "submit", "--tag", image, "--project", projectId]);
+if (!envOnly) {
+  run("gcloud", ["builds", "submit", webRoot, "--tag", image, "--project", projectId]);
+} else {
+  console.log("[deploy] DEPLOY_ENV_ONLY=1 — 略過映像建置，僅更新服務設定");
+}
+/** 已知 test 服務網址，併入首次 deploy 省掉第二輪 revision（約 30–60 秒） */
+const knownServiceUrl =
+  process.env.CLOUDRUN_URL?.trim() ||
+  `https://${service}-653828324568.${region}.run.app`;
+let mergedForDeploy = fs.readFileSync(mergedEnv, "utf8");
+if (!/^APP_PUBLIC_URL:/m.test(mergedForDeploy)) {
+  mergedForDeploy += `\nAPP_PUBLIC_URL: "${knownServiceUrl}"\n`;
+} else {
+  mergedForDeploy = mergedForDeploy.replace(
+    /^APP_PUBLIC_URL:.*$/m,
+    `APP_PUBLIC_URL: "${knownServiceUrl}"`,
+  );
+}
+const deployEnv = path.join(webRoot, ".deploy-tmp", "cloudrun-deploy.env.yaml");
+fs.writeFileSync(deployEnv, mergedForDeploy, "utf8");
+
 run("gcloud", [
   "run",
   "deploy",
@@ -91,25 +130,12 @@ run("gcloud", [
   "managed",
   "--allow-unauthenticated",
   "--env-vars-file",
-  mergedEnv,
+  deployEnv,
   "--project",
   projectId,
   "--quiet",
 ]);
 
 const serviceUrl = getServiceUrl();
-run("gcloud", [
-  "run",
-  "services",
-  "update",
-  service,
-  "--region",
-  region,
-  "--project",
-  projectId,
-  "--update-env-vars",
-  `APP_PUBLIC_URL=${serviceUrl}`,
-  "--quiet",
-]);
-
 console.log(`\nDeployed test service: ${serviceUrl}`);
+console.log("僅改 env、不重建映像：npm run deploy:test:env");

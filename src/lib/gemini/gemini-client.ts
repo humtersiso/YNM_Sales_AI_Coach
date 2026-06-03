@@ -177,7 +177,7 @@ async function vertexGenerateWithModel(
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature,
-        maxOutputTokens: options?.maxOutputTokens ?? 900,
+        maxOutputTokens: options?.maxOutputTokens ?? 1536,
         ...(options?.json ? { responseMimeType: "application/json" } : {}),
       },
     }),
@@ -231,7 +231,7 @@ async function geminiApiGenerateText(
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       temperature,
-      maxOutputTokens: options?.maxOutputTokens ?? 900,
+      maxOutputTokens: options?.maxOutputTokens ?? 1536,
       ...(options?.json ? { responseMimeType: "application/json" } : {}),
     },
   };
@@ -425,17 +425,26 @@ export async function* geminiStreamText(
     });
   }
 
-  if (!res?.ok || !res.body) return;
+  if (!res?.ok || !res.body) {
+    if (res && !res.ok) {
+      const err = await res.text().catch(() => "");
+      console.warn("[gemini] streamGenerateContent failed", res.status, err.slice(0, 200));
+    }
+    return;
+  }
 
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
   let accumulated = "";
+  let rawBody = "";
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    const chunk = decoder.decode(value, { stream: true });
+    rawBody += chunk;
+    buffer += chunk;
     const lines = buffer.split("\n");
     buffer = lines.pop() ?? "";
     for (const line of lines) {
@@ -445,8 +454,14 @@ export async function* geminiStreamText(
     }
   }
   if (buffer.trim()) {
-    const { delta } = parseGeminiStreamLine(buffer, accumulated);
+    const { text, delta } = parseGeminiStreamLine(buffer, accumulated);
+    accumulated = text;
     if (delta) yield delta;
+  }
+
+  if (!accumulated.trim() && rawBody.trim()) {
+    const recovered = extractReplyFromStreamBody(rawBody);
+    if (recovered) yield recovered;
   }
 }
 

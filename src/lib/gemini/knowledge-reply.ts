@@ -1,4 +1,5 @@
-import { prepareDisplayCitations } from "@/lib/gemini/citation-utils";
+import type { CitationCard } from "@/lib/gemini/citation-card";
+import { prepareCitationCards } from "@/lib/gemini/citation-utils";
 import { normalizeReplyLine, type ScriptCitation } from "@/lib/gemini/reply-format";
 import { extractFileHints } from "@/lib/gemini/knowledge-search";
 import {
@@ -170,7 +171,7 @@ function summarizeGenericChunks(citations: ScriptCitation[]): string[] {
 export function buildKnowledgeReply(
   message: string,
   citations: ScriptCitation[],
-): { intro: string; bullets: string[]; displayCitations: ScriptCitation[] } {
+): { intro: string; bullets: string[]; displayCitations: CitationCard[] } {
   if (citations.length === 0) {
     return { intro: "", bullets: [], displayCitations: [] };
   }
@@ -190,9 +191,18 @@ export function buildKnowledgeReply(
     return { intro: "", bullets: [], displayCitations: [] };
   }
 
-  const intro =
+  /** 勿僅回傳檔名當正文（Cloud Run Gemini 失敗時的常見異常） */
+  const docTitleIntro =
     grouped.length > 1 ? `《${docLabel}》（${grouped.length} 段來源）` : `《${docLabel}》`;
-  const displayCitations = prepareDisplayCitations(grouped);
+  const leadIdx = bullets.findIndex((b) => b.length >= 24);
+  const leadBullet = leadIdx >= 0 ? bullets[leadIdx]! : "";
+  const intro =
+    leadBullet.length >= 24
+      ? leadBullet.slice(0, Math.min(leadBullet.length, SALES_REPLY_BULLET_MAX_CHARS))
+      : docTitleIntro;
+  const displayBullets =
+    leadIdx === 0 && bullets.length > 1 ? bullets.slice(1) : leadIdx > 0 ? bullets : bullets;
+  const prep = prepareCitationCards(grouped);
 
-  return { intro, bullets, displayCitations };
+  return { intro, bullets: displayBullets, displayCitations: prep.cards };
 }

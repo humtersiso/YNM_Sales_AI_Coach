@@ -1,6 +1,6 @@
 import { questionSimilarity } from "@/lib/analytics/question-dedup";
 import { extractFileHints, extractSearchKeywords } from "@/lib/gemini/knowledge-search";
-import { extractMentionedCompetitor } from "@/lib/gemini/sales-question-profile";
+import { extractMentionedCompetitor, isSpecQuestion } from "@/lib/gemini/sales-question-profile";
 import { blobContainsTerm, hanFold } from "@/lib/gemini/han-fold";
 import type { ScriptCitation } from "@/lib/gemini/reply-format";
 import { outOfScopeKnowledgeMessage } from "@/lib/gemini/reply-format";
@@ -73,7 +73,7 @@ export type SalesAnswerability = {
 };
 
 export type SalesAnswerabilityOptions = {
-  questionCategory?: "own_product" | "competitor" | "sales_qa";
+  questionCategory?: "own_product" | "competitor" | "sales_qa" | "spec";
 };
 
 /**
@@ -88,6 +88,11 @@ export function assessSalesQueryAnswerability(
 ): SalesAnswerability {
   if (BLOCKLIST.some((p) => p.test(message))) {
     return { ok: false, userReply: outOfScopeKnowledgeMessage() };
+  }
+
+  /** 規格題：不套用話術白名單／相似度護欄，直接放行檢索 */
+  if (isSpecQuestion(message, { category: options?.questionCategory })) {
+    return { ok: true };
   }
 
   if (citations.length === 0) {
