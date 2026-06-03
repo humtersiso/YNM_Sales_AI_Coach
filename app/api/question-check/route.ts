@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findBestDuplicate } from "@/lib/duplicate/checker";
-import {
-  ensureStoreLoaded,
-  listDuplicateQuestionsForCheck,
-  runIncomingDuplicateCheck,
-} from "@/lib/excel-store/store";
+import { getKnowledgeBaseForDuplicateCheck } from "@/lib/bq/script-drills-query";
+import { runIncomingDuplicateCheck } from "@/lib/excel-store/store";
 
 type InputPayload = {
   items: Array<{ text: string; source?: string }>;
 };
 
 /**
- * 僅比對是否與目前記憶體中的知識庫（duplicate）重複，**不新增題目**。
- * 題庫／新題請透過編輯 Excel 後「自 Excel 載入」更新。
+ * 比對是否與題庫（BigQuery 話術表）重複。
+ * 非重複者寫入問題流程追蹤（待釐清）。
  */
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => ({}))) as InputPayload;
@@ -20,7 +17,8 @@ export async function POST(request: NextRequest) {
 
   if (!items.length) {
     try {
-      const result = runIncomingDuplicateCheck();
+      const existing = await getKnowledgeBaseForDuplicateCheck();
+      const result = runIncomingDuplicateCheck(existing);
       return NextResponse.json(result);
     } catch (error) {
       return NextResponse.json(
@@ -30,8 +28,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  ensureStoreLoaded();
-  const existing = listDuplicateQuestionsForCheck();
+  const existing = await getKnowledgeBaseForDuplicateCheck();
 
   const rows = items.map((item, index) => {
     const best = findBestDuplicate(item.text, existing);
@@ -41,7 +38,9 @@ export async function POST(request: NextRequest) {
       originalText: item.text.trim(),
       source: item.source?.trim() || "Excel上傳",
       isDuplicate: isDup,
-      suggestedReply: isDup ? best!.suggestedReply : "（未命中知識庫重複題；若需納入題庫請於主 Excel 新增後載入）",
+      suggestedReply: isDup
+        ? best!.suggestedReply
+        : "（未命中知識庫重複題；將進入問題流程追蹤）",
       duplicateScore: best?.score ?? null,
     };
   });

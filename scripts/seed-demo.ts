@@ -14,8 +14,7 @@ import {
 } from "../src/lib/excel-store/store";
 
 const webDir = path.resolve(__dirname, "..");
-const repoRoot = path.resolve(webDir, "..");
-const demoXlsx = path.join(repoRoot, "Demo話術演練資料.xlsx");
+const demoXlsx = path.join(webDir, "data", "Demo話術演練資料.xlsx");
 
 async function main() {
   if (!fs.existsSync(demoXlsx)) {

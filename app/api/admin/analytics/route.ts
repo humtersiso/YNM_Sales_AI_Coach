@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readSession } from "@/lib/auth/session";
 import {
-  computeTopCompetitorQuestions,
+  computeCategoryBreakdown,
+  computeGroupedCompetitorTopics,
+} from "@/lib/analytics/competitor-analytics";
+import {
   computeUsageKpis,
-  filterLeaderboard,
+  computeBranchTopThree,
   filterQueryLogs,
   getBranches,
-  mockLeaderboard,
-  mockQueryLogs,
   type UsageFilters,
-} from "@/lib/mock/usage-analytics";
+} from "@/lib/analytics/usage-analytics";
+import { listUsageLogs } from "@/lib/bq/usage-events";
 
 export async function GET(request: NextRequest) {
   const session = await readSession();
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   const section = request.nextUrl.searchParams.get("section") ?? "usage";
   const branch = request.nextUrl.searchParams.get("branch") ?? undefined;
-  const assistantType = (request.nextUrl.searchParams.get("assistantType") ?? "all") as UsageFilters["assistantType"];
+  const assistantType = request.nextUrl.searchParams.get("assistantType") ?? "sales";
   const tenureMin = request.nextUrl.searchParams.get("tenureMin");
   const tenureMax = request.nextUrl.searchParams.get("tenureMax");
   const dateFrom = request.nextUrl.searchParams.get("dateFrom") ?? undefined;
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   const filters: UsageFilters = {
     branch: branch === "all" ? undefined : branch,
-    assistantType,
+    assistantType: "sales",
     tenureMin: tenureMin ? Number(tenureMin) : undefined,
     tenureMax: tenureMax ? Number(tenureMax) : undefined,
     dateFrom,
@@ -35,22 +37,48 @@ export async function GET(request: NextRequest) {
   };
 
   if (section === "leaderboard") {
+    const allLogs = await listUsageLogs({ assistantType: "sales" });
     return NextResponse.json({
-      branches: getBranches(),
-      rows: filterLeaderboard(mockLeaderboard, branch ?? undefined),
+      branches: getBranches(allLogs),
+      branchCards: computeBranchTopThree(allLogs),
     });
   }
+
+  const sourceLogs = await listUsageLogs({
+    branch,
+    assistantType: assistantType === "roleplay" ? "roleplay" : "sales",
+    dateFrom,
+    dateTo,
+  });
+  const branches = getBranches(sourceLogs);
 
   if (section === "top10") {
-    const logs = filterQueryLogs(mockQueryLogs, filters);
+    const logs = filterQueryLogs(sourceLogs, {
+      ...filters,
+      assistantType: assistantType === "roleplay" ? "roleplay" : "sales",
+    });
+    const salesOnly = assistantType === "roleplay" ? [] : logs;
     return NextResponse.json({
-      items: computeTopCompetitorQuestions(logs, 10),
+      groupedTopics: computeGroupedCompetitorTopics(salesOnly, 85),
+      categoryStats: computeCategoryBreakdown(salesOnly),
+      assistantType,
     });
   }
 
-  const logs = filterQueryLogs(mockQueryLogs, filters);
+  if (assistantType === "roleplay") {
+    return NextResponse.json({
+      assistantType: "roleplay",
+      branches,
+      kpis: { activeAgents: 0, sessionCount: 0, avgScore: 0, avgDurationMin: 0 },
+      roleplayLogs: [],
+    });
+  }
+
+  const logs = filterQueryLogs(sourceLogs, filters);
+
   return NextResponse.json({
-    branches: getBranches(),
+    assistantType: "sales",
+    branches,
     filters,
     kpis: computeUsageKpis(logs),
     logs,

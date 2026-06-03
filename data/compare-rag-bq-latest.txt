@@ -1,0 +1,6 @@
+generated: 2026-06-02T06:01:41.220Z
+bq_baseline: 21/24
+bq_live: 24/24
+rag: 19/24
+rag_better: 2
+rag_worse: 4

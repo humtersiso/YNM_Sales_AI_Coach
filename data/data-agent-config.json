@@ -1,0 +1,36 @@
+﻿{
+    "name":  "projects/gen-lang-client-0927009312/locations/global/dataAgents/agent_f1d18155-a019-4eca-aa61-38b8727de26e",
+    "displayName":  "sales ai QA",
+    "labels":  {
+                   "published_context":  "bq"
+               },
+    "createTime":  "2026-05-18T01:13:44.488129142Z",
+    "updateTime":  "2026-05-18T01:13:50.123966636Z",
+    "dataAnalyticsAgent":  {
+                               "publishedContext":  {
+                                                        "options":  {
+                                                                        "datasource":  {
+
+                                                                                       },
+                                                                        "model":  "MODEL_UNSPECIFIED"
+                                                                    },
+                                                        "datasourceReferences":  {
+                                                                                     "bq":  {
+                                                                                                "tableReferences":  [
+                                                                                                                        {
+                                                                                                                            "projectId":  "gen-lang-client-0927009312",
+                                                                                                                            "datasetId":  "YNM_Sales_AI_Coach",
+                                                                                                                            "tableId":  "sales script"
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                            }
+                                                                                 },
+                                                        "userFunctions":  {
+
+                                                                          }
+                                                    },
+                               "lastPublishedContext":  {
+
+                                                        }
+                           }
+}

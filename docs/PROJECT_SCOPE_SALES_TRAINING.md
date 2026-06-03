@@ -25,6 +25,8 @@
 
 **技術路徑（文字版，與上圖互補）**：詳見 [GEMINI_BQ_DATA_PATH.md](./GEMINI_BQ_DATA_PATH.md)。
 
+**功能責任總表（PoC 對照／上線分工）**：見 [platform-feature-ownership.html](./platform-feature-ownership.html)（瀏覽器開啟即可）。
+
 ---
 
 ## 2. 四大功能

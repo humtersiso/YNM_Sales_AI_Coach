@@ -10,7 +10,7 @@ export async function GET() {
     return NextResponse.json(
       {
         error:
-          "無法載入資料。請確認 Excel 檔存在（見 .env.example 的 EXCEL_SOURCE_PATH），或先按「自 Excel 載入」。",
+          "無法載入資料。請確認 web/data/ 內有 AI話術演練表.xlsx，或設定 EXCEL_MAIN_PATH。",
         experts: [],
       },
       { status: 503 },

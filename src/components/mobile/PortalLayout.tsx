@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AppIcon } from "@/components/icons/AppIcon";
 
 export function PortalLayout({
   title,
@@ -18,14 +19,14 @@ export function PortalLayout({
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <Link
             href={backHref}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-white text-sm text-emerald-800"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-800"
             aria-label="返回"
           >
-            ←
+            <AppIcon name="arrow-left" size={18} />
           </Link>
           <div className="min-w-0">
-            <h1 className="truncate text-base font-semibold text-emerald-950">{title}</h1>
-            {subtitle ? <p className="truncate text-xs text-emerald-700">{subtitle}</p> : null}
+            <h1 className="truncate text-lg font-semibold text-emerald-950">{title}</h1>
+            {subtitle ? <p className="truncate text-sm text-emerald-700">{subtitle}</p> : null}
           </div>
         </div>
       </header>

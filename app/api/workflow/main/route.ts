@@ -1,53 +1,56 @@
-import { NextResponse } from "next/server";
-import { ensureStoreLoaded, getMainWorkbookSummary, loadWorkbookFromBuffer } from "@/lib/excel-store/store";
-import { readQuestionGridExact } from "@/lib/excel-store/grid-reader";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  fetchMainWorkbookFromBq,
+  getAdminFilterOptions,
+  isBigQueryConfigured,
+} from "@/lib/bq/script-drills-query";
+import type { MaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
 
-export async function GET() {
+async function loadFromBigQuery(searchParams: URLSearchParams) {
+  const productLine = searchParams.get("productLine")?.trim() || null;
+  const materialCategory = (searchParams.get("materialCategory")?.trim() ||
+    null) as MaterialCategory | null;
+  const bq = await fetchMainWorkbookFromBq({
+    productLine,
+    materialCategory,
+  });
+  return {
+    workbookPath: bq.dataSourceLabel,
+    duplicateCount: bq.duplicateCount,
+    pendingCount: bq.pendingCount,
+    expertCount: bq.expertCount,
+    tagCount: bq.tagCount,
+    rowsGR: bq.rowsGR,
+    dataSource: bq.source,
+  };
+}
+
+export async function GET(request: NextRequest) {
   try {
-    ensureStoreLoaded();
-    const summary = getMainWorkbookSummary();
-    const rowsGR = readQuestionGridExact(summary.workbookPath, [
-      "問題蒐集對應",
-      "「問題蒐集對應」整理版",
-      "問題蒐集對應(備份)",
-    ]);
-    return NextResponse.json({
-      ...summary,
-      rowsGR,
-    });
+    if (!isBigQueryConfigured()) {
+      return NextResponse.json(
+        {
+          error:
+            "未設定 BigQuery（請在 .env 設定 BIGQUERY_PROJECT_ID、BIGQUERY_DATASET、BIGQUERY_TABLE_SCRIPT_DRILLS）。",
+        },
+        { status: 503 },
+      );
+    }
+    const data = await loadFromBigQuery(request.nextUrl.searchParams);
+    return NextResponse.json({ ...data, filterOptions: getAdminFilterOptions() });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "讀取主庫失敗",
-      },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : "讀取 BigQuery 題庫失敗";
+    console.error("BigQuery main overview failed", error);
+    return NextResponse.json({ error: message }, { status: 503 });
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get("file");
-    if (!(file instanceof File)) {
-      return NextResponse.json({ error: "缺少上傳檔案" }, { status: 400 });
-    }
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const state = loadWorkbookFromBuffer(buffer, file.name || "uploaded-main.xlsx");
-    const summary = getMainWorkbookSummary();
-    const rowsGR = readQuestionGridExact(state.workbookPath, [
-      "問題蒐集對應",
-      "「問題蒐集對應」整理版",
-      "問題蒐集對應(備份)",
-    ]);
-    return NextResponse.json({
-      ...summary,
-      rowsGR,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "匯入主庫資料失敗" },
-      { status: 500 },
-    );
-  }
+/** 主庫改由 BQ 管理；Excel 上傳請使用「匯入與檢查」或 /api/ingest/script-drills */
+export async function POST() {
+  return NextResponse.json(
+    {
+      error: "題庫已改由 BigQuery 管理，請至「匯入與檢查」上傳檔案，或使用話術匯入 API 寫入 BQ。",
+    },
+    { status: 400 },
+  );
 }

@@ -1,0 +1,658 @@
+{
+  "generatedAt": "2026-06-01T01:53:46.514Z",
+  "count": 86,
+  "cases": [
+    {
+      "id": "manual-back-seat",
+      "query": "我覺得XTRAIL後座椅子短不太好坐",
+      "expectQuestionContains": "後座椅子",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-features",
+      "query": "XTRAIL 特色如何?",
+      "expectQuestionContains": "特色",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-fuel-objection",
+      "query": "客戶擔心 X-TRAIL 油耗怎麼回？",
+      "expectQuestionContains": "油耗",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-test-drive",
+      "query": "試乘邀約怎麼說",
+      "expectQuestionContains": "試乘",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-price",
+      "query": "價格優惠話術",
+      "expectQuestionContains": "價格",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-territory-yt",
+      "query": "TERRITORY_YT負評影片 在哪裡?",
+      "expectQuestionContains": "TERRITORY",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-tucson-cost",
+      "query": "TUCSON 長期持有成本",
+      "expectQuestionContains": "TUCSON",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-propilot",
+      "query": "X-TRAIL 有 ProPILOT 嗎",
+      "expectQuestionContains": "ProPILOT",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-low-rpm-noise",
+      "query": "在開車低轉速時，會有異音",
+      "expectQuestionContains": "異音",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-media",
+      "query": "X-TRAIL 媒體報導有哪些亮點",
+      "expectQuestionContains": "媒體",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-1",
+      "query": "TUCSON L 小改款對應話術_20250410_V4.pdf (page 1)",
+      "expectQuestionContains": "小改款對應話",
+      "expectSourceLocator": "{\"page\": 1}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-2",
+      "query": "在開車低轉速時，會有異音",
+      "expectQuestionContains": "在開車低轉速",
+      "expectSourceLocator": "{\"sheet\":\"工作表1\",\"row\":7}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "sales_script"
+    },
+    {
+      "id": "bq-3",
+      "query": "16萬公里油耗成本*",
+      "expectQuestionContains": "萬公里油耗成",
+      "expectSourceLocator": "{\"sheet\":\"油耗\",\"row\":7}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-4",
+      "query": "為什麼你們X-TRAIL試乘起來後座都感覺很晃啊?",
+      "expectQuestionContains": "試乘起來後座",
+      "expectSourceLocator": "{\"sheet\":\"工作表1\",\"row\":8}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "sales_script"
+    },
+    {
+      "id": "bq-4-p",
+      "query": "為什麼你們X-TRAIL試乘起來後座都感覺很晃啊",
+      "expectQuestionContains": "試乘起來後座",
+      "expectSourceLocator": "{\"sheet\":\"工作表1\",\"row\":8}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-4-p",
+      "query": "為什麼你們XTRAIL試乘起來後座都感覺很晃啊?",
+      "expectQuestionContains": "試乘起來後座",
+      "expectSourceLocator": "{\"sheet\":\"工作表1\",\"row\":8}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-7",
+      "query": "TUCSON L TNCAP成績 _ J.D POWER_T33、P15、B18_v4.pdf (page 16)",
+      "expectQuestionContains": "成績",
+      "expectSourceLocator": "{\"page\": 16}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-8",
+      "query": "TUCSON L The new TUCSON L 小改款媒體試駕簡報_0408.pdf (page 19)",
+      "expectQuestionContains": "小改款媒體試",
+      "expectSourceLocator": "{\"page\": 19}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-9",
+      "query": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 5}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-9-p",
+      "query": "KUGA ALL NEW XTRAIL對戰KUGA改款正式話術.pdf (page 5)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 5}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-11",
+      "query": "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6)",
+      "expectQuestionContains": "改款",
+      "expectSourceLocator": "{\"page\": 6}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-11-p",
+      "query": "RAV4 XTRAIL VS RAV4改款_20260327.pdf (page 6)",
+      "expectQuestionContains": "改款",
+      "expectSourceLocator": "{\"page\": 6}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-13",
+      "query": "MUFASA NU2媒體試乘簡報 0514_浮水印版.pdf (page 37)",
+      "expectQuestionContains": "媒體試乘簡報",
+      "expectSourceLocator": "{\"page\": 37}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-14",
+      "query": "MUFASA NU2媒體試乘簡報 0514_浮水印版.pdf (page 26)",
+      "expectQuestionContains": "媒體試乘簡報",
+      "expectSourceLocator": "{\"page\": 26}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-15",
+      "query": "7萬公里定保",
+      "expectQuestionContains": "萬公里定保",
+      "expectSourceLocator": "{\"sheet\":\"使用成本\",\"row\":9}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-16",
+      "query": "累計至 8萬公里定保費用",
+      "expectQuestionContains": "萬公里定保費",
+      "expectSourceLocator": "{\"sheet\":\"使用成本\",\"row\":11}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-17",
+      "query": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 3)",
+      "expectQuestionContains": "對戰話術策略",
+      "expectSourceLocator": "{\"page\": 3}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-17-p",
+      "query": "SPORTAGE XTRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 3)",
+      "expectQuestionContains": "對戰話術策略",
+      "expectSourceLocator": "{\"page\": 3}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-19",
+      "query": "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 5)",
+      "expectQuestionContains": "改款",
+      "expectSourceLocator": "{\"page\": 5}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-19-p",
+      "query": "RAV4 XTRAIL VS RAV4改款_20260327.pdf (page 5)",
+      "expectQuestionContains": "改款",
+      "expectSourceLocator": "{\"page\": 5}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-21",
+      "query": "TUCSON L The new TUCSON L 小改款媒體試駕簡報_0408.pdf (page 16)",
+      "expectQuestionContains": "小改款媒體試",
+      "expectSourceLocator": "{\"page\": 16}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-22",
+      "query": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 1)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 1}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-22-p",
+      "query": "KUGA ALL NEW XTRAIL對戰KUGA改款正式話術.pdf (page 1)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 1}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-24",
+      "query": "TUCSON L The new TUCSON L 小改款媒體試駕簡報_0408.pdf (page 26)",
+      "expectQuestionContains": "小改款媒體試",
+      "expectSourceLocator": "{\"page\": 26}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-25",
+      "query": "X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭力 看起來都略遜於同級對手",
+      "expectQuestionContains": "三台車都是屬",
+      "expectSourceLocator": "{\"sheet\":\"工作表1\",\"row\":9}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "sales_script"
+    },
+    {
+      "id": "bq-25-p",
+      "query": "XTRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下XTRAIL 油耗/動力/扭力 看起來都略遜於同級對手",
+      "expectQuestionContains": "三台車都是屬",
+      "expectSourceLocator": "{\"sheet\":\"工作表1\",\"row\":9}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-27",
+      "query": "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 15)",
+      "expectQuestionContains": "對戰話術",
+      "expectSourceLocator": "{\"page\": 15}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-28",
+      "query": "是否作動偵測",
+      "expectQuestionContains": "是否作動偵測",
+      "expectSourceLocator": "{\"sheet\":\"T33e\",\"row\":21}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "product_info"
+    },
+    {
+      "id": "bq-29",
+      "query": "XFORCE競品話術(vs CC)(FMC)v2.pptx.pdf (page 3)",
+      "expectQuestionContains": "競品話術",
+      "expectSourceLocator": "{\"page\": 3}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-30",
+      "query": "XFORCE_媒體赴日資料.pdf (page 10)",
+      "expectQuestionContains": "媒體赴日資料",
+      "expectSourceLocator": "{\"page\": 10}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-31",
+      "query": "TUCSON L TNCAP成績 _ J.D POWER_T33、P15、B18_v4.pdf (page 19)",
+      "expectQuestionContains": "成績",
+      "expectSourceLocator": "{\"page\": 19}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-32",
+      "query": "TUCSON L 小改款對應話術_20250410_V4.pdf (page 9)",
+      "expectQuestionContains": "小改款對應話",
+      "expectSourceLocator": "{\"page\": 9}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-33",
+      "query": "輪胎(4條)",
+      "expectQuestionContains": "輪胎",
+      "expectSourceLocator": "{\"sheet\":\"使用成本\",\"row\":18}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-34",
+      "query": "TUCSON L TNCAP成績 _ J.D POWER_T33、P15、B18_v4.pdf (page 7)",
+      "expectQuestionContains": "成績",
+      "expectSourceLocator": "{\"page\": 7}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-35",
+      "query": "XFORCE競品話術(vs CC)(FMC)v2.pptx.pdf (page 12)",
+      "expectQuestionContains": "競品話術",
+      "expectSourceLocator": "{\"page\": 12}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-36",
+      "query": "是否作動偵測",
+      "expectQuestionContains": "是否作動偵測",
+      "expectSourceLocator": "{\"sheet\":\"T33e\",\"row\":13}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "product_info"
+    },
+    {
+      "id": "bq-37",
+      "query": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 1)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 1}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-37-p",
+      "query": "KUGA ALL NEW XTRAIL對戰KUGA改款正式話術.pdf (page 1)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 1}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-39",
+      "query": "TUCSON L The new TUCSON L 小改款媒體試駕簡報_0408.pdf (page 23)",
+      "expectQuestionContains": "小改款媒體試",
+      "expectSourceLocator": "{\"page\": 23}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-40",
+      "query": "X-TRAIL 媒體報導彙整_202602.pptx (slide 7)",
+      "expectQuestionContains": "媒體報導彙整",
+      "expectSourceLocator": "{\"slide\": 7}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "product_info"
+    },
+    {
+      "id": "bq-40-p",
+      "query": "XTRAIL 媒體報導彙整_202602.pptx (slide 7)",
+      "expectQuestionContains": "媒體報導彙整",
+      "expectSourceLocator": "{\"slide\": 7}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-42",
+      "query": "MUFASA NU2媒體試乘簡報 0514_浮水印版.pdf (page 19)",
+      "expectQuestionContains": "媒體試乘簡報",
+      "expectSourceLocator": "{\"page\": 19}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-43",
+      "query": "TUCSON L Hyundai-Tucson-L-Turbo-Hybrid-2024-TW.pdf (page 4)",
+      "expectQuestionContains": "TUCSON",
+      "expectSourceLocator": "{\"page\": 4}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-44",
+      "query": "2萬公里定保",
+      "expectQuestionContains": "萬公里定保",
+      "expectSourceLocator": "{\"sheet\":\"使用成本\",\"row\":4}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-45",
+      "query": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 5}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-45-p",
+      "query": "KUGA ALL NEW XTRAIL對戰KUGA改款正式話術.pdf (page 5)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 5}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-47",
+      "query": "XFORCE競品話術(vs CC)(FMC)v2.pptx.pdf (page 8)",
+      "expectQuestionContains": "競品話術",
+      "expectSourceLocator": "{\"page\": 8}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-48",
+      "query": "TUCSON L TNCAP成績 _ J.D POWER_T33、P15、B18_v4.pdf (page 14)",
+      "expectQuestionContains": "成績",
+      "expectSourceLocator": "{\"page\": 14}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-49",
+      "query": "XFORCE_媒體赴日資料.pdf (page 12)",
+      "expectQuestionContains": "媒體赴日資料",
+      "expectSourceLocator": "{\"page\": 12}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-50",
+      "query": "MUFASA NU2媒體試乘簡報 0514_浮水印版.pdf (page 17)",
+      "expectQuestionContains": "媒體試乘簡報",
+      "expectSourceLocator": "{\"page\": 17}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-51",
+      "query": "是否作動偵測",
+      "expectQuestionContains": "是否作動偵測",
+      "expectSourceLocator": "{\"sheet\":\"T33e\",\"row\":37}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "product_info"
+    },
+    {
+      "id": "bq-52",
+      "query": "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 14)",
+      "expectQuestionContains": "對戰話術",
+      "expectSourceLocator": "{\"page\": 14}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-53",
+      "query": "XFORCE競品話術(vs CC)(FMC)v2.pptx.pdf (page 7)",
+      "expectQuestionContains": "競品話術",
+      "expectSourceLocator": "{\"page\": 7}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-54",
+      "query": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 7)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 7}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-54-p",
+      "query": "KUGA ALL NEW XTRAIL對戰KUGA改款正式話術.pdf (page 7)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 7}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-56",
+      "query": "TUCSON L Hyundai-Tucson-L-Turbo-Hybrid-2024-TW.pdf (page 2)",
+      "expectQuestionContains": "TUCSON",
+      "expectSourceLocator": "{\"page\": 2}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-57",
+      "query": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+      "expectQuestionContains": "對戰話術策略",
+      "expectSourceLocator": "{\"page\": 1}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-57-p",
+      "query": "SPORTAGE XTRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+      "expectQuestionContains": "對戰話術策略",
+      "expectSourceLocator": "{\"page\": 1}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-59",
+      "query": "TUCSON L The new TUCSON L 小改款媒體試駕簡報_0408.pdf (page 20)",
+      "expectQuestionContains": "小改款媒體試",
+      "expectSourceLocator": "{\"page\": 20}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-60",
+      "query": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 4)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 4}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-60-p",
+      "query": "KUGA ALL NEW XTRAIL對戰KUGA改款正式話術.pdf (page 4)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 4}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-62",
+      "query": "TUCSON L The new TUCSON L 小改款媒體試駕簡報_0408.pdf (page 12)",
+      "expectQuestionContains": "小改款媒體試",
+      "expectSourceLocator": "{\"page\": 12}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-63",
+      "query": "TUCSON L Hyundai-Tucson-L-Turbo-Hybrid-2024-TW.pdf (page 8)",
+      "expectQuestionContains": "TUCSON",
+      "expectSourceLocator": "{\"page\": 8}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-64",
+      "query": "TUCSON L TNCAP成績 _ J.D POWER_T33、P15、B18_v4.pdf (page 2)",
+      "expectQuestionContains": "成績",
+      "expectSourceLocator": "{\"page\": 2}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-65",
+      "query": "XFORCE_媒體赴日資料.pdf (page 18)",
+      "expectQuestionContains": "媒體赴日資料",
+      "expectSourceLocator": "{\"page\": 18}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-66",
+      "query": "TERRITORY_YT負評影片.pdf (page 4)",
+      "expectQuestionContains": "負評影片",
+      "expectSourceLocator": "{\"page\": 4}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-67",
+      "query": "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 4)",
+      "expectQuestionContains": "對戰話術",
+      "expectSourceLocator": "{\"page\": 4}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-68",
+      "query": "是否作動偵測",
+      "expectQuestionContains": "是否作動偵測",
+      "expectSourceLocator": "{\"sheet\":\"T33\",\"row\":5}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "product_info"
+    },
+    {
+      "id": "bq-69",
+      "query": "MUFASA NU2媒體試乘簡報 0514_浮水印版.pdf (page 42)",
+      "expectQuestionContains": "媒體試乘簡報",
+      "expectSourceLocator": "{\"page\": 42}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-70",
+      "query": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+      "expectQuestionContains": "對戰話術策略",
+      "expectSourceLocator": "{\"page\": 4}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-70-p",
+      "query": "SPORTAGE XTRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+      "expectQuestionContains": "對戰話術策略",
+      "expectSourceLocator": "{\"page\": 4}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-72",
+      "query": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 9)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 9}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-72-p",
+      "query": "KUGA ALL NEW XTRAIL對戰KUGA改款正式話術.pdf (page 9)",
+      "expectQuestionContains": "改款正式話術",
+      "expectSourceLocator": "{\"page\": 9}",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "bq-74",
+      "query": "XFORCE_媒體赴日資料.pdf (page 2)",
+      "expectQuestionContains": "媒體赴日資料",
+      "expectSourceLocator": "{\"page\": 2}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-75",
+      "query": "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3)",
+      "expectQuestionContains": "對戰話術",
+      "expectSourceLocator": "{\"page\": 3}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    },
+    {
+      "id": "bq-76",
+      "query": "XFORCE_媒體赴日資料.pdf (page 3)",
+      "expectQuestionContains": "媒體赴日資料",
+      "expectSourceLocator": "{\"page\": 3}",
+      "productLine": "xtrail-ice",
+      "materialCategory": "competitor_compare"
+    }
+  ]
+}

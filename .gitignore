@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+deploy/cloudrun-test.secrets.yaml
+deploy/cloudrun-prod.secrets.yaml
+.deploy-tmp/
 
 # vercel
 .vercel
@@ -44,5 +47,9 @@ next-env.d.ts
 .data/
 dev.db
 *.db
+
+# 話術 Excel（請放於 data/，見 data/README.md）
+/data/*.xlsx
+/data/~$*
 
 /app/generated/prisma

@@ -1,0 +1,23 @@
+{
+  "scannedAt": "2026-05-29T02:50:32.547Z",
+  "materialsRoot": "C:\\Yulon\\YNM_poc\\web\\data\\training-materials",
+  "productLines": [
+    {
+      "productLine": "xtrail-ice",
+      "totalFiles": 20,
+      "byExtension": {
+        ".pdf": 15,
+        ".xlsx": 3,
+        ".pptx": 1,
+        ".md": 1
+      },
+      "samplePaths": [
+        "competitor-compare/KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf",
+        "competitor-compare/MUFASA NU2媒體試乘簡報 0514_浮水印版.pdf",
+        "competitor-compare/RAV4 LKA 也有分好壞 X-TRAIL vs RAV4.pdf",
+        "competitor-compare/RAV4 X-TRAIL VS RAV4改款_20260327.pdf",
+        "competitor-compare/SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf"
+      ]
+    }
+  ]
+}

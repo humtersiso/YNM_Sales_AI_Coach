@@ -1,94 +1,69 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StatCard } from "@/components/mobile/StatCard";
-import type { AgentLeaderboardRow, CompetitorTopQuestion, QueryLog } from "@/lib/mock/usage-analytics";
+import { QueryLogCardList } from "@/components/mobile/QueryLogCard";
+import type { QueryLog } from "@/lib/analytics/types";
 
-type Tab = "usage" | "leaderboard" | "top10";
+const SALES_LOG_PAGE_SIZE = 10;
 
 export default function AdminHomePage() {
-  const [tab, setTab] = useState<Tab>("usage");
   const [branch, setBranch] = useState("all");
-  const [assistantType, setAssistantType] = useState("all");
+  const [salesLogPage, setSalesLogPage] = useState(1);
   const [branches, setBranches] = useState<string[]>([]);
-  const [logs, setLogs] = useState<QueryLog[]>([]);
-  const [kpis, setKpis] = useState({ activeAgents: 0, totalQuestions: 0, avgPerAgent: 0 });
-  const [leaderboard, setLeaderboard] = useState<AgentLeaderboardRow[]>([]);
-  const [top10, setTop10] = useState<CompetitorTopQuestion[]>([]);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [salesLogs, setSalesLogs] = useState<QueryLog[]>([]);
+  const [salesKpis, setSalesKpis] = useState({ activeAgents: 0, totalQuestions: 0, avgPerAgent: 0 });
   const [loading, setLoading] = useState(false);
 
-  const maxComposite = useMemo(
-    () => Math.max(...leaderboard.map((r) => r.compositeScore), 1),
-    [leaderboard],
-  );
+  const salesLogTotalPages = Math.max(1, Math.ceil(salesLogs.length / SALES_LOG_PAGE_SIZE));
+
+  const pagedSalesLogs = useMemo(() => {
+    const start = (salesLogPage - 1) * SALES_LOG_PAGE_SIZE;
+    return salesLogs.slice(start, start + SALES_LOG_PAGE_SIZE);
+  }, [salesLogs, salesLogPage]);
+
+  useEffect(() => {
+    setSalesLogPage(1);
+  }, [salesLogs]);
+
+  useEffect(() => {
+    if (salesLogPage > salesLogTotalPages) {
+      setSalesLogPage(salesLogTotalPages);
+    }
+  }, [salesLogPage, salesLogTotalPages]);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const q = new URLSearchParams({ branch, assistantType });
-      if (tab === "usage") {
-        const res = await fetch(`/api/admin/analytics?section=usage&${q}`);
-        const data = await res.json();
-        if (!cancelled) {
-          setBranches(data.branches ?? []);
-          setLogs(data.logs ?? []);
-          setKpis(data.kpis ?? { activeAgents: 0, totalQuestions: 0, avgPerAgent: 0 });
-        }
-      } else if (tab === "leaderboard") {
-        const res = await fetch(`/api/admin/analytics?section=leaderboard&branch=${branch}`);
-        const data = await res.json();
-        if (!cancelled) {
-          setBranches(data.branches ?? []);
-          setLeaderboard(data.rows ?? []);
-        }
-      } else {
-        const res = await fetch(`/api/admin/analytics?section=top10&${q}`);
-        const data = await res.json();
-        if (!cancelled) setTop10(data.items ?? []);
+      const q = new URLSearchParams({ branch, assistantType: "sales", section: "usage" });
+      const res = await fetch(`/api/admin/analytics?${q}`);
+      const data = await res.json();
+      if (!cancelled) {
+        setBranches(data.branches ?? []);
+        setSalesLogs(data.logs ?? []);
+        setSalesKpis(data.kpis ?? { activeAgents: 0, totalQuestions: 0, avgPerAgent: 0 });
+        setLoading(false);
       }
-      if (!cancelled) setLoading(false);
     }
     void load();
     return () => {
       cancelled = true;
     };
-  }, [tab, branch, assistantType]);
-
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "usage", label: "使用狀況" },
-    { id: "leaderboard", label: "戰力排行" },
-    { id: "top10", label: "競品 Top10" },
-  ];
+  }, [branch]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold text-emerald-950">主頁儀表板</h1>
-        <p className="mt-1 text-sm text-emerald-700">使用統計 · 可篩選據點與助手類型</p>
+        <h1 className="text-2xl font-semibold text-emerald-950">主頁儀表板</h1>
+        <p className="mt-1 text-base text-emerald-700">銷售助手使用統計</p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={`rounded-full px-4 py-1.5 text-sm ${
-              tab === t.id ? "bg-emerald-700 text-white" : "border border-emerald-200 bg-white text-emerald-800"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-emerald-100 bg-white p-4">
-        <label className="text-xs text-emerald-800">
+      <div className="rounded-xl border border-emerald-100 bg-white p-3">
+        <label className="block text-xs text-emerald-800">
           據點
           <select
-            className="mt-1 block rounded border border-emerald-200 px-2 py-1.5 text-sm"
+            className="mt-1 block w-full rounded-lg border border-emerald-200 px-2 py-2 text-sm"
             value={branch}
             onChange={(e) => setBranch(e.target.value)}
           >
@@ -100,131 +75,46 @@ export default function AdminHomePage() {
             ))}
           </select>
         </label>
-        {tab !== "leaderboard" ? (
-          <label className="text-xs text-emerald-800">
-            助手類型
-            <select
-              className="mt-1 block rounded border border-emerald-200 px-2 py-1.5 text-sm"
-              value={assistantType}
-              onChange={(e) => setAssistantType(e.target.value)}
-            >
-              <option value="all">全部</option>
-              <option value="sales">銷售助手</option>
-              <option value="roleplay">對練助手</option>
-            </select>
-          </label>
-        ) : null}
-        {loading ? <span className="text-xs text-emerald-600">載入中…</span> : null}
+        {loading ? <p className="mt-2 text-xs text-emerald-600">載入中…</p> : null}
       </div>
 
-      {tab === "usage" ? (
-        <>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <StatCard label="活躍業代" value={kpis.activeAgents} />
-            <StatCard label="提問次數" value={kpis.totalQuestions} />
-            <StatCard label="人均提問" value={kpis.avgPerAgent} />
-          </div>
-          <div className="overflow-x-auto rounded-xl border border-emerald-100 bg-white">
-            <table className="min-w-[640px] w-full text-left text-sm">
-              <thead className="border-b border-emerald-100 bg-emerald-50/50 text-xs text-emerald-800">
-                <tr>
-                  <th className="px-3 py-2">時間</th>
-                  <th className="px-3 py-2">據點</th>
-                  <th className="px-3 py-2">業代</th>
-                  <th className="px-3 py-2">問題</th>
-                  <th className="px-3 py-2">回覆摘要</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((row) => (
-                  <Fragment key={row.id}>
-                    <tr
-                      className="cursor-pointer border-b border-emerald-50 hover:bg-emerald-50/40"
-                      onClick={() => setExpandedId((id) => (id === row.id ? null : row.id))}
-                    >
-                      <td className="px-3 py-2 whitespace-nowrap text-xs">
-                        {new Date(row.askedAt).toLocaleString("zh-TW")}
-                      </td>
-                      <td className="px-3 py-2">{row.branch}</td>
-                      <td className="px-3 py-2">{row.agentName}</td>
-                      <td className="px-3 py-2 max-w-[200px] truncate">{row.question}</td>
-                      <td className="px-3 py-2 max-w-[240px] truncate text-emerald-800">{row.replySummary}</td>
-                    </tr>
-                    {expandedId === row.id ? (
-                      <tr className="bg-emerald-50/30">
-                        <td colSpan={5} className="px-4 py-3 text-sm text-zinc-700">
-                          <p className="font-medium text-emerald-900">完整回覆</p>
-                          <p className="mt-1">{row.fullReply}</p>
-                        </td>
-                      </tr>
-                    ) : null}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : null}
+      <div className="grid grid-cols-2 gap-2">
+        <StatCard label="活躍業代" value={salesKpis.activeAgents} compact />
+        <StatCard label="提問次數" value={salesKpis.totalQuestions} hint="含題庫與新問題" compact />
+      </div>
 
-      {tab === "leaderboard" ? (
-        <div className="space-y-4">
-          {leaderboard.map((row, i) => (
-            <div
-              key={row.id}
-              className={`rounded-xl border bg-white p-4 ${
-                i < 3 ? "border-emerald-300 shadow-sm" : "border-emerald-100"
-              }`}
+      <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white">
+        <div className="border-b border-emerald-100 bg-emerald-50/50 px-3 py-2">
+          <p className="text-xs font-medium text-emerald-800">銷售助手 · 問題紀錄</p>
+          <p className="text-[11px] text-emerald-700">
+            共 {salesLogs.length} 筆 · 含問題與回答 · 每頁 {SALES_LOG_PAGE_SIZE} 筆
+          </p>
+        </div>
+        <QueryLogCardList logs={pagedSalesLogs} />
+        {salesLogs.length > SALES_LOG_PAGE_SIZE ? (
+          <div className="flex items-center justify-between gap-2 border-t border-emerald-100 px-3 py-2">
+            <button
+              type="button"
+              disabled={salesLogPage <= 1}
+              onClick={() => setSalesLogPage((p) => Math.max(1, p - 1))}
+              className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs text-emerald-800 disabled:opacity-40"
             >
-              <div className="mb-2 flex items-center justify-between">
-                <p className="font-semibold text-emerald-950">
-                  {i < 3 ? ["🥇", "🥈", "🥉"][i] : `${i + 1}.`} {row.name}
-                  <span className="ml-2 text-xs font-normal text-emerald-700">{row.branch}</span>
-                </p>
-                <span className="text-lg font-bold text-emerald-800">{row.compositeScore}</span>
-              </div>
-              <div className="bar-chart-row">
-                <span>綜合</span>
-                <div className="bar-chart-track">
-                  <div className="bar-chart-fill" style={{ width: `${(row.compositeScore / maxComposite) * 100}%` }} />
-                </div>
-                <span>{row.compositeScore}</span>
-              </div>
-              <p className="mt-2 text-xs text-emerald-700">
-                使用 {row.usageScore} · 業績 {row.performanceScore} · 年資 {row.tenureYears} 年
-              </p>
-            </div>
-          ))}
-        </div>
-      ) : null}
-
-      {tab === "top10" ? (
-        <div className="overflow-x-auto rounded-xl border border-emerald-100 bg-white">
-          <table className="min-w-[560px] w-full text-left text-sm">
-            <thead className="border-b border-emerald-100 bg-emerald-50/50 text-xs text-emerald-800">
-              <tr>
-                <th className="px-3 py-2">#</th>
-                <th className="px-3 py-2">問題</th>
-                <th className="px-3 py-2">次數</th>
-                <th className="px-3 py-2">占比</th>
-                <th className="px-3 py-2">最近</th>
-              </tr>
-            </thead>
-            <tbody>
-              {top10.map((row, i) => (
-                <tr key={row.question} className="border-b border-emerald-50">
-                  <td className="px-3 py-2">{i + 1}</td>
-                  <td className="px-3 py-2">{row.question}</td>
-                  <td className="px-3 py-2">{row.count}</td>
-                  <td className="px-3 py-2">{row.sharePct}%</td>
-                  <td className="px-3 py-2 whitespace-nowrap text-xs">
-                    {new Date(row.lastAskedAt).toLocaleDateString("zh-TW")}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
+              上一頁
+            </button>
+            <span className="text-xs text-emerald-700">
+              第 {salesLogPage} / {salesLogTotalPages} 頁
+            </span>
+            <button
+              type="button"
+              disabled={salesLogPage >= salesLogTotalPages}
+              onClick={() => setSalesLogPage((p) => Math.min(salesLogTotalPages, p + 1))}
+              className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs text-emerald-800 disabled:opacity-40"
+            >
+              下一頁
+            </button>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

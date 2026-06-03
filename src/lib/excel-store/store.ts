@@ -394,6 +394,17 @@ function upsertPendingQuestionFromIncoming(item: { text: string; source: string 
   return row;
 }
 
+/** 銷售助手「加入待新增題庫」→ 自動進入問題流程追蹤 */
+export function addPendingQuestionFromSales(input: {
+  question: string;
+  city: string;
+  agentName: string;
+}): Question {
+  ensureStoreLoaded();
+  const source = `銷售助手｜${input.city.trim()}｜${input.agentName.trim()}`;
+  return upsertPendingQuestionFromIncoming({ text: input.question.trim(), source }, null);
+}
+
 type WorkflowExpert = {
   id: string;
   code: string;
@@ -452,13 +463,15 @@ function applyIncomingSuggestionsToPending(
 }
 
 
-export function runIncomingDuplicateCheck() {
+export function runIncomingDuplicateCheck(
+  existingOverride?: Array<{ id: string; originalText: string; suggestedReply: string }>,
+) {
   const incoming = getIncomingPreview();
   if (!incoming) {
     throw new Error("尚未載入待比對 Excel，請先執行步驟 2。");
   }
 
-  const existing = listDuplicateQuestionsForCheck();
+  const existing = existingOverride ?? listDuplicateQuestionsForCheck();
   const rows = incoming.items.map((item, index) => {
     const best = findBestDuplicate(item.text, existing);
     // Demo 來源保留一筆完整回覆案例，強制走待釐清流程供步驟 4 驗證。

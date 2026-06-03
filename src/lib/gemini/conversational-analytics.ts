@@ -1,273 +1,401 @@
-import { GoogleAuth } from "google-auth-library";
-import { getBigQueryClient, getBigQueryScriptDrillsConfig } from "@/lib/bq/script-drills-insert";
+import type { KnowledgeSearchScope } from "@/lib/knowledge/search-scope";
+import { dataAgentChat } from "@/lib/gemini/gemini-client";
+import { tryBuildSpecNumericReply } from "@/lib/gemini/spec-value-extract";
+import { looksLikeTableDump, summarizeCitationsWithGemini } from "@/lib/gemini/gemini-summarize";
+import { buildKnowledgeReply } from "@/lib/gemini/knowledge-reply";
+import { searchKnowledgeCitations } from "@/lib/gemini/knowledge-search";
+import { searchKnowledgeByPlan } from "@/lib/gemini/knowledge-search-planned";
 import {
-  buildBriefReplyFromCitations,
+  chatWithSalesAgent,
+  resolveSearchPlanWithProfile,
+} from "@/lib/gemini/sales-agent-orchestrator";
+import {
+  formatMarkdownReplyToDisplay,
   isUsableReply,
-  isValidCitation,
-  notInQuestionBankReply,
-  summarizeToBrief,
+  notInQuestionBankMessage,
+  sanitizeDataAgentDisplay,
   type ScriptCitation,
 } from "@/lib/gemini/reply-format";
+import { formatDataAgentOutputForSales } from "@/lib/gemini/data-agent-refine";
+import { buildDataAgentRawPrompt } from "@/lib/gemini/sales-reply-directives";
+import { prepareDisplayCitations } from "@/lib/gemini/citation-utils";
+import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
+import {
+  canUseDataAgent,
+  canUseGeminiSummarize,
+  isDataAgentFormatMode,
+  isDataAgentRawMode,
+  resolveSalesChatMode,
+} from "@/lib/gemini/sales-chat-mode";
+import { neverCallDataAgent, skipDataAgentWhenCitationsFound } from "@/lib/gemini/sales-chat-speed";
+import {
+  detectInactiveProductLine,
+  inactiveProductLineMessage,
+} from "@/lib/gemini/inactive-product-guard";
+import { assessSalesQueryAnswerability } from "@/lib/gemini/query-relevance-guard";
+import { outOfScopeKnowledgeMessage } from "@/lib/gemini/reply-format";
+import { RagSearchError } from "@/lib/rag/discovery-engine-search";
+import { isRagKnowledgeBackend } from "@/lib/knowledge/knowledge-backend";
+import { chatWithVertexRagGrounding } from "@/lib/rag/vertex-rag-grounded-chat";
 
 export type { ScriptCitation };
-
-export type SalesChatResult = {
-  reply: string;
-  citations: ScriptCitation[];
-  inQuestionBank: boolean;
-};
+export type { SalesChatResult } from "@/lib/gemini/sales-chat-types";
+import type { SalesChatResult } from "@/lib/gemini/sales-chat-types";
 
 function isMockChatEnabled() {
   const flag = (process.env.USE_MOCK_CHAT ?? "false").toLowerCase();
   return flag === "true" || flag === "1";
 }
 
-export type SalesChatConfig = {
-  projectId: string;
-  location: string;
-  agentId: string;
-};
-
-export function getSalesChatConfig(): SalesChatConfig | null {
-  const projectId = (
-    process.env.GEMINI_DATA_ANALYTICS_PROJECT ??
-    process.env.BIGQUERY_PROJECT_ID ??
-    process.env.GOOGLE_CLOUD_PROJECT ??
-    ""
-  ).trim();
-  const location = (process.env.GEMINI_DATA_ANALYTICS_LOCATION ?? "global").trim();
-  const agentId = (process.env.GEMINI_DATA_ANALYTICS_AGENT_ID ?? "").trim();
-  if (!projectId || !agentId) return null;
-  return { projectId, location, agentId };
-}
-
-async function getAccessToken(): Promise<string> {
-  const auth = new GoogleAuth({
-    scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-  });
-  const client = await auth.getClient();
-  const token = await client.getAccessToken();
-  if (!token.token) throw new Error("無法取得 Google 存取權杖");
-  return token.token;
-}
-
-function extractTextField(value: unknown): string | null {
-  if (typeof value === "string") {
-    const t = value.trim();
-    return t || null;
-  }
-  if (value && typeof value === "object") {
-    const o = value as Record<string, unknown>;
-    if (typeof o.text === "string") return o.text.trim() || null;
-    if (typeof o.markdown === "string") return o.markdown.trim() || null;
-  }
-  return null;
-}
-
-function pushTextFromMessage(obj: Record<string, unknown>, parts: string[]) {
-  const system = obj.systemMessage as Record<string, unknown> | undefined;
-  if (system) {
-    if ("schema" in system || "data" in system || "chart" in system) return;
-    const text = extractTextField(system.text);
-    if (text) parts.push(text);
-  }
-  const agent = obj.agentMessage as Record<string, unknown> | undefined;
-  if (agent) {
-    const text = extractTextField(agent.text);
-    if (text) parts.push(text);
-  }
-}
-
-function extractReplyFromStreamBody(body: string): string {
-  const parts: string[] = [];
-  let acc = "";
-
-  const tryAcc = () => {
-    if (!acc.trim()) return;
-    try {
-      pushTextFromMessage(JSON.parse(acc) as Record<string, unknown>, parts);
-      acc = "";
-    } catch {
-      // 繼續累積
-    }
-  };
-
-  for (const rawLine of body.split("\n")) {
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    if (line === "[{") {
-      acc = "{";
-      continue;
-    }
-    if (line === "}]") {
-      acc += "}";
-      tryAcc();
-      continue;
-    }
-    if (line === ",") continue;
-
-    if (line.startsWith("{")) {
-      try {
-        pushTextFromMessage(JSON.parse(line) as Record<string, unknown>, parts);
-        continue;
-      } catch {
-        acc = line;
-        tryAcc();
-        continue;
-      }
-    }
-
-    acc += line;
-    tryAcc();
-  }
-
-  tryAcc();
-
-  if (parts.length === 0) {
-    for (const line of body.split("\n")) {
-      const trimmed = line.trim();
-      const jsonLine = trimmed.startsWith("data:") ? trimmed.slice(5).trim() : trimmed;
-      if (!jsonLine.startsWith("{")) continue;
-      try {
-        pushTextFromMessage(JSON.parse(jsonLine) as Record<string, unknown>, parts);
-      } catch {
-        // ignore
-      }
-    }
-  }
-
-  return parts.join(" ").trim();
-}
-
-/** Gemini Data Analytics API（Data Agent 查 BQ） */
-async function tryGeminiReply(message: string): Promise<string | null> {
-  const config = getSalesChatConfig();
-  if (!config) return null;
-
-  const { projectId, location, agentId } = config;
-  const chatUrl = `https://geminidataanalytics.googleapis.com/v1beta/projects/${projectId}/locations/${location}:chat`;
-  const token = await getAccessToken();
-
-  const payload = {
-    parent: `projects/${projectId}/locations/global`,
-    messages: [{ userMessage: { text: message } }],
-    data_agent_context: {
-      data_agent: `projects/${projectId}/locations/${location}/dataAgents/${agentId}`,
-    },
-  };
-
-  const res = await fetch(chatUrl, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const bodyText = await res.text();
-  if (!res.ok) {
-    console.error("Conversational Analytics API error", res.status, bodyText.slice(0, 500));
-    return null;
-  }
-
-  return extractReplyFromStreamBody(bodyText) || null;
-}
-
-/** 自 BQ 話術表檢索引用（僅用於驗證題庫有無 + 引用標註，不作為對外聲稱的「備援」） */
-export async function searchScriptRows(message: string, limit = 3): Promise<ScriptCitation[]> {
-  const { projectId, dataset, tableId } = getBigQueryScriptDrillsConfig();
-  if (!projectId) return [];
-
-  const keywords = message
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .split(/\s+/)
-    .filter((w) => w.length >= 2)
-    .slice(0, 5);
-
-  if (keywords.length === 0) {
-    return [];
-  }
-
-  const likeClause = keywords.map((_, i) => `LOWER(customer_question) LIKE LOWER(@kw${i})`).join(" OR ");
-  const params: Record<string, string> = {};
-  keywords.forEach((kw, i) => {
-    params[`kw${i}`] = `%${kw}%`;
-  });
-
-  const client = getBigQueryClient();
-  const sql = `
-    SELECT customer_question, standard_script_idea AS standard_script
-    FROM \`${projectId}.${dataset}.${tableId}\`
-    WHERE (${likeClause})
-      AND standard_script_idea IS NOT NULL
-      AND TRIM(standard_script_idea) != ''
-    LIMIT ${limit}
-  `;
-  const [rows] = await client.query({ query: sql, params });
-  return (rows as { customer_question?: string; standard_script?: string }[])
-    .map((r, i) => ({
-      index: i + 1,
-      question: r.customer_question?.trim() || "",
-      script: r.standard_script?.trim() || "",
-    }))
-    .filter(isValidCitation)
-    .map((c, i) => ({ ...c, index: i + 1 }));
-}
-
-function noMatchResult(): SalesChatResult {
+function noMatchResult(message: string, reply?: string): SalesChatResult {
   return {
-    reply: notInQuestionBankReply(),
+    reply: reply ?? notInQuestionBankMessage(),
+    bullets: [],
     citations: [],
     inQuestionBank: false,
+    allowAddRequest: true,
+    question: message,
   };
 }
 
-/**
- * 銷售助手問答：僅能依 BQ 題庫作答。
- * 1. 先查 BQ 確認題庫是否有相近話術
- * 2. 無則回覆「題庫無」
- * 3. 有則以 Gemini Data Analytics（Data Agent）為主產生回覆，並附引用
- */
-export async function chatWithDataAgent(message: string): Promise<SalesChatResult> {
-  if (isMockChatEnabled()) {
-    return noMatchResult();
+function outOfScopeResult(message: string, reply: string): SalesChatResult {
+  return {
+    reply,
+    bullets: [],
+    citations: [],
+    inQuestionBank: false,
+    allowAddRequest: true,
+    question: message,
+  };
+}
+
+function successResult(
+  intro: string,
+  bullets: string[],
+  citations: ScriptCitation[],
+): SalesChatResult {
+  return {
+    reply: intro,
+    bullets,
+    citations,
+    inQuestionBank: true,
+  };
+}
+
+function localReply(message: string, citations: ScriptCitation[]) {
+  const { intro, bullets, displayCitations } = buildKnowledgeReply(message, citations);
+  return { intro, bullets, displayCitations };
+}
+
+async function tryDataAgentReply(
+  message: string,
+  citations: ScriptCitation[] = [],
+  profile: SalesQuestionProfile,
+): Promise<{ intro: string; bullets: string[] } | null> {
+  const raw = await dataAgentChat(buildDataAgentRawPrompt(message, profile));
+  if (!raw || !isUsableReply(raw) || looksLikeTableDump(raw)) return null;
+
+  const text = raw.trim();
+  if (!text) return null;
+
+  if (isDataAgentRawMode()) {
+    return { intro: text, bullets: [] };
   }
 
-  if (!getSalesChatConfig()) {
-    console.error("GEMINI_DATA_ANALYTICS_AGENT_ID 未設定");
-    return noMatchResult();
+  if (isDataAgentFormatMode()) {
+    const formatted = await formatDataAgentOutputForSales(text, message, citations, profile);
+    if (formatted && (formatted.intro || formatted.bullets.length > 0)) {
+      return formatted;
+    }
+  }
+
+  const fallback = formatMarkdownReplyToDisplay(text);
+  return sanitizeDataAgentDisplay(fallback.intro, fallback.bullets);
+}
+
+function groundedFallbackEnabled(): boolean {
+  const raw = (process.env.SALES_RAG_GROUNDED_FALLBACK ?? "true").trim().toLowerCase();
+  return raw !== "false" && raw !== "0";
+}
+
+async function tryGroundedRagChat(
+  message: string,
+  scope: KnowledgeSearchScope,
+): Promise<SalesChatResult | "fallback"> {
+  const inactiveProduct = detectInactiveProductLine(message, scope);
+  if (inactiveProduct) {
+    return noMatchResult(message, inactiveProductLineMessage(inactiveProduct));
+  }
+
+  const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
+  if (plan.intent === "off_topic") {
+    return {
+      reply: "此問題與汽車銷售知識庫無關，目前無法回答。若有 X-TRAIL、競品對戰、話術或配備相關問題，歡迎再問。",
+      bullets: [],
+      citations: [],
+      inQuestionBank: false,
+      allowAddRequest: false,
+      question: message,
+    };
+  }
+
+  try {
+    const grounded = await chatWithVertexRagGrounding(message, profile);
+    if (!grounded.rawText.trim() && grounded.citations.length === 0) {
+      return noMatchResult(message);
+    }
+
+    const displayCitations = prepareDisplayCitations(grounded.citations);
+    const answerability = assessSalesQueryAnswerability(message, grounded.citations, {
+      questionCategory: profile.category,
+    });
+    if (!answerability.ok && displayCitations.length === 0) {
+      return outOfScopeResult(
+        message,
+        answerability.userReply ?? outOfScopeKnowledgeMessage(),
+      );
+    }
+
+    return successResult(
+      grounded.intro,
+      grounded.bullets,
+      displayCitations,
+    );
+  } catch (e) {
+    console.error("RAG Grounding failed", e);
+    if (e instanceof RagSearchError && e.needsReauth) {
+      return {
+        reply:
+          "知識庫連線失敗（Google 憑證已過期）。請在本機執行：gcloud auth application-default login",
+        bullets: [],
+        citations: [],
+        inQuestionBank: false,
+        allowAddRequest: false,
+        question: message,
+      };
+    }
+    if (!groundedFallbackEnabled()) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return {
+        reply: `RAG Grounding 失敗：${msg.slice(0, 240)}`,
+        bullets: [],
+        citations: [],
+        inQuestionBank: false,
+        allowAddRequest: false,
+        question: message,
+      };
+    }
+    console.warn("[sales] grounding fallback → retrieve-then-summarize");
+    return "fallback";
+  }
+}
+
+async function chatWithRetrievePipeline(
+  message: string,
+  scope: KnowledgeSearchScope,
+  mode: ReturnType<typeof resolveSalesChatMode>,
+): Promise<SalesChatResult> {
+  const inactiveProduct = detectInactiveProductLine(message, scope);
+  if (inactiveProduct) {
+    return noMatchResult(message, inactiveProductLineMessage(inactiveProduct));
+  }
+
+  const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
+
+  const preCheck = assessSalesQueryAnswerability(message, []);
+  if (!preCheck.ok && preCheck.userReply) {
+    return outOfScopeResult(message, preCheck.userReply);
+  }
+
+  if (plan.intent === "off_topic") {
+    return {
+      reply: "此問題與汽車銷售知識庫無關，目前無法回答。若有 X-TRAIL、競品對戰、話術或配備相關問題，歡迎再問。",
+      bullets: [],
+      citations: [],
+      inQuestionBank: false,
+      allowAddRequest: false,
+      question: message,
+    };
   }
 
   let citations: ScriptCitation[] = [];
   try {
-    citations = await searchScriptRows(message, 3);
+    citations = await searchKnowledgeByPlan(message, plan, profile);
   } catch (e) {
-    console.error("BigQuery script search failed", e);
-    return noMatchResult();
+    console.error("Knowledge search failed", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    const isRag = (process.env.SALES_KNOWLEDGE_BACKEND ?? "rag").trim().toLowerCase() !== "bq";
+    if (e instanceof RagSearchError) {
+      if (e.needsReauth) {
+        return {
+          reply:
+            "知識庫連線失敗（Google 憑證已過期）。請在本機執行：gcloud auth application-default login",
+          bullets: [],
+          citations: [],
+          inQuestionBank: false,
+          allowAddRequest: false,
+          question: message,
+        };
+      }
+      if (e.misconfigured || /RAG 未設定|Agent Search|語料庫|CONTENT_REQUIRED/i.test(msg)) {
+        return {
+          reply: `檢索服務：${msg}`,
+          bullets: [],
+          citations: [],
+          inQuestionBank: false,
+          allowAddRequest: false,
+          question: message,
+        };
+      }
+    }
+    const needsReauth = /invalid_grant|invalid_rapt|reauth|無法取得 Google 憑證/i.test(msg);
+    if (needsReauth) {
+      return {
+        reply: isRag
+          ? "知識庫連線失敗（Google 憑證已過期）。請在本機執行：gcloud auth application-default login"
+          : "知識庫連線失敗（Google 憑證已過期）。請執行 gcloud auth application-default login 後重試",
+        bullets: [],
+        citations: [],
+        inQuestionBank: false,
+        allowAddRequest: false,
+        question: message,
+      };
+    }
+    if (isRag && /RAG 未設定|Agent Search/i.test(msg)) {
+      return {
+        reply: `檢索服務設定不完整：${msg}`,
+        bullets: [],
+        citations: [],
+        inQuestionBank: false,
+        allowAddRequest: false,
+        question: message,
+      };
+    }
+    return noMatchResult(message);
   }
 
   if (citations.length === 0) {
-    return noMatchResult();
+    return noMatchResult(message);
   }
 
-  try {
-    const geminiReply = await tryGeminiReply(message);
-    if (geminiReply && isUsableReply(geminiReply)) {
-      const brief = summarizeToBrief(geminiReply);
-      if (brief) {
-        return { reply: brief, citations, inQuestionBank: true };
+  const displayCitations = prepareDisplayCitations(citations);
+  const answerability = assessSalesQueryAnswerability(message, citations, {
+    questionCategory: profile.category,
+  });
+  if (!answerability.ok) {
+    return outOfScopeResult(
+      message,
+      answerability.userReply ?? outOfScopeKnowledgeMessage(answerability.unknownTerms),
+    );
+  }
+
+  const specDirect = tryBuildSpecNumericReply(message, displayCitations);
+  if (specDirect && specDirect.bullets.length > 0) {
+    return successResult(specDirect.intro, specDirect.bullets, displayCitations);
+  }
+
+  // 快路徑：已有 citations 時直接用 Gemini 整理，略過 Data Agent（省 5–15 秒）
+  const summarizeFirst =
+    skipDataAgentWhenCitationsFound() &&
+    citations.length > 0 &&
+    mode !== "bq-fast" &&
+    canUseGeminiSummarize();
+
+  if (summarizeFirst) {
+    try {
+      const gemini = await summarizeCitationsWithGemini(message, citations, profile);
+      if (gemini && gemini.bullets.length > 0) {
+        const intro = gemini.intro || localReply(message, citations).intro;
+        return successResult(intro, gemini.bullets, displayCitations);
       }
+    } catch (e) {
+      console.error("Gemini summarize (fast path) failed", e);
     }
-  } catch (e) {
-    console.error("Gemini Data Analytics failed", e);
+    if (neverCallDataAgent()) {
+      const local = localReply(message, citations);
+      if (local.bullets.length > 0) {
+        return successResult(local.intro, local.bullets, local.displayCitations);
+      }
+      return noMatchResult(message);
+    }
   }
 
-  const briefFromBq = buildBriefReplyFromCitations(citations);
-  if (briefFromBq) {
-    return { reply: briefFromBq, citations, inQuestionBank: true };
+  if (mode === "data-agent" && canUseDataAgent() && !neverCallDataAgent() && !isRagKnowledgeBackend()) {
+    try {
+      const agent = await tryDataAgentReply(message, citations, profile);
+      if (agent && (agent.intro || agent.bullets.length > 0)) {
+        return successResult(agent.intro, agent.bullets, displayCitations);
+      }
+    } catch (e) {
+      console.error("Data Agent failed, fallback to hybrid", e);
+    }
   }
 
-  return noMatchResult();
+  if (mode !== "bq-fast" && canUseGeminiSummarize()) {
+    try {
+      const gemini = await summarizeCitationsWithGemini(message, citations, profile);
+      if (gemini && gemini.bullets.length > 0) {
+        const intro = gemini.intro || localReply(message, citations).intro;
+        return successResult(intro, gemini.bullets, displayCitations);
+      }
+    } catch (e) {
+      console.error("Gemini summarize failed, fallback to local", e);
+    }
+  }
+
+  if (mode === "hybrid" && canUseDataAgent() && !neverCallDataAgent() && !isRagKnowledgeBackend()) {
+    try {
+      const agent = await tryDataAgentReply(message, citations, profile);
+      if (agent && (agent.intro || agent.bullets.length > 0)) {
+        return successResult(agent.intro, agent.bullets, displayCitations);
+      }
+    } catch (e) {
+      console.error("Data Agent hybrid fallback failed", e);
+    }
+  }
+
+  const local = localReply(message, citations);
+  if (local.bullets.length === 0) {
+    return noMatchResult(message);
+  }
+
+  return successResult(local.intro, local.bullets, local.displayCitations);
+}
+
+/** @deprecated 相容舊名稱 */
+export async function searchScriptRows(
+  message: string,
+  limit = 6,
+  scope: KnowledgeSearchScope = {},
+): Promise<ScriptCitation[]> {
+  return searchKnowledgeCitations(message, scope, limit);
+}
+
+/**
+ * 銷售助手問答
+ * - grounded：Vertex Gemini RAG Grounding（對齊 Console）
+ * - agent：Function Calling 分流 → 固定 BQ SQL → Gemini 摘要
+ * - hybrid：檢索 → Gemini 摘要
+ * - bq-fast：僅 BQ + 本地摘要
+ */
+export async function chatWithDataAgent(
+  message: string,
+  scope: KnowledgeSearchScope = {},
+): Promise<SalesChatResult> {
+  if (isMockChatEnabled()) {
+    return noMatchResult(message);
+  }
+
+  const mode = resolveSalesChatMode();
+
+  if (mode === "agent") {
+    return chatWithSalesAgent(message, scope);
+  }
+
+  if (mode === "grounded" && isRagKnowledgeBackend()) {
+    const grounded = await tryGroundedRagChat(message, scope);
+    if (grounded !== "fallback") return grounded;
+  }
+
+  return chatWithRetrievePipeline(message, scope, mode);
 }

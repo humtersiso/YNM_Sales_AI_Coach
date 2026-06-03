@@ -1,0 +1,7 @@
+# --- RAG（由 npm run rag:setup 產生）---
+SALES_KNOWLEDGE_BACKEND=rag
+RAG_PROJECT_ID=gen-lang-client-0927009312
+RAG_LOCATION=global
+RAG_DATASTORE_SALES_SCRIPT=projects/653828324568/locations/global/collections/default_collection/dataStores/ynm-sales-script
+RAG_DATASTORE_COMPETITOR=projects/653828324568/locations/global/collections/default_collection/dataStores/ynm-competitor-compare
+RAG_DATASTORE_PRODUCT=projects/653828324568/locations/global/collections/default_collection/dataStores/ynm-product-info

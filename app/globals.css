@@ -18,8 +18,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .app-shell {
@@ -30,8 +30,44 @@ body {
 }
 
 .portal-shell {
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .app-shell {
+    font-size: 16px;
+    padding: 1rem;
+  }
+
+  .portal-shell {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .portal-shell .text-sm {
+    font-size: 0.9375rem;
+  }
+
+  .portal-shell .text-xs {
+    font-size: 0.8125rem;
+  }
+
+  .portal-shell .text-lg {
+    font-size: 1.25rem;
+  }
+
+  .portal-shell .text-xl {
+    font-size: 1.375rem;
+  }
+
+  .portal-shell .text-2xl {
+    font-size: 1.5rem;
+  }
 }
 
 .portal-safe-top {
@@ -42,12 +78,31 @@ body {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
+.no-native-password-toggle::-ms-reveal,
+.no-native-password-toggle::-ms-clear {
+  display: none;
+}
+
+.no-native-password-toggle::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}
+
 .bar-chart-row {
   display: grid;
   grid-template-columns: 5rem 1fr 2.5rem;
   align-items: center;
   gap: 0.5rem;
   font-size: 12px;
+}
+
+.bar-chart-row--wide {
+  grid-template-columns: 5.5rem 1fr 4.5rem;
+}
+
+.bar-chart-track--tall {
+  height: 0.65rem;
 }
 
 .bar-chart-track {
@@ -61,6 +116,22 @@ body {
   height: 100%;
   border-radius: 9999px;
   background: linear-gradient(90deg, #059669, #10b981);
+}
+
+.bar-chart-track--topics {
+  background: #d1fae5;
+}
+
+.bar-chart-fill--topics {
+  background: linear-gradient(90deg, #059669, #6ee7b7);
+}
+
+.bar-chart-track--category {
+  background: #fef3c7;
+}
+
+.bar-chart-fill--category {
+  background: linear-gradient(90deg, #b45309, #fbbf24);
 }
 
 .thinking-dots span {

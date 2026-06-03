@@ -1,0 +1,13 @@
+.git/
+.gitignore
+.next/
+node_modules/
+.env
+.env.*
+!.env.example
+data/
+terminals/
+agent-transcripts/
+*.log
+debug-shake-out*.txt
+coverage/

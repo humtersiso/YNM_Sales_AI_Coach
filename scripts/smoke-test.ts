@@ -15,8 +15,8 @@ import {
 import { appStateToWorkbookBuffer } from "../src/lib/excel-store/write-workbook";
 
 const webDir = path.resolve(__dirname, "..");
-const demoXlsx = path.join(webDir, "..", "Demo話術演練資料.xlsx");
-const mainXlsx = path.join(webDir, "..", "AI話術演練表.xlsx");
+const demoXlsx = path.join(webDir, "data", "Demo話術演練資料.xlsx");
+const mainXlsx = path.join(webDir, "data", "AI話術演練表.xlsx");
 
 function fail(msg: string): never {
   console.error("SMOKE FAIL:", msg);

@@ -1,0 +1,21 @@
+{
+  "scannedAt": "2026-05-29T02:33:34.704Z",
+  "root": "C:\\Yulon\\YNM_poc\\web\\data\\xtrail-ice",
+  "totalFiles": 1,
+  "parseableCount": 0,
+  "registerOnlyCount": 1,
+  "unknownExtensionCount": 0,
+  "byExtension": {
+    ".md": 1
+  },
+  "samplePaths": [
+    "README.md"
+  ],
+  "validationQuestions": [
+    "XTRAIL 有什麼配備",
+    "客戶擔心油耗",
+    "跟競品比較",
+    "試乘邀約話術",
+    "價格優惠說明"
+  ]
+}

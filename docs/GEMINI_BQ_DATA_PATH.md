@@ -55,7 +55,8 @@ flowchart LR
 |------|------|------|
 | Excel → BQ staging | 已實作 | [`/api/ingest/script-drills`](../app/api/ingest/script-drills/route.ts)、[`BQ_INGEST_POC.md`](./BQ_INGEST_POC.md) |
 | BQ 寫入程式 | 已實作 | [`src/lib/bq/`](../src/lib/bq/) |
-| Gemini Data Analytics 串接 | 待實作 | 建議新增 `src/lib/gemini/` + 銷售助手 API |
+| 銷售助手 hybrid（BQ 檢索 + Gemini 摘要） | 已實作 | `src/lib/gemini/conversational-analytics.ts`、`gemini-summarize.ts` |
+| Gemini Data Analytics Data Agent | 可選 | `SALES_CHAT_MODE=data-agent`，需 Agent 指向正確 BQ dataset |
 | 總部資料整理平台 | 已實作（試用） | `web/app/(app)/` 各模組 |
 
 ## 待驗收（非法遵類）

@@ -67,6 +67,18 @@ Excel / CSV / 裕日 DB  →  [本 PoC：ingest API]  →  BigQuery  →  Gemini
 
 - **法遵**：話術與個資欄位進 BQ 前須與法務確認。
 
+## 多車款訓練素材（PDF / PPT / 多格式）
+
+見 [`TRAINING_MATERIALS_INGEST.md`](./TRAINING_MATERIALS_INGEST.md)。車款以 `product_line` 區分（例：`xtrail-ice`）。
+
+```bash
+npm run training:inventory
+npm run bq:create-knowledge
+npm run training:ingest:all
+npm run training:parse-job
+npm run training:validate-search
+```
+
 ## 下一步
 
 1. 在裕日 GCP 建立 dataset／正式表（或由 staging 排程 merge）。

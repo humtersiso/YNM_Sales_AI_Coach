@@ -1,0 +1,1113 @@
+{
+  "summary": {
+    "ranAt": "2026-05-29T07:06:10.309Z",
+    "model": "gemini-3.1-flash-lite",
+    "hasGeminiKey": true,
+    "byMode": {
+      "function-calling": {
+        "avgMs": 2044,
+        "hitRate": "14/18",
+        "flagged": 2,
+        "samples": 18
+      },
+      "data-agent": {
+        "avgMs": 14812,
+        "hitRate": "18/18",
+        "flagged": 2,
+        "samples": 18
+      },
+      "hybrid": {
+        "avgMs": 1838,
+        "hitRate": "14/18",
+        "flagged": 5,
+        "samples": 18
+      },
+      "bq-fast": {
+        "avgMs": 632,
+        "hitRate": "11/18",
+        "flagged": 8,
+        "samples": 18
+      }
+    }
+  },
+  "modeLabels": {
+    "function-calling": "Function Calling（FC 分流+BQ+摘要）",
+    "data-agent": "Data Agent（Google 代管）",
+    "hybrid": "Hybrid（BQ+Gemini 摘要）",
+    "bq-fast": "BQ-fast（本地摘要）"
+  },
+  "cases": [
+    {
+      "caseId": "1-territory-yt",
+      "question": "TERRITORY_YT負評影片 在哪裡? 還有相關的資訊有?",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2491,
+          "hit": true,
+          "intro": "TERRITORY 網路負面評價影片來源與相關資訊整理如下。",
+          "bullets": [
+            "針對「達哥老實說」頻道影片（https://youtu.be/EbaDo55PSiQ），負評重點為後排座椅變化性不足",
+            "針對「達哥老實說」頻道另一影片（https://www.youtube.com/watch?v=XHM7jvcenAw），負評指出車室舒適性與靜肅性表現不佳，且超過1.9米的車寬導致進出巷弄停車吃力，並對電驅系統妥善率存疑",
+            "針對「全民瘋車Bar」頻道影片（https://youtu.be/ks9uwh1VWL4），負評提及機械車位停車吃力，以及電子後視鏡缺乏傳統反射式切換功能"
+          ],
+          "citationCount": 4,
+          "topSource": "TERRITORY_YT負評影片.pdf (page 1)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 13255,
+          "hit": true,
+          "intro": "TERRITORY_YT負評影片位於知識庫中的 competitor-compare 目錄下，主要整理自「達哥老實說」與「全民瘋車Bar」等頻道的網路負面評價分析。",
+          "bullets": [
+            "可回覆客戶關於舒適性的疑慮，影片中提到該車款的後排座椅變化性不足，且整體的車室舒適性與靜肅性表現不理想，無法提供高品質的乘坐體驗",
+            "強調潛在的品質風險，相關資訊指出 Territory 的電驅系統妥善率仍屬未知，相較於成熟品牌，消費者在長期持有成本與維修穩定性上可能面臨更多挑戰"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2066,
+          "hit": true,
+          "intro": "TERRITORY 網路負面評價影片來源包含「達哥老實說」與「全民瘋車Bar」頻道，相關資訊整理如下：",
+          "bullets": [
+            "重點：達哥老實說針對 TERRITORY 提出後排座椅變化性不足的疑慮（影片連結：https://youtu.be/EbaDo55PSiQ）",
+            "重點：達哥老實說指出該車款車室舒適性與靜肅性表現不佳，且超過 1.9 米的車寬導致進出巷弄停車吃力，並對電驅系統妥善率存有疑慮（影片連結：https://www.youtube.com/watch?v=XHM7jvcenAw）",
+            "重點：全民瘋車Bar 提到該車款在機械車位停車較為吃力，且電子後視鏡缺乏傳統反射式切換功能（影片連結：https://youtu.be/ks9uwh1VWL4）"
+          ],
+          "citationCount": 4,
+          "topSource": "TERRITORY_YT負評影片.pdf (page 1)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 667,
+          "hit": true,
+          "intro": "《TERRITORY_YT負評影片.pdf》（4 段來源）",
+          "bullets": [
+            "後排座椅變化性不足（達哥老實說｜youtu.be/EbaDo55PSiQ）",
+            "車室舒適性以及靜肅性表現不佳（達哥老實說｜youtube.com/watch）",
+            "超過 1.9米的車寬停車進出巷弄都很吃力，電驅系統妥善率未知（達哥老實說｜youtube.com/watch）",
+            "機械車位停車吃力、電子後視鏡沒有傳統反射式切換功能（全民瘋車Bar｜youtu.be/ks9uwh）"
+          ],
+          "citationCount": 4,
+          "topSource": "TERRITORY_YT負評影片.pdf (page 1)",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "2-fuel",
+      "question": "客戶擔心 X-TRAIL 油耗怎麼回？",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2016,
+          "hit": true,
+          "intro": "建議引導客戶親自試駕，透過實際駕駛感官體驗來驗證車輛表現。",
+          "bullets": [
+            "建議與客戶溝通，動力、油耗及扭力在實際駕駛感官上與數據差異不大，數據僅供參考，應以實際試乘為準，讓實際感受成為說服客戶的核心亮點",
+            "可強調 X-TRAIL 搭載的可變壓縮比引擎，在科技領先性、靜肅性及油耗表現上均完勝對手，展現全球戰略機種的造車工藝與技術成熟度"
+          ],
+          "citationCount": 4,
+          "topSource": "X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭力 看起來都略遜於同級對手",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 11444,
+          "hit": true,
+          "intro": "### 追蹤問題",
+          "bullets": [
+            "### 追蹤問題"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": [
+            "無列點"
+          ]
+        },
+        {
+          "mode": "hybrid",
+          "ms": 1995,
+          "hit": true,
+          "intro": "建議引導客戶親自試駕，透過實際駕駛感官體驗來驗證車輛表現。",
+          "bullets": [
+            "建議告知客戶數據僅供參考，應以實際試乘為準。透過親自體驗，能彰顯 X-TRAIL 的各項優點，並讓客戶感受到動力、油耗及扭力在實際駕駛感官上與數據差異並不大",
+            "強調實際感受是說服客戶的核心亮點，透過實際駕駛體驗，能讓客戶親自驗證 X-TRAIL 在動力輸出與油耗表現上的真實水準，而非僅停留在帳面數據的比較上"
+          ],
+          "citationCount": 5,
+          "topSource": "X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭力 看起來都略遜於同級對手",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 599,
+          "hit": true,
+          "intro": "《X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭》（2 段來源）",
+          "bullets": [
+            "應以實際試乘為準的觀點，建議引導客戶親自試駕，透過實際體驗彰顯 X-Trail 的各項優點，並與客戶溝通動力、油耗及扭力在實際駕駛感官上與數據差異不大，讓實際感受成為說服客戶的核心亮點"
+          ],
+          "citationCount": 5,
+          "topSource": "X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭力 看起來都略遜於同級對手",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "3-aeb",
+      "question": "競品 AEB 比較",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2210,
+          "hit": true,
+          "intro": "關於競品 AEB 比較，目前知識庫中僅提供相關實測影片連結，並無針對 AEB 功能的具體規格比較或技術數據說明。",
+          "bullets": [
+            "建議參考 AEB 實測總表影片，透過實際撞擊時速測試觀察各車款表現：https://youtu.be/f1_CUCAUkbg、https://youtu.be/0_w4k-wJkYc",
+            "可參考進一步的實測影片連結，了解不同情境下的 AEB 運作狀況：https://youtu.be/Q4pfuMbR6Qw、https://www.youtube.com/shorts/7rWA9HGrnvo",
+            "可回覆客戶參考其他 AEB 相關測試影片，以獲取更多車輛安全輔助系統的實測資訊：https://www.youtube.com/shorts/bsHGTHViKPc、https://youtu.be/XpYAuq9faBQ、https://youtu.be/oT9eQnGg4Hw"
+          ],
+          "citationCount": 4,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 2)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 11636,
+          "hit": true,
+          "intro": "X-TRAIL 在安全配備上展現極大優勢，不僅標配獨家的 PFCW 超視距車輛追撞警示，在後方緊急煞車系統 RR-AEB 的完整度上也領先多款同級競品。",
+          "bullets": [
+            "強調 X-TRAIL 具備同級唯一 PFCW 超視距車輛追撞警示，能透過雷達偵測前前車動態，提早發出警示並連動 AEB 介入，比競品單純偵測前車反應更迅速。 重點在於 X-TRAIL 中高規車型標配 RR-AEB 後方緊急煞停，而主要對手如 Ford Territory 驚艷版並未搭載此功能，能有效降低倒車時碰撞後方障礙物的風險",
+            "建議對比 KIA Sportage 時",
+            "說明，雖然對方有 PCA 倒車避撞，但 X-TRAIL 在安全配備的完整度與維修成本上更具優勢，零件與保養費用僅約競品的三分之一至五分之一"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2353,
+          "hit": true,
+          "intro": "根據現有知識庫資料，目前並無關於 X-TRAIL 與競品 AEB 系統的具體比較數據或評測內容。",
+          "bullets": [
+            "建議針對 AEB 相關詢問，可參考知識庫中提供的 AEB 實測影片連結（如 https://youtu.be/HnWN9TXtkGo 或 https://youtu.be/Q4pfuMbR6Qw），以獲取相關測試資訊",
+            "若客戶關注車輛安全與駕駛視野，可強調 X-TRAIL 已針對 A 柱進行優化並縮小死角範圍，能協助駕駛更精準掌握車輛側邊狀況",
+            "在銷售溝通時，建議將重點聚焦於 X-TRAIL 的核心優勢，包括同級唯一的雙層隔音玻璃設計、優異的油耗與動力表現，以及具備近 90 度開門角度與靈活的後座 4/2/4 傾倒滑移機能"
+          ],
+          "citationCount": 6,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 2)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 680,
+          "hit": true,
+          "intro": "《X-TRAIL 媒體報導彙整_202602.pptx》（4 段來源）",
+          "bullets": [
+            "U-CAR 國產中型休旅首選之道 https://feature.u-car.com.tw/feature/article/86815 報導日期：2026年2月4日 X-TRAIL 具備優異的油耗表現與動力，是同級車唯一的雙層玻璃隔音玻璃設計，同級國產中型休旅燃油動力的車款中，X-TRAIL 有著更優異的油耗表現外，在性能數據部分同樣也佔上風",
+            "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ https://reurl.cc/7bgYayX-TRAIL優於同級的車室內裝配備，兼具變化性及舒適性，X-TRAIL 旗艦版雙前座皆搭載 10 向調整電動座椅(附 2 組記憶)"
+          ],
+          "citationCount": 6,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 2)",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "4-test-drive",
+      "question": "試乘邀約怎麼說",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 759,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 11686,
+          "hit": true,
+          "intro": "邀約試乘應強調「感受勝過數據」，引導客戶親自體驗車輛的行路質感與實際駕馭表現，藉此消弭對帳面數據或網路評論的疑慮。",
+          "bullets": [
+            "說明規格表僅供參考，應以實際試駕感官為準，透過路試展現車輛在起步動力與扭力反應上的優勢，讓實際感受成為說服核心",
+            "可回覆對引擎異音有疑慮的客戶，先認同其專業與細心，並",
+            "強調每人對音頻感受不同，邀請客戶上路確認異音是否影響行車環境，並在試乘後對比機械運作音量以建立信心。 重點在於處理後座晃動感疑慮時，可邀請客戶先體驗業代駕駛示範，",
+            "說明休旅車物理結構特性，並",
+            "強調懸吊系統的吸震韌性是為了提升長途舒適度，將晃動轉化為高品質路感"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 614,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 574,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "5-price",
+      "question": "價格優惠話術",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2370,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 12454,
+          "hit": true,
+          "intro": "面對客戶對價格與優惠的疑慮，建議強調產品的長期持有價值與核心技術優勢，而非單純陷入價格戰。",
+          "bullets": [
+            "強調長期持有的總價值與技術優勢，當客戶認為 X-Trail 價格較競品高時，應引導其關注全球戰略機種的造車工藝與內裝細節質感，這與合作開發的產品有本質上的區別",
+            "強調核心動力技術的成熟度與靜肅性，可",
+            "說明可變壓縮比引擎在科技領先性與油耗表現上均優於對手，這些細節與品質反映在整體的購車與持用價值中",
+            "強調配備齊全度與保固期限的領先，針對與 CR-V 價格相近的疑慮，應指出 X-Trail 搭載輕油電系統且濾震與靜謐性更佳，鼓勵客戶透過試駕感受這些配備帶來的舒適度與安全性",
+            "建議提醒客戶考量隱形成本與妥善率，購買新車不應只看當下的優惠折扣，品牌的核心動力技術與長期持有價值才是確保用車品質的關鍵，以此引導客戶做出更理性的選擇"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 1228,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 1125,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "6-battle",
+      "question": "FORD Territory 對戰話術重點",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2344,
+          "hit": true,
+          "intro": "應聚焦於 X-TRAIL 在底盤用料、車體結構強度及後座空間機能的顯著優勢。",
+          "bullets": [
+            "強調底盤用料扎實度：X-TRAIL 懸吊系統大量採用輕量化鋁合金材料，包含鋁合金羊角與鋁合金三腳架，能有效降低簧下重量，使車身動態更穩定；反觀 Territory 僅配備鋁合金羊角，用料差異明顯",
+            "強調防撞鋼樑安全性：X-TRAIL 的防撞樑採用 1,500 Mpa 高剛性鋼材，提供堅實的結構保護；而 Territory 的鋁擠型前防撞樑硬度預估僅約 300 至 500 Mpa，在乘員防護規格上 X-TRAIL 更具優勢",
+            "強調後座空間機能性：X-TRAIL 的後座設計具備優異的平整化表現，打平後空間平整，非常適合車宿等多元用途；相較之下，Territory 的後座空間存在隆起，影響了空間運用的靈活性與平整度"
+          ],
+          "citationCount": 4,
+          "topSource": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+          "flags": [
+            "誤中Sportage"
+          ]
+        },
+        {
+          "mode": "data-agent",
+          "ms": 11525,
+          "hit": true,
+          "intro": "面對 Ford Territory 競爭時，應強調其為大陸江鈴福特設計的非全球戰略車，並在空間機能、用料安全及維修成本等面向進行對抗。",
+          "bullets": [
+            "強調 X-Trail 的後座機能優勢，擁有 85 度大開門角度、4/2/4 分離傾倒及前後滑移功能，行李箱容積 647L 遠勝對方的 448L，且後座打平後更加平整，適合車宿需求",
+            "可回覆客戶關於車身安全的差異，X-Trail 在防撞樑使用 1,500Mpa 高剛性鋼材，且防撞樑寬度涵蓋範圍較廣，對比 Territory 防撞樑較短且部分鋼材硬度未標示，安全性更有保障",
+            "強調長期持有的經濟性，X-Trail 十年保養費用預估約 3.9 萬元，較 Territory 的 5.1 到 5.4 萬元便宜約 1.2 至 1.5 萬元，且具備更成熟的可變壓縮比引擎科技，靜肅性與油耗表現更佳。 重點"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2150,
+          "hit": true,
+          "intro": "應聚焦於 X-TRAIL 在底盤用料、車體結構強度及後座空間機能的顯著優勢。",
+          "bullets": [
+            "強調底盤用料扎實度：X-TRAIL 在懸吊系統大量採用輕量化鋁合金材料，包含鋁合金羊角與鋁合金三腳架，能有效降低簧下重量，使車身動態更穩定；反觀 Territory 僅配備鋁合金羊角，用料差異明顯",
+            "強調防撞鋼樑安全性：X-TRAIL 的防撞樑採用 1,500 Mpa 高剛性鋼材，提供堅實的結構保護；而 Territory 的鋁擠型前防撞樑硬度預估僅約 300 至 500 Mpa，在乘員安全防護的規格上存在顯著差距",
+            "強調後座空間機能性：X-TRAIL 的後座打平後非常平整，具備極佳的空間運用彈性，非常適合車宿使用；相比之下，Territory 的後座空間存在隆起，影響了平整化表現與空間機能的靈活性"
+          ],
+          "citationCount": 12,
+          "topSource": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+          "flags": [
+            "誤中Sportage"
+          ]
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 579,
+          "hit": true,
+          "intro": "《SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf》（4 段來源）",
+          "bullets": [
+            "SPORTAGE 商品特點挑戰 挑戰 SPORTAGE 商品特點 : 1. 本次台灣上市車型已是國外上市兩年多 的舊產品，(韓國 2024 年上市，歐洲 2025/6 上市 ) 2. 本次上市車型仍然沿用 Tucson L 油電混合 舊款引擎，過去有較多品情問題 (引擎積碳 造成儀表板亮燈 ) 3. X TRAIL ICE & e POWER 早在 2023 年上 市時已標配雙層隔音玻璃…",
+            "獨家引擎黑科技 vs. 舊世代 HEV 系統 進口配備國產價格 X TRAIL vs. SPORTAGE 三大賣點 國產車價進口質感 vs 進口車價質感掉漆 • SPORTAGE 本次上市車型仍然沿用 Tucson L 油電混合舊款引擎，過 去有較多品情問題 (引擎積碳造成 儀表板亮燈 )，另外，油電車在引擎 與馬達間不斷切換，除了感受上不 夠順暢，也帶來零件的額外損耗"
+          ],
+          "citationCount": 12,
+          "topSource": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+          "flags": [
+            "誤中Sportage"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "7-media",
+      "question": "X-TRAIL 媒體報導有哪些亮點",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2606,
+          "hit": true,
+          "intro": "根據2026年2月媒體報導，X-TRAIL輕油電在動力油耗、車體用料、空間機能及內裝配備上皆展現優於同級的產品實力。",
+          "bullets": [
+            "動力與油耗表現：X-TRAIL在同級國產中型休旅燃油動力車款中，具備更優異的油耗表現與性能數據，並全車系搭載雙層隔音玻璃，能有效阻隔車外雜音，是同級車中唯一的設計",
+            "車體用料與視線優化：比照高級進口車概念，全車採用7片鋁合金板件（含引擎蓋、前葉子板及四扇車門），並針對A柱進行視線優化，縮小死角範圍，讓駕駛更能掌握車輛側邊狀況",
+            "空間機能與便利性：具備近90度開門角度，方便長輩孩童上下車及裝卸貨物；後座支援4/2/4傾倒及滑移功能，提供客製化的舒適乘坐表現與彈性多變的置物機能",
+            "精品座艙與科技配備：內裝採用類黑色木紋或細膩髮絲紋飾板，標配12.3吋數位儀表與12.3吋觸控螢幕，旗艦版更搭載同級對手所沒有的HUD抬頭顯示器，以及雙前座10向電動調整座椅（附2組記憶）"
+          ],
+          "citationCount": 4,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 1)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 17789,
+          "hit": true,
+          "intro": "X-TRAIL 媒體報導亮點包含同級唯一雙層隔音玻璃、高級車等級的七件式鋁合金車體，以及能預測危險的超視距預警系統。",
+          "bullets": [
+            "強調 Carexpert 提及的進口車等級用料，車體包含引擎蓋、前葉子板與四扇車門共七大件皆採用鋁合金板件，打造出輕量化且高強度的安全防護，內裝則呈現日系低調內斂的精品質感",
+            "建議參考 Carlink 對安全科技的評價，特別是超越 Level 2 的安全架構，搭載 PFCW 超視距車輛追撞警示系統，能從幫你煞車進化到替你預測危險，被譽為適合台灣家庭的長期安心型 SUV。 重點包含 8891 試駕推崇的隱藏式盲區鏡頭，時速低於 50 公里撥打方向燈時會即時顯示車側畫面，改善盲區死角；此外近 90 度的開門角度與後座 4/2/4 傾倒滑移功能…"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2506,
+          "hit": true,
+          "intro": "根據2026年2月U-CAR與Carture媒體報導，X-TRAIL在動力油耗、車室靜謐性、空間機能及便利性上皆具備優於同級的競爭優勢。",
+          "bullets": [
+            "建議強調動力與油耗表現，X-TRAIL在同級國產中型休旅燃油動力車款中，不僅油耗表現更優異，性能數據亦佔上風，能滿足消費者對節能與動力的雙重需求",
+            "可回覆客戶關於靜謐性的疑慮，X-TRAIL全車系搭載同級唯一的雙前座雙層隔音玻璃，能有效阻隔車外雜音，提供更為寧靜的車室環境",
+            "重點說明視線安全優化，原廠針對A柱進行設計優化並縮小死角範圍，讓駕駛能更精準地掌握車輛側邊狀況，提升行車安全性",
+            "可強調空間機能的靈活性，後座具備4/2/4傾倒及滑移功能，能帶來客製化的舒適乘坐體驗，並提供行李廂彈性多變的置物空間",
+            "建議推廣便利性設計，X-TRAIL具備近90度開門角度，無論是長輩孩童上下車，或是進行裝卸貨物都非常便利，且旗艦版雙前座皆搭載10向調整電動座椅並附2組記憶功能"
+          ],
+          "citationCount": 6,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 1)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 587,
+          "hit": true,
+          "intro": "《X-TRAIL 媒體報導彙整_202602.pptx》（6 段來源）",
+          "bullets": [
+            "X-TRAIL 輕油電 自媒體傳播素材 MSD 2026.2",
+            "U-CAR 國產中型休旅首選之道 https://feature.u-car.com.tw/feature/article/86815 報導日期：2026年2月4日 X-TRAIL 具備優異的油耗表現與動力，是同級車唯一的雙層玻璃隔音玻璃設計，同級國產中型休旅燃油動力的車款中，X-TRAIL 有著更優異的油耗表現外，在性能數據部分同樣也佔上風",
+            "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ https://reurl.cc/7bgYayX-TRAIL優於同級的車室內裝配備，兼具變化性及舒適性，X-TRAIL 旗艦版雙前座皆搭載 10 向調整電動座椅(附 2 組記憶)"
+          ],
+          "citationCount": 6,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 1)",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "8-tucson",
+      "question": "TUCSON 長期持有成本",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2398,
+          "hit": true,
+          "intro": "根據現有資料，TUCSON L 透過渦輪增壓汽油與渦輪油電混合動力系統，在追求卓越性能的同時兼顧節能表現，提供車主長期持有時的動力選擇與油耗效益。",
+          "bullets": [
+            "建議強調 TUCSON L Turbo Hybrid 的高效節能表現，其最佳平均油耗可達 21.1km/l，能有效降低長期行駛的燃油成本",
+            "可強調渦輪增壓汽油動力車型亦具備 15.7km/l 的最佳平均油耗，提供消費者在不同動力需求下，皆能享有兼顧性能與節能的移動體驗",
+            "重點說明車輛搭載 1.6L T-GDi 渦輪增壓引擎，並提供多重駕馭模式（Drive Mode）與動態能源管理系統，讓車主能根據路況調整，進一步優化能源使用效率"
+          ],
+          "citationCount": 4,
+          "topSource": "TUCSON L Hyundai-Tucson-L-Turbo-Hybrid-2024-TW.pdf (page 2)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 10960,
+          "hit": true,
+          "intro": "TUCSON L 的長期持有成本高於 X-TRAIL 輕油電，8 年 8 萬公里的綜合持有成本多出約 11 萬元。",
+          "bullets": [
+            "強調保養成本的差異，TUCSON L 在 8 萬公里內的累計定保費用約 4.1 萬元，高於 X-TRAIL 的 3.2 萬元，且 TUCSON L 每萬公里的保養費用普遍較高，初次保養即需花費 3,271 元",
+            "可回覆客戶關於用車成本的整體評估，雖然 TUCSON L 的 8 萬公里油資可節省約 3.5 萬元，但加上電池、輪胎與延長保固等其他支出後，總支出反而比 X-TRAIL 多出近 15 萬元。 重點提醒客戶考量長期維護風險，雖然 TUCSON L 提供 8 年不限里程電池保固，但一旦過保或發生碰撞損壞，其高昂的零件與電池更換費用將成為車主沉重的財務負擔"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2216,
+          "hit": true,
+          "intro": "根據現有資料，TUCSON L 並未提供關於長期持有成本的具體數據或保養維修費用資訊。",
+          "bullets": [
+            "建議可向客戶強調 TUCSON L 在能源效率上的優勢，渦輪增壓汽油動力車型具備 15.7km/l 的最佳平均油耗，而渦輪油電混合動力車型則達到 21.1km/l 的高效節能表現，有助於降低長期燃油支出",
+            "可說明 TUCSON L 提供兩款動力選擇，包含 1.6L T-GDi 渦輪增壓汽油引擎，以及結合 Turbo Hybrid 渦輪油電科技與鋰離子電池組的動力系統，皆具備領先群倫的卓越性能與高效節能表現",
+            "若客戶關心車輛安全性對長期持有價值的影響，可參考 TNCAP 測試成績，TUCSON L 在成人保護項目獲得 96% 的 5 星評價，且在安全輔助項目同樣獲得 5 星肯定"
+          ],
+          "citationCount": 7,
+          "topSource": "TUCSON L Hyundai-Tucson-L-Turbo-Hybrid-2024-TW.pdf (page 2)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 548,
+          "hit": true,
+          "intro": "《TUCSON L Hyundai-Tucson-L-Turbo-Hybrid-2024-TW.pdf》（3 段來源）",
+          "bullets": [
+            "人的視覺一向是最強烈的感官 ，Tucson L 以嶄新前衛的 樣貌 ，展現超越以往的決心 ，大膽且科技感的外型來自 Sensuous Sportiness 設計語彙，採用參數化設計理念， 創造出鑽石般造型隱藏式日行燈，在移動間炫目出眾…",
+            "超群動力 所到之處釋放信仰 動態能源管理系統 ( 純電行駛狀態 ) Drive Mode 多重駕馭模式 追求優異的性能移動 ，同時兼顧節能環保 ， Tucson L 實現所有駕馭可能，Tucson L 提供兩款動力選擇 ：渦輪增壓汽油動力 / 渦輪油電混合動力 ，皆具備 領先群倫的卓越性能與高效節能表現 ，追求前進的同時流露屬於你的駕馭信仰"
+          ],
+          "citationCount": 7,
+          "topSource": "TUCSON L Hyundai-Tucson-L-Turbo-Hybrid-2024-TW.pdf (page 2)",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "9-pro-pilot",
+      "question": "ProPILOT 跟競品差在哪",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2144,
+          "hit": true,
+          "intro": "根據RAV4 LKA 也有分好壞 X-TRAIL vs RAV4.pdf，ProPILOT與競品RAV4的差異在於LKA（車道維持輔助系統）的品質表現有所不同。",
+          "bullets": [
+            "建議強調LKA系統的品質差異，根據知識庫內容，RAV4的LKA系統在表現上與X-TRAIL的ProPILOT存在好壞之分，這直接影響駕駛輔助的穩定性與安全性",
+            "可回覆客戶，選擇X-TRAIL的ProPILOT系統能提供更優質的車道維持體驗，相比之下，競品RAV4在該項功能的技術表現上並未達到相同水準，這也是選購時應納入考量的關鍵技術差異"
+          ],
+          "citationCount": 4,
+          "topSource": "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 22581,
+          "hit": true,
+          "intro": "ProPILOT 領先在超視距追撞警示與後方自動煞停，安全性較競品更完整。",
+          "bullets": [
+            "強調 ProPILOT 配備獨家的 PFCW 超視距車輛追撞警示系統，能監測前方兩台車的動態，相較於 Ford Co-Pilot360 僅能監測前方一台車，預警反應時間更提前。 重點在於安全防護的完整度，X-TRAIL 具備 RR-AEB 後方緊急煞停系統，能降低倒車時的撞擊風險，而如 Ford Territory 或 Kia Sportage 等競品在此項功能的覆蓋率較低",
+            "強調智行安全系統的成熟度與靜肅性，X-TRAIL 搭載的可變壓縮比引擎結合歐洲底盤技術，在開啟 LKA 車道維持與 ACC 主動定速時，過彎操控感與靜謐性優於同級",
+            "可回覆客戶關於保修後勤的優勢，X-TRAIL 的零件維修與回廠保養費用相對低廉，且擁有更完善的保修能量，能提供比部分歐系或韓系競品更無後顧之憂的用車體驗"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2368,
+          "hit": true,
+          "intro": "根據內部資料，ProPILOT 智行安全系統與競品相比，具備獨有的超視距預判與防誤踩安全技術，提供更全面的防護。",
+          "bullets": [
+            "建議強調 ProPILOT 智行安全系統具備同級唯一的 PFCW 超視距車輛追撞警示系統，能預判前前車動態並提早反應，相較於一般輔助系統，能更有效降低追撞風險",
+            "可強調 ProPILOT 系統包含 EAPM 油門誤踩緊急輔助系統，能針對駕駛操作失誤進行防護，在防誤踩與防碰撞方面提供更高等級的安全保障",
+            "針對 Ford Territory 等競品搭載的 Co-Pilot360 Drive+ 系統，ProPILOT 在整合性與主動安全預判邏輯上展現出更細膩的技術優勢，能為車主帶來更安心的駕駛體驗"
+          ],
+          "citationCount": 3,
+          "topSource": "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 2)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 606,
+          "hit": false,
+          "intro": "",
+          "bullets": [],
+          "citationCount": 3,
+          "topSource": "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 2)",
+          "flags": [
+            "無列點"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "10-nonsense",
+      "question": "客戶問今天天氣如何",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 562,
+          "hit": false,
+          "intro": "此問題與汽車銷售知識庫無關，目前無法回答。若有 X-TRAIL、競品或話術相關問題，歡迎再問。",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "無列點"
+          ]
+        },
+        {
+          "mode": "data-agent",
+          "ms": 6654,
+          "hit": true,
+          "intro": "目前知識庫中主要包含汽車產品規格、銷售話術與競品比較資料，無法回答有關天氣預報的資訊。",
+          "bullets": [
+            "目前知識庫中主要包含汽車產品規格、銷售話術與競品比較資料，無法回答有關天氣預報的資訊。\n\n很抱歉，這份知識庫僅針對汽車銷售與產品知識進行連結，目前的資料內容不包含天氣預報。\n建議您使用手機的天氣應用程式或查詢中央氣象署網站，以獲取最即時且準確的當地天氣資訊。\n若您對 X-TRAIL 或其他車款的產品"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": [
+            "無列點"
+          ]
+        },
+        {
+          "mode": "hybrid",
+          "ms": 557,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 618,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "11-epower",
+      "question": "e-POWER 跟傳統油電有什麼差？客戶問怎麼解釋",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 1535,
+          "hit": true,
+          "intro": "知識庫中未提供關於 e-POWER 與傳統油電系統的技術差異說明。",
+          "bullets": [
+            "目前知識庫內容僅包含 X-TRAIL e-POWER 與其他車型在 AEB 實測中的車型列表資訊",
+            "知識庫中並無針對 e-POWER 運作原理或與傳統油電系統比較之相關技術文件或銷售話術"
+          ],
+          "citationCount": 2,
+          "topSource": "車型",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 12369,
+          "hit": true,
+          "intro": "e-POWER 透過馬達 100% 直驅，提供比傳統油電更平順、安靜且強勁的純電駕馭感。",
+          "bullets": [
+            "強調 e-POWER 全程由馬達驅動車輪，相較於傳統 HEV 油電系統在引擎與馬達間不斷切換，e-POWER 運作時完全沒有換檔頓挫感，動力輸出更為平順且安靜。 重點在於 e-POWER 系統中的引擎僅負責發電而不直接驅動，這讓車主能享受電動車般的瞬間大扭力與流暢感，卻無需擔心充電問題，只需加油即可補足能源",
+            "說明傳統油電（HEV）在大腳油門時，引擎室傳出的嘶吼聲與換檔延遲較為明顯，而 e-POWER 調校細膩，能有效過濾震動並提供如進口車級的靜謐質感。 重點提及 e-POWER 搭配 e-4ORCE 電子四驅技術，能更精準地分配動力，相較傳統油電系統能大幅減少過彎或煞車時的車身晃動，顯著提升乘客的舒適度",
+            "可回覆 X-Trail e-POWER 具備 1.5 升排氣量的省稅優勢，每年稅金比同級 2.5 升傳統油電節省超過萬元，足以抵銷油耗差額，整體持有成本反而更具競爭力"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 1876,
+          "hit": true,
+          "intro": "知識庫中未提供關於 e-POWER 與傳統油電系統差異的技術說明或比較資訊。",
+          "bullets": [
+            "目前知識庫內容僅包含 X-TRAIL e-POWER 與其他車型在 AEB 實測總表中的紀錄，並未涵蓋動力系統運作原理或與傳統油電的比較說明",
+            "若客戶詢問相關技術差異，建議依據官方產品手冊或教育訓練教材進行說明，以確保資訊準確性"
+          ],
+          "citationCount": 2,
+          "topSource": "車型",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 614,
+          "hit": false,
+          "intro": "",
+          "bullets": [],
+          "citationCount": 2,
+          "topSource": "車型",
+          "flags": [
+            "無列點"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "12-soundproof",
+      "question": "雙層隔音玻璃有什麼好處？客戶問靜音",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 630,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 37962,
+          "hit": true,
+          "intro": "雙層隔音玻璃能有效阻絕外部噪音與風切聲，創造媲美進口車的靜謐車室空間。",
+          "bullets": [
+            "強調 X-TRAIL 為同級唯一標配雙層隔音玻璃的國產休旅，相比競品 RAV4 的單層玻璃，在時速 50 公里時約有 3 分貝的靜音優勢",
+            "可回覆客戶雙層玻璃不僅提升靜謐質感，更結合全車 NVH 隔音工程與底盤吸震韌性，讓全家人都能在車內享受高品質的移動過程。 相關知識來源"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 701,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 528,
+          "hit": false,
+          "intro": "目前題庫中尚無此問題的標準話術。是否要將此問題加入「待新增題庫清單」，由話術管理窗口後續建檔？",
+          "bullets": [],
+          "citationCount": 0,
+          "topSource": "",
+          "flags": [
+            "題庫無"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "13-crv-battle",
+      "question": "Honda CR-V 對戰話術",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2776,
+          "hit": true,
+          "intro": "裕隆日產 X-TRAIL 具備更優異的動力科技、車室質感與安全防護，提供消費者更高性價比的選擇。",
+          "bullets": [
+            "建議強調 X-TRAIL 搭載 1.5T VC-TURBO 可變壓縮比引擎或 e-POWER 智能電驅系統，相較傳統動力，e-POWER 全程由電馬達驅動，無換檔頓挫感，且 e-4ORCE 電子四驅系統能精準分配動力，大幅減少車身晃動並提升抓地力",
+            "可回覆 X-TRAIL 在車室質感與配備上具備越級優勢，包含 TAKUMI 匠人訂製皮革座椅、雙 12.3 吋螢幕搭配 10.8 吋抬頭顯示器、BOSE 音響系統，以及雙前座隔音玻璃帶來的優異 NVH 靜肅性，以國產價格提供進口車等級的豪華體驗",
+            "重點說明 X-TRAIL 的安全防護更為全面，全車系標配包含 AVM 環景影像、MOD 移動物體偵測、RR-AEB 後方緊急煞車及 PFCW 超視距車輛追撞警示系統，並採用 1,500 Mpa 高剛性鋼材打造防撞樑，提供更堅實的乘員保護",
+            "可強調 X-TRAIL 在空間機能與底盤用料的細膩度，後座打平後極為平整，適合車宿需求；懸吊系統大量使用鋁合金羊角與三腳架，有效降低簧下重量，提升車身動態穩定性，並具備後門 85 度超廣角開啟與 647L 大容量行李廂，實用性領先同級"
+          ],
+          "citationCount": 4,
+          "topSource": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 10858,
+          "hit": true,
+          "intro": "應強調 X-Trail 在內裝質感、隔音表現、保固期限與配備齊全度上的優勢，並引導客戶透過實際試乘驗證雙方在濾震與靜謐性上的落差。",
+          "bullets": [
+            "強調 X-Trail 具備更卓越的內裝用料、隔音表現與舒適靜肅性，並",
+            "說明 Nissan 融入歐洲底盤技術，具備穩重的過彎操控感，動力扭力釋放亦優於 CR-V。 重點在於 X-Trail 配備較 CR-V 更為齊全且具備輕油電系統，可引導客戶參考網路拆解影片與專業車評，指出 CR-V 配備更新緩慢的現況，進而突顯 X-Trail 的領先地位"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 1812,
+          "hit": true,
+          "intro": "目前知識庫中並未提供相關的比較資訊與話術策略。",
+          "bullets": [
+            "目前裕隆日產汽車銷售培訓資料庫中，僅包含針對 Kia SPORTAGE 與 Ford Territory 的對戰分析與話術建議",
+            "若您需要針對其他競品的對戰策略，建議參考公司後續更新的銷售培訓教材，或針對已有的 SPORTAGE 與 Territory 競品話術進行靈活運用"
+          ],
+          "citationCount": 12,
+          "topSource": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 529,
+          "hit": true,
+          "intro": "《SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf》（4 段來源）",
+          "bullets": [
+            "SPORTAGE 商品特點挑戰 挑戰 SPORTAGE 商品特點 : 1. 本次台灣上市車型已是國外上市兩年多 的舊產品，(韓國 2024 年上市，歐洲 2025/6 上市 ) 2. 本次上市車型仍然沿用 Tucson L 油電混合 舊款引擎，過去有較多品情問題 (引擎積碳 造成儀表板亮燈 ) 3. X TRAIL ICE & e POWER 早在 2023 年上 市時已標配雙層隔音玻璃…",
+            "獨家引擎黑科技 vs. 舊世代 HEV 系統 進口配備國產價格 X TRAIL vs. SPORTAGE 三大賣點 國產車價進口質感 vs 進口車價質感掉漆 • SPORTAGE 本次上市車型仍然沿用 Tucson L 油電混合舊款引擎，過 去有較多品情問題 (引擎積碳造成 儀表板亮燈 )，另外，油電車在引擎 與馬達間不斷切換，除了感受上不 夠順暢，也帶來零件的額外損耗"
+          ],
+          "citationCount": 12,
+          "topSource": "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1)",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "14-rear-seat",
+      "question": "客戶說 X-TRAIL 後座會晃、容易暈怎麼回",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2694,
+          "hit": true,
+          "intro": "建議透過強調車室空間的靈活設計與舒適性配置，引導客戶親自體驗以消除疑慮。",
+          "bullets": [
+            "可強調 X-TRAIL 具備劇院級視野，高座位設計能讓乘客小腿有更多延伸空間，搭配可前後滑移與多段調整的椅背，能提供比單純追求座椅長度更舒適的坐姿",
+            "應強調空間運用的靈活度、上下車的便利性及安全性，並提及內裝通過 SGS 氣體揮發認證，營造更安心且健康的乘坐環境，證明整體乘坐體驗優於競品",
+            "建議引導客戶親自試駕，透過實際感受車輛的濾震與靜謐性，來驗證 X-TRAIL 在整體舒適度、安全性與便利性上的領先表現"
+          ],
+          "citationCount": 4,
+          "topSource": "X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭力 看起來都略遜於同級對手",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 10111,
+          "hit": true,
+          "intro": "應先認同休旅車重心較高，再引導客戶理解其物理特性，並將重點轉向 X-TRAIL 的吸震韌性與長途舒適性。",
+          "bullets": [
+            "說明良好的轉向方式能有效減小過彎時的傾斜角度，從而降低乘客的暈眩感。 重點可轉化為產品的吸震韌性與長途舒適性，",
+            "說明 X-TRAIL 搭載的高韌性懸吊系統是為了過濾碎震而設計，能確保車輛在多種路況下維持穩定的行路質感",
+            "強調這種設定是為了提升整體乘坐的質感與信心，讓客戶理解車輛在穩定性與舒適度之間已達到優異的平衡"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2064,
+          "hit": true,
+          "intro": "建議透過實際試駕體驗，並強調車輛在舒適性與空間設計上的優勢來進行溝通。",
+          "bullets": [
+            "建議引導客戶親自試駕，透過實際駕駛感官體驗，彰顯 X-TRAIL 在濾震與靜謐性上的表現，讓實際感受成為說服客戶的核心亮點，以驗證車輛在舒適度、安全性與便利性上的領先優勢",
+            "可強調 X-TRAIL 具備劇院級視野與高座位設計，讓小腿有更多延伸空間，搭配可前後滑移與多段調整的椅背，能提供比單純追求座椅長度更舒適的坐姿，提升整體乘坐體驗",
+            "可強調空間運用的靈活度、上下車的便利性及安全性，並提及內裝通過 SGS 氣體揮發認證，營造更安心且健康的乘坐環境，以此證明整體乘坐體驗優於競品"
+          ],
+          "citationCount": 5,
+          "topSource": "X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭力 看起來都略遜於同級對手",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 525,
+          "hit": true,
+          "intro": "《X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭》（2 段來源）",
+          "bullets": [
+            "應以實際試乘為準的觀點，建議引導客戶親自試駕，透過實際體驗彰顯 X-Trail 的各項優點，並與客戶溝通動力、油耗及扭力在實際駕駛感官上與數據差異不大，讓實際感受成為說服客戶的核心亮點"
+          ],
+          "citationCount": 5,
+          "topSource": "X-TRAIL/ Territory /RAV4\n三台車都是屬於油電混和系統動力，相較之下X-Trail 油耗/動力/扭力 看起來都略遜於同級對手",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "15-vct",
+      "question": "VC-TURBO 可變壓縮比引擎要怎麼跟客戶講",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2092,
+          "hit": true,
+          "intro": "根據 X-TRAIL 媒體報導彙整，VC-TURBO 可變壓縮比引擎是為駕駛在動力與油耗之間找到最聰明解法的核心技術。",
+          "bullets": [
+            "建議向客戶強調，VC-TURBO 可變壓縮比引擎能精準平衡動力輸出與燃油經濟性，讓車主無需在強勁性能與省油表現之間做出妥協",
+            "可回覆客戶，這項技術代表了引擎科技的進化，透過自動調整壓縮比，能隨時提供駕駛最聰明的運作模式，是兼顧家庭用車需求與駕駛樂趣的理想選擇",
+            "重點說明此引擎技術為 X-TRAIL 帶來更優異的駕馭體驗，讓車輛在各種行駛狀況下都能維持最佳效率，展現出超越傳統引擎的智慧與效能"
+          ],
+          "citationCount": 2,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 5)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 19101,
+          "hit": true,
+          "intro": "可變壓縮比引擎能在動力與油耗間找到平衡，是領先同級的越級獨家技術。",
+          "bullets": [
+            "強調這款引擎是國產唯一的越級技術，透過可變壓縮比設計，能讓車輛在需要加速時爆發強勁動力，在巡航時則展現優異的省油表現，為車主在效能與經濟性之間找到最聰明的解法",
+            "說明 X-Trail 作為全球戰略機種，其核心動力技術比合作開發車款更成熟，在造車工藝的科技領先性與細節質感上均展現本質上的優勢。 重點提及引擎在靜肅性（NVH）上的強化，配合雙前座隔音玻璃，能提供比對手更優越的靜謐空間，並邀請客戶實際試乘，親自感受機械運作的精緻度，以化解網路評論對三缸引擎噪音的誇大疑慮",
+            "強調成熟的 VC-TURBO 技術具備較佳的妥善率，相較於其他品牌能確保更好的用車品質與保值價值，是一輛專為台灣家庭設計的長期安心型 SUV。 相關數據與資訊"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2237,
+          "hit": true,
+          "intro": "根據 X-TRAIL 媒體報導彙整，VC-TURBO 可變壓縮比引擎是為駕駛在動力與油耗之間找到最聰明解法的核心技術。",
+          "bullets": [
+            "建議向客戶強調，VC-TURBO 可變壓縮比引擎能精準平衡動力輸出與燃油經濟性，讓車主無需在強勁性能與節能表現之間做出妥協",
+            "可回覆客戶，這項技術代表了引擎科技的進化，透過智慧調整壓縮比，為駕駛提供最聰明的動力解決方案，確保日常行駛既省油又具備充沛動力",
+            "重點說明此引擎設計旨在提升整體駕馭體驗，讓車輛能根據路況與駕駛需求自動切換，實現動力與油耗的最佳化平衡"
+          ],
+          "citationCount": 2,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 5)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 753,
+          "hit": true,
+          "intro": "《X-TRAIL 媒體報導彙整_202602.pptx》（2 段來源）",
+          "bullets": [
+            "Carlink 一輛為台灣家庭重新設計的「長期安心型 SUV」 VC-TURBO 可變壓縮比引擎：在動力與油耗之間，替駕駛找到最聰明的解法，紓壓座椅＋BOSE 音響：照顧駕駛，其實就是照顧全家，打造舒適移動生活空間"
+          ],
+          "citationCount": 2,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 5)",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "16-battery",
+      "question": "e-POWER 電池保固幾年？客戶擔心更換費用",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 1961,
+          "hit": true,
+          "intro": "目前提供的知識庫內容中，並未包含關於 X-TRAIL e-POWER 電池保固年限及更換費用的相關資訊。",
+          "bullets": [
+            "建議您可直接查詢裕隆日產官方網站的車主手冊或保固條款，以獲取最準確的電池保固年限資訊",
+            "建議可聯繫所屬經銷商的服務廠，由專業技師提供該車型的零件報價與保養建議"
+          ],
+          "citationCount": 2,
+          "topSource": "車型",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 20566,
+          "hit": true,
+          "intro": "鋰電池提供 8 年或 16 萬公里的原廠保固，且更換成本僅約 2.5 萬元，遠低於同級競品。",
+          "bullets": [
+            "強調原廠保固服務，除了基本的 3 年或 10 萬公里全車保固外，針對鋰電池特別提供 8 年或 16 萬公里的長效保固，足以涵蓋多數車主的首手用車週期，讓客戶在購車初期無須擔心品質問題",
+            "可回覆客戶關於整體用車成本的優勢，雖然 e-POWER 系統科技精密，但透過國產化與零件供應鏈優化，使得關鍵耗材如電池的費用更具競爭力，搭配 1.5L 引擎帶來的稅金省下金額，長期下來持有成本反而更低"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 1900,
+          "hit": true,
+          "intro": "目前提供的知識庫內容中，並未包含關於 X-TRAIL e-POWER 電池保固年限及更換費用的相關資訊。",
+          "bullets": [
+            "建議您直接查詢裕隆日產汽車官方網站或聯繫授權經銷商，以獲取最準確的電池保固政策與維修費用說明",
+            "知識庫目前僅提供 X-TRAIL e-POWER 在 AEB 實測相關的車型資訊，並無針對動力電池系統的保固條款說明"
+          ],
+          "citationCount": 2,
+          "topSource": "車型",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 584,
+          "hit": false,
+          "intro": "",
+          "bullets": [],
+          "citationCount": 2,
+          "topSource": "車型",
+          "flags": [
+            "無列點"
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "17-rr-aeb",
+      "question": "X-TRAIL 有沒有後方煞車輔助？跟 KUGA 比呢",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2418,
+          "hit": true,
+          "intro": "根據現有資料，並未提及 X-TRAIL 是否具備後方煞車輔助功能，亦無相關與 KUGA 的比較資訊。",
+          "bullets": [
+            "建議可向顧客強調 X-TRAIL 在車體安全與視野上的優勢，例如全車系採用鋁合金板件打造，並針對 A 柱進行視線優化，有效縮小死角範圍，讓駕駛能更精準掌握車輛側邊狀況",
+            "可強調 X-TRAIL 具備同級唯一的雙層隔音玻璃設計，全車系標配能有效阻隔車外雜音，提供更為寧靜舒適的車室環境",
+            "可回覆顧客 X-TRAIL 在空間機能上的優勢，包含近 90 度的開門角度，方便長輩孩童上下車，以及後座 4/2/4 傾倒與滑移功能，能靈活調整行李廂空間以滿足多樣化載物需求"
+          ],
+          "citationCount": 4,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 1)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 11129,
+          "hit": true,
+          "intro": "X-TRAIL 具備 RBA 後方緊急煞車系統，在倒車時速 0 至 15 公里內偵測到障礙物會介入煞車，安全防護更勝一籌。",
+          "bullets": [
+            "強調 X-TRAIL 擁有 RBA 後方緊急煞車，其作動時速區間為 0 至 15 公里，比起 KUGA 改款後的 RBA 系統作動區間 2 至 12 公里更為寬廣，能提供更全面的低速倒車防護",
+            "說明 X-TRAIL 除了後方煞車輔助，還具備同級唯一的 PFCW 超視距車輛追撞警示，能偵測前方兩台車的動態，安全預警能力比 KUGA 僅有的單車偵測更先進。 重點在於 X-TRAIL 獲得 TNCAP 四星評鑑，其中安全輔助得分達 84%，相較於 KUGA 舊款的三星評鑑與 57% 安全輔助得分，X-TRAIL 在整體主被動安全表現上更令消費者安心",
+            "可回覆客戶 X-TRAIL 搭載 AI 智能駕駛輔助系統，不僅提供 Level 2 全速域巡航，更有超視距警示與後方自動煞停，在狹窄市區倒車或高速路段行駛時都比競品更安全"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2087,
+          "hit": true,
+          "intro": "根據現有資料，並未提及 X-TRAIL 是否具備後方煞車輔助功能，也無相關與 KUGA 的比較資訊。",
+          "bullets": [
+            "建議您可向客戶強調 X-TRAIL 在車室空間與舒適性上的優勢，例如具備近 90 度開門角度，方便長輩孩童上下車或裝卸貨物",
+            "可強調 X-TRAIL 後座具備 4/2/4 傾倒及滑移功能，能帶來客製化的舒適乘坐表現，並提供行李廂彈性多變的置物機能",
+            "可說明 X-TRAIL 全車系搭載雙層隔音玻璃，是同級車中唯一的設計，能有效阻隔車外雜音，提升行車品質",
+            "可提及 X-TRAIL 在 A 柱進行了視線優化，縮小死角範圍，讓駕駛能更精準掌握車輛側邊狀況"
+          ],
+          "citationCount": 6,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 1)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 588,
+          "hit": true,
+          "intro": "《X-TRAIL 媒體報導彙整_202602.pptx》（6 段來源）",
+          "bullets": [
+            "X-TRAIL 輕油電 自媒體傳播素材 MSD 2026.2",
+            "U-CAR 國產中型休旅首選之道 https://feature.u-car.com.tw/feature/article/86815 報導日期：2026年2月4日 X-TRAIL 具備優異的油耗表現與動力，是同級車唯一的雙層玻璃隔音玻璃設計，同級國產中型休旅燃油動力的車款中，X-TRAIL 有著更優異的油耗表現外，在性能數據部分同樣也佔上風",
+            "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ https://reurl.cc/7bgYayX-TRAIL優於同級的車室內裝配備，兼具變化性及舒適性，X-TRAIL 旗艦版雙前座皆搭載 10 向調整電動座椅(附 2 組記憶)"
+          ],
+          "citationCount": 6,
+          "topSource": "X-TRAIL 媒體報導彙整_202602.pptx (slide 1)",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "caseId": "18-kuga",
+      "question": "客戶說 KUGA 比較便宜，怎麼回",
+      "results": [
+        {
+          "mode": "function-calling",
+          "ms": 2789,
+          "hit": true,
+          "intro": "建議從實際成交價格結構及長期持有成本進行分析，以釐清市場現況。",
+          "bullets": [
+            "建議強調 KUGA 改款後的實際成交價格其實是上漲的。以 KUGA 1.5T ST-Line 改款前與 1.5T Active 改款後相比，雖然車價帳面數字有調整，但因改款前有高達 11 萬的優惠，改款後優惠縮減至 2 萬，導致實際成交價反而增加了 3 萬元",
+            "可回覆客戶目前福特業代的殺價空間已非常有限，因為改款後的籌碼已直接反映在車價上，客戶若單看帳面價格容易忽略實際購車成本的變化",
+            "重點提醒客戶關注車輛的長期保值性，根據數據顯示，KUGA 舊款一年新車的折價高達 35 萬元，相較之下 X-TRAIL 同期僅折價 22 萬元，顯示 X-TRAIL 在保值程度上更具優勢，長期持有更划算",
+            "可補充說明 KUGA 過去曾出現眾多品質問題，這類負面因素可能會進一步惡化二手車價，建議客戶在購車時應將未來脫手時的殘值納入考量，選擇品質穩定且保值的車款才是真正的省錢"
+          ],
+          "citationCount": 4,
+          "topSource": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 1)",
+          "flags": []
+        },
+        {
+          "mode": "data-agent",
+          "ms": 14534,
+          "hit": true,
+          "intro": "可強調 X-Trail 的成交價格更有競爭力，並透過長期省下的油資與更優異的安全實績來轉移客戶對標價的關注。",
+          "bullets": [
+            "說明 KUGA 改款後的標價調降主要是將以往的優惠折價直接反映在車價上，實際成交價反而可能微幅上漲，目前業務端的議價籌碼已大幅縮減，並不像表面看起來那麼便宜。 重點",
+            "強調 X-Trail 的 1.5T 輕油電系統具備更好的油耗表現，以行駛 10 年 20 萬公里計算，可比 KUGA 省下近 4 萬元油資，足以抵銷購車時的價差",
+            "可回覆 X-Trail 在 TNCAP 撞擊測試中獲得 4 星優異成績，成人與安全輔助保護率皆遠高於 KUGA 舊款的 3 星紀錄，提供家人更實質的安全保障"
+          ],
+          "citationCount": 0,
+          "topSource": "(Agent自查BQ)",
+          "flags": []
+        },
+        {
+          "mode": "hybrid",
+          "ms": 2354,
+          "hit": true,
+          "intro": "建議從實際成交價格結構及長期持有成本進行分析，協助客戶釐清真實價值。",
+          "bullets": [
+            "建議強調 KUGA 改款後的價格結構變化，雖然改款前有大降價優惠，但改款後籌碼已反映在車價上，目前福特業代手上已無過多的殺價空間，按成交價格計算反而呈現漲價趨勢",
+            "可回覆客戶關於二手殘值的考量，以 KUGA 舊款 1 年新車來看，折價高達 35 萬，而 X-TRAIL 僅折價 22 萬，顯示 X-TRAIL 在保值程度上更具優勢，長期持有更划算",
+            "重點提醒客戶，KUGA 眾多的品質問題可能會進一步惡化二手車價，相較之下選擇 X-TRAIL 不僅能避免後續維修困擾，在車輛殘值表現上也更有保障"
+          ],
+          "citationCount": 8,
+          "topSource": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 1)",
+          "flags": []
+        },
+        {
+          "mode": "bq-fast",
+          "ms": 666,
+          "hit": true,
+          "intro": "《KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf》（8 段來源）",
+          "bullets": [
+            "All right reserved by Motor Co., Ltd. any permission : Confidential KUGA 改款商品資訊 YNM MSD Oct 2024",
+            "• 頭燈升級轉向照明功能，結合 GPS 圖資、方向盤轉向與 攝影機，進行光束預判投射，• 安全增加更多預警功能 (十字路口碰撞預警、視覺盲點轉 向輔助 )，當車輛轉向或變道時，遇障礙物提供方向盤修 正力道或介入煞車"
+          ],
+          "citationCount": 8,
+          "topSource": "KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 1)",
+          "flags": []
+        }
+      ]
+    }
+  ]
+}

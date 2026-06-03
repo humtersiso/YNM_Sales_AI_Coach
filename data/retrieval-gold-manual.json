@@ -1,0 +1,80 @@
+[
+  {
+    "id": "manual-back-seat",
+    "query": "我覺得XTRAIL後座椅子短不太好坐",
+    "expectQuestionContains": "後座椅子",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-features",
+    "query": "XTRAIL 特色如何?",
+    "expectQuestionContains": "特色",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-fuel-objection",
+    "query": "客戶擔心 X-TRAIL 油耗怎麼回？",
+    "expectQuestionContains": "油耗",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-test-drive",
+    "query": "試乘邀約怎麼說",
+    "expectQuestionContains": "試乘",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-price",
+    "query": "價格優惠話術",
+    "expectQuestionContains": "價格",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-territory-yt",
+    "query": "TERRITORY_YT負評影片 在哪裡?",
+    "expectQuestionContains": "TERRITORY",
+    "productLine": "xtrail-ice"
+  },
+    {
+      "id": "manual-tucson-cost",
+      "query": "TUCSON 長期持有成本",
+      "expectScriptContains": "TUCSON",
+      "productLine": "xtrail-ice"
+    },
+    {
+      "id": "manual-propilot",
+      "query": "X-TRAIL 有 ProPILOT 嗎",
+      "expectScriptContains": "propilot",
+      "productLine": "xtrail-ice"
+    },
+  {
+    "id": "manual-low-rpm-noise",
+    "query": "在開車低轉速時，會有異音",
+    "expectQuestionContains": "異音",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-media",
+    "query": "X-TRAIL 媒體報導有哪些亮點",
+    "expectQuestionContains": "媒體",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-horsepower",
+    "query": "X-TRAIL ICE 的馬力如何？",
+    "expectScriptContains": "204",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-rav4-fuel-compare",
+    "query": "XTRAIL 跟 RAV4 油耗怎麼比",
+    "expectScriptContains": "km",
+    "productLine": "xtrail-ice"
+  },
+  {
+    "id": "manual-torque",
+    "query": "X-TRAIL 最大扭力多少",
+    "expectScriptContains": "30",
+    "productLine": "xtrail-ice"
+  }
+]

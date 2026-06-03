@@ -1,5 +1,5 @@
 /**
- * 產出精簡版 repo 根目錄 Demo話術演練資料.xlsx（必要 sheet／欄位與主庫對齊）。
+ * 產出精簡版 web/data/Demo話術演練資料.xlsx（必要 sheet／欄位與主庫對齊）。
  * 執行：在 web 目錄下 npm run build:demo-xlsx
  */
 import path from "path";
@@ -33,7 +33,7 @@ function main() {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(qaRowsWithId), "問題蒐集對應");
 
-  const outPath = path.resolve(process.cwd(), "..", OUT_NAME);
+  const outPath = path.resolve(process.cwd(), "data", OUT_NAME);
   XLSX.writeFile(wb, outPath);
   console.log(`已寫入：${outPath}`);
 }

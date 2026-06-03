@@ -23,7 +23,7 @@ function isHeaderMatch(text: string, aliases: string[]) {
 type Merge = { s: { r: number; c: number }; e: { r: number; c: number } };
 
 /** 將合併儲存格左上角值填滿合併範圍，避免下游讀到空字串 */
-function applyMergesToAoa(sheet: XLSX.WorkSheet, aoa: (string | number | undefined)[][]) {
+export function applyMergesToAoa(sheet: XLSX.WorkSheet, aoa: (string | number | undefined)[][]) {
   const merges = sheet["!merges"] as Merge[] | undefined;
   if (!merges?.length) return;
   for (const m of merges) {
@@ -46,7 +46,7 @@ function applyMergesToAoa(sheet: XLSX.WorkSheet, aoa: (string | number | undefin
   }
 }
 
-function ensureRectangular(aoa: (string | number | undefined)[][]) {
+export function ensureRectangular(aoa: (string | number | undefined)[][]) {
   let maxC = 0;
   for (const row of aoa) maxC = Math.max(maxC, row?.length ?? 0);
   for (const row of aoa) {
