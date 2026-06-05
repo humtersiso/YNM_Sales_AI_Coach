@@ -43,9 +43,9 @@ export const DEMO_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
       closingActions: ["邀請試乘", "提供油耗試算表", "約第二次到店"],
     },
     sectionE: {
-      difficulty: "normal",
+      difficulty: "advanced",
       maxTurns: 5,
-      personaId: "analyst",
+      personaId: "P-01",
     },
     sectionF: {
       criteria: [
@@ -55,7 +55,7 @@ export const DEMO_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
           lowExample: "一開始就反駁客戶錯誤",
         },
         {
-          dimensionId: "accuracy",
+          dimensionId: "factCheck",
           highExample: "引用 WLTC 基準並說明試算方式",
           lowExample: "誇大或憑空數字",
         },
@@ -102,9 +102,9 @@ export const DEMO_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
       closingActions: ["試算月供", "保留優惠名額", "約今日試乘"],
     },
     sectionE: {
-      difficulty: "normal",
+      difficulty: "advanced",
       maxTurns: 5,
-      personaId: "budget",
+      personaId: "P-03",
     },
     sectionF: {
       criteria: [

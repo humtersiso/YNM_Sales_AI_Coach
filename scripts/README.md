@@ -2,7 +2,7 @@
 
 | 子目錄 | 用途 |
 |--------|------|
-| `ops/` | Cloud Run 部署、env 切換 |
+| `ops/` | Cloud Run 部署、IAM/env 檢查、本地 amd64 容器、log tail（見 [docs/CLOUDRUN_LOCAL_PARITY.md](../docs/CLOUDRUN_LOCAL_PARITY.md)） |
 | `rag/` | RAG 設定、ingest、檢索測試 |
 | `sales/` | 銷售助手測試（待逐步移入 `test-sales-*`） |
 | `smoke/` | 冒煙測試 |

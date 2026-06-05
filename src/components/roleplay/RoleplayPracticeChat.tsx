@@ -42,8 +42,8 @@ export function RoleplayPracticeChat({
   return (
     <div className="flex min-h-[50dvh] flex-col rounded-2xl border border-emerald-100 bg-white shadow-sm">
       <div className="border-b border-emerald-100 px-3 py-2">
-        <p className="text-xs text-emerald-700">
-          第 {turn} / {maxTurns} 輪
+        <p className="text-xs font-medium text-emerald-700">
+          [Round {turn} / {maxTurns}]
           {turn >= maxTurns ? " · 請結束並評分" : ""}
         </p>
       </div>

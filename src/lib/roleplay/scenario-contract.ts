@@ -1,6 +1,23 @@
 export type RoleplayGrade = "S" | "A" | "B" | "C" | "D";
 
-export type RoleplayDifficulty = "easy" | "normal" | "hard";
+/** 對練難度（UI：新手／進階／挑戰） */
+export type RoleplayDrillDifficulty = "beginner" | "advanced" | "challenge";
+
+/** 相容舊示範情境 */
+export type RoleplayLegacyDifficulty = "easy" | "normal" | "hard";
+
+export type RoleplayDifficulty = RoleplayDrillDifficulty | RoleplayLegacyDifficulty;
+
+export type RoleplayAgeRange = "20-30" | "30-40" | "40-50" | "50+";
+
+export type RoleplaySessionConfig = {
+  productLine: string;
+  personaId: string;
+  ageRange: RoleplayAgeRange;
+  competitor: string;
+  maxTurns: number;
+  difficulty: RoleplayDrillDifficulty;
+};
 
 export type RoleplayScenarioSectionA = {
   title: string;
@@ -29,6 +46,7 @@ export type RoleplayScenarioSectionE = {
   difficulty: RoleplayDifficulty;
   maxTurns: number;
   personaId: string;
+  ageRange?: RoleplayAgeRange;
 };
 
 export type RoleplayScenarioSectionF = {

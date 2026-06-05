@@ -29,6 +29,8 @@ export async function POST(
     if (e instanceof RoleplaySessionError) {
       return NextResponse.json({ error: e.message }, { status: e.status });
     }
-    throw e;
+    const message = e instanceof Error ? e.message : "結束評分失敗";
+    console.error("[roleplay] finish failed", e);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

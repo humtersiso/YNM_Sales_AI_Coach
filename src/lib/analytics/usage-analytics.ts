@@ -10,6 +10,7 @@ function inDateRange(iso: string, from?: string, to?: string) {
 
 export function filterQueryLogs(logs: QueryLog[], f: UsageFilters) {
   return logs.filter((row) => {
+    if (f.agentUserId && f.agentUserId !== "all" && row.userId !== f.agentUserId) return false;
     if (f.branch && f.branch !== "all" && row.branch !== f.branch) return false;
     if (f.assistantType && f.assistantType !== "all" && row.assistantType !== f.assistantType) return false;
     if (f.tenureMin != null && row.tenureYears < f.tenureMin) return false;
@@ -31,6 +32,34 @@ export function computeUsageKpis(logs: QueryLog[]) {
 
 export function getBranches(logs: QueryLog[]): string[] {
   return [...new Set(logs.map((l) => l.branch).filter(Boolean))].sort();
+}
+
+export function buildSalesAgentNameOptions(
+  logs: QueryLog[],
+  users: { userId: string; displayName: string; username: string; branch: string; role: string }[],
+): { userId: string; displayName: string; username: string; branch: string }[] {
+  const map = new Map<string, { userId: string; displayName: string; username: string; branch: string }>();
+  for (const u of users) {
+    if (u.role !== "agent") continue;
+    map.set(u.userId, {
+      userId: u.userId,
+      displayName: u.displayName || u.username,
+      username: u.username,
+      branch: u.branch,
+    });
+  }
+  for (const l of logs) {
+    if (!l.userId || map.has(l.userId)) continue;
+    map.set(l.userId, {
+      userId: l.userId,
+      displayName: l.agentName,
+      username: l.agentName,
+      branch: l.branch,
+    });
+  }
+  return [...map.values()].sort((a, b) =>
+    a.displayName.localeCompare(b.displayName, "zh-Hant"),
+  );
 }
 
 export function computeBranchTopThree(logs: QueryLog[]): BranchLeaderboardCard[] {

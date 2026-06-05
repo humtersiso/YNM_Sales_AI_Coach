@@ -11,7 +11,7 @@ export async function logRoleplayFinish(session: RoleplaySession): Promise<void>
       branch: session.branch || "—",
       assistantType: "roleplay",
       questionKind: "bank",
-      question: `[${scenario.scenarioId}] ${scenario.sectionA.title}`,
+      question: `[${scenario.scenarioId}] ${scenario.sectionA.title}${session.config ? ` · ${session.config.personaId}/${session.config.difficulty}` : ""}`,
       replySummary: `等級 ${scoreResult.grade}（${scoreResult.score} 分）· ${scoreResult.gradeLabel}`,
       inQuestionBank: true,
     });

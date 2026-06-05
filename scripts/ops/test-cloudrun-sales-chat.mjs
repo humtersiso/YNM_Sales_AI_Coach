@@ -135,12 +135,13 @@ function validateCase(tc, { status, data }) {
 async function main() {
   const { sample, urlArg } = parseArgs();
   const CASES = resolveCases(sample);
-  const baseUrl = (urlArg || process.env.CLOUDRUN_URL || gcloudServiceUrl() || "").replace(
+  const defaultCloudUrl = "https://ynm-web-test-653828324568.asia-east1.run.app";
+  const baseUrl = (urlArg || process.env.CLOUDRUN_URL || gcloudServiceUrl() || defaultCloudUrl).replace(
     /\/$/,
     "",
   );
   if (!baseUrl) {
-    console.error("請提供 BASE_URL 或設定 CLOUDRUN_URL / 可執行 gcloud");
+    console.error("請提供 BASE_URL 或設定 CLOUDRUN_URL");
     process.exit(1);
   }
 
@@ -155,7 +156,26 @@ async function main() {
   console.log("案例數:", CASES.length, sample ? "(快測 --sample)" : "(完整 20 題)");
   console.log("");
 
-  const { cookie, via } = await login(baseUrl, creds);
+  let cookie;
+  let via;
+  try {
+    ({ cookie, via } = await login(baseUrl, creds));
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    const refused = /fetch failed|ECONNREFUSED/i.test(msg) || (e instanceof Error && e.cause);
+    if (refused && /localhost|127\.0\.0\.1/.test(baseUrl)) {
+      console.error("\n無法連線", baseUrl);
+      console.error("本機 8080 沒有服務在跑。請先擇一啟動：");
+      console.error("  npm run run:prod-local          （無 Docker，推薦 Windows）");
+      console.error("  npm run docker:run:local -- --build  （需 Docker Desktop）");
+      console.error("  npm run dev                     （port 3000，測試時改 URL）");
+      console.error("\n或直接測 Cloud Run：");
+      console.error(`  npm run test:cloudrun:chat:sample ${defaultCloudUrl}`);
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
+  }
   console.log(`登入 OK（${via}）\n`);
 
   let passed = 0;

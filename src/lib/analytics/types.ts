@@ -2,6 +2,7 @@ export type AssistantType = "sales" | "roleplay";
 
 export type QueryLog = {
   id: string;
+  userId: string;
   question: string;
   replySummary: string;
   fullReply: string;
@@ -51,4 +52,49 @@ export type UsageFilters = {
   assistantType?: AssistantType | "all";
   dateFrom?: string;
   dateTo?: string;
+  /** platform_users.user_id；篩選單一業代 */
+  agentUserId?: string;
+};
+
+export type RoleplayAdminSession = {
+  sessionId: string;
+  userId: string;
+  displayName: string;
+  username: string;
+  branch: string;
+  status: "COMPLETED" | "STARTED";
+  targetModel: string;
+  competitor: string;
+  personaId: string;
+  difficulty: string;
+  score: number | null;
+  grade: string;
+  startedAt: string;
+  finishedAt: string | null;
+  durationMin: number | null;
+};
+
+export type RoleplayAgentSummary = {
+  userId: string;
+  displayName: string;
+  username: string;
+  branch: string;
+  completedCount: number;
+  startedIncomplete: number;
+  avgScore: number | null;
+  lastCompletedAt: string | null;
+};
+
+export type RoleplayUsageKpis = {
+  activeAgents: number;
+  completedSessions: number;
+  startedIncomplete: number;
+  avgScore: number | null;
+};
+
+export type AgentNameOption = {
+  userId: string;
+  displayName: string;
+  username: string;
+  branch: string;
 };

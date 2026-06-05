@@ -7,10 +7,10 @@ const PREFERRED_MODELS = ["gemini-3.1-flash-lite", "gemini-3.1-flash-lite-previe
 
 /** Vertex 備用模型（僅在 API key 不可用時；專案用 GEMINI_VERTEX_PROJECT，非 BI Engine 專案） */
 const VERTEX_MODEL_FALLBACKS = [
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
   "gemini-2.0-flash-001",
   "gemini-2.0-flash",
-  "gemini-1.5-flash-002",
-  "gemini-1.5-flash",
 ] as const;
 
 let cachedDotenvApiKey: string | null | undefined;
@@ -87,13 +87,42 @@ export function getVertexProjectId(): string {
   ).trim();
 }
 
+function getVertexPreferredModel(): string {
+  return (process.env.GEMINI_VERTEX_MODEL ?? getPreferredGeminiModel()).trim();
+}
+
 function getVertexModelCandidates(): string[] {
-  const preferred = getPreferredGeminiModel();
+  const preferred = getVertexPreferredModel();
   const extra = (process.env.GEMINI_VERTEX_MODEL_FALLBACKS ?? "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
   return [...new Set([preferred, ...extra, ...VERTEX_MODEL_FALLBACKS])];
+}
+
+/** global 用 aiplatform.googleapis.com；區域用 {location}-aiplatform.googleapis.com */
+export function vertexAiApiHost(location: string): string {
+  const loc = location.trim();
+  return loc === "global" ? "https://aiplatform.googleapis.com" : `https://${loc}-aiplatform.googleapis.com`;
+}
+
+function buildVertexModelMethodUrl(
+  projectId: string,
+  location: string,
+  model: string,
+  method: "generateContent" | "streamGenerateContent",
+): string {
+  const host = vertexAiApiHost(location);
+  return `${host}/v1/projects/${projectId}/locations/${location}/publishers/google/models/${encodeURIComponent(model)}:${method}`;
+}
+
+function getVertexLocationCandidates(): string[] {
+  const primary = (process.env.GEMINI_VERTEX_LOCATION ?? "global").trim();
+  const extra = (process.env.GEMINI_VERTEX_LOCATION_FALLBACKS ?? "global")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return [...new Set([primary, ...extra])];
 }
 
 type GenerateContentPart = {
@@ -165,7 +194,7 @@ async function vertexGenerateWithModel(
   options?: GeminiGenerateOptions,
 ): Promise<string | null> {
   const temperature = options?.temperature ?? 0.2;
-  const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${encodeURIComponent(model)}:generateContent`;
+  const url = buildVertexModelMethodUrl(projectId, location, model, "generateContent");
 
   const res = await fetch(url, {
     method: "POST",
@@ -187,9 +216,9 @@ async function vertexGenerateWithModel(
     const err = await res.text();
     const retryable = res.status === 404 || /not found|does not have access/i.test(err);
     if (retryable) {
-      console.warn(`Vertex model unavailable: ${model} (${res.status})`);
+      console.warn(`Vertex model unavailable: ${model} @ ${location} (${res.status})`);
     } else {
-      console.error("Vertex generateContent failed", res.status, model, err.slice(0, 200));
+      console.error("Vertex generateContent failed", res.status, location, model, err.slice(0, 200));
     }
     return null;
   }
@@ -205,16 +234,19 @@ async function vertexGenerateText(
   const projectId = getVertexProjectId();
   if (!projectId) return null;
 
-  const location = (process.env.GEMINI_VERTEX_LOCATION ?? "us-central1").trim();
   const token = await getAccessToken();
+  const primaryLocation = (process.env.GEMINI_VERTEX_LOCATION ?? "global").trim();
+  const primaryModel = getVertexPreferredModel();
 
-  for (const model of getVertexModelCandidates()) {
-    const text = await vertexGenerateWithModel(projectId, location, model, token, prompt, options);
-    if (text) {
-      if (model !== getPreferredGeminiModel()) {
-        console.info(`[gemini] Vertex 使用備用模型: ${model}`);
+  for (const location of getVertexLocationCandidates()) {
+    for (const model of getVertexModelCandidates()) {
+      const text = await vertexGenerateWithModel(projectId, location, model, token, prompt, options);
+      if (text) {
+        if (location !== primaryLocation || model !== primaryModel) {
+          console.info(`[gemini] Vertex 使用備用: location=${location} model=${model}`);
+        }
+        return text;
       }
-      return text;
     }
   }
   return null;
@@ -372,9 +404,9 @@ export async function geminiPlanKnowledgeSearch(
     ""
   ).trim();
   if (!projectId) return null;
-  const location = (process.env.GEMINI_VERTEX_LOCATION ?? "us-central1").trim();
+  const location = (process.env.GEMINI_VERTEX_LOCATION ?? "global").trim();
   const token = await getAccessToken();
-  const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${encodeURIComponent(model)}:generateContent`;
+  const url = buildVertexModelMethodUrl(projectId, location, model, "generateContent");
   const res = await fetch(url, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -412,9 +444,9 @@ export async function* geminiStreamText(
       ""
     ).trim();
     if (!projectId) return;
-    const location = (process.env.GEMINI_VERTEX_LOCATION ?? "us-central1").trim();
+    const location = (process.env.GEMINI_VERTEX_LOCATION ?? "global").trim();
     const token = await getAccessToken();
-    const vertexUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${encodeURIComponent(model)}:streamGenerateContent`;
+    const vertexUrl = buildVertexModelMethodUrl(projectId, location, model, "streamGenerateContent");
     res = await fetch(vertexUrl, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },

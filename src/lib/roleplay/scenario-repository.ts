@@ -62,6 +62,7 @@ export function getRoleplayGlobalConfig() {
 export function resolvePersona(personaId: string) {
   return (
     ROLEPLAY_GLOBAL_CONFIG.personas.find((p) => p.id === personaId) ??
+    ROLEPLAY_GLOBAL_CONFIG.personas.find((p) => p.id === "P-01") ??
     ROLEPLAY_GLOBAL_CONFIG.personas[0]
   );
 }

@@ -16,18 +16,40 @@ import { searchVertexRagCorpus } from "../src/lib/rag/vertex-rag-search";
 
 const webRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+function isVertexParityMode(): boolean {
+  return process.argv.includes("--vertex") || process.env.GROUNDED_LOG_VERTEX === "1";
+}
+
 function loadEnv() {
-  for (const line of fs.readFileSync(path.join(webRoot, ".env"), "utf8").split(/\r?\n/)) {
+  const vertex = isVertexParityMode();
+  const envPath = vertex
+    ? path.join(webRoot, ".env.docker.vertex")
+    : path.join(webRoot, ".env");
+
+  if (!fs.existsSync(envPath)) {
+    if (vertex) {
+      console.error("缺少 .env.docker.vertex → 請先執行 npm run env:prepare:docker-vertex");
+      process.exit(1);
+    }
+    throw new Error("missing .env");
+  }
+
+  for (const line of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
     const t = line.trim();
     if (!t || t.startsWith("#")) continue;
     const i = t.indexOf("=");
     if (i > 0) process.env[t.slice(0, i).trim()] = t.slice(i + 1).trim();
   }
+
+  if (vertex) {
+    delete process.env.GEMINI_API_KEY;
+    process.env.GEMINI_USE_VERTEX_ONLY = "true";
+  }
+
   process.env.SALES_KNOWLEDGE_BACKEND = "rag";
   process.env.SALES_CHAT_MODE = "grounded";
   process.env.SALES_RAG_GROUNDING_IMPL = process.env.SALES_RAG_GROUNDING_IMPL ?? "augment";
   process.env.SALES_NEVER_DATA_AGENT = "true";
-  // 與 deploy/cloudrun-test.env.yaml 對齊時可設：SALES_CHAT_FAST=false、勿覆寫 GEMINI_MODEL
 }
 
 type TestCase = {
@@ -149,18 +171,23 @@ async function main() {
   loadEnv();
 
   const verbose = process.argv.includes("--verbose");
+  const vertex = isVertexParityMode();
   const ts = new Date();
   const stamp =
     ts.toISOString().replace(/[:.]/g, "-").slice(0, 19) + "+0800";
   const logDir = path.join(webRoot, "data", "test-logs");
   fs.mkdirSync(logDir, { recursive: true });
-  const logPath = path.join(logDir, `grounded-full-${stamp}.log`);
+  const logPrefix = vertex ? "grounded-vertex" : "grounded-full";
+  const logPath = path.join(logDir, `${logPrefix}-${stamp}.log`);
 
   const out: string[] = [];
   const header = [
     "=".repeat(80),
-    "RAG GROUNDING — FULL TEST LOG（Gemini 摘要 + citations）",
+    vertex
+      ? "RAG GROUNDING — VERTEX ADC 對齊測試（同 Cloud Run，無 API Key）"
+      : "RAG GROUNDING — FULL TEST LOG（Gemini 摘要 + citations）",
     `時間: ${ts.toLocaleString("zh-TW", { timeZone: "Asia/Taipei" })}`,
+    `AUTH: ${vertex ? "Vertex ADC（GEMINI_USE_VERTEX_ONLY）" : "Gemini API Key 或 ADC"}`,
     `MODE: ${process.env.SALES_CHAT_MODE}`,
     `GROUNDING_IMPL: ${process.env.SALES_RAG_GROUNDING_IMPL}`,
     `BACKEND: ${process.env.SALES_KNOWLEDGE_BACKEND}`,

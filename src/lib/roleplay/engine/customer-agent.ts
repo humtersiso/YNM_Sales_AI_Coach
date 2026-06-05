@@ -1,5 +1,12 @@
 import { geminiGenerateText } from "@/lib/gemini/gemini-client";
+import { sanitizeCustomerUtterance } from "@/lib/roleplay/customer-text-sanitize";
 import type { RoleplayPersona, RoleplayScenario } from "@/lib/roleplay/scenario-contract";
+import {
+  ageRangePrompt,
+  difficultyBehaviorPrompt,
+  normalizeDrillDifficulty,
+} from "@/lib/roleplay/engine/difficulty-behavior";
+import { loadRoleplaySkill } from "@/lib/roleplay/skills/load-skill";
 import type { RoleplayChatTurn } from "@/lib/roleplay/session-types";
 
 function formatHistory(turns: RoleplayChatTurn[]): string {
@@ -20,11 +27,76 @@ function fallbackCustomerReply(
   return "我了解了，不過我還是覺得需要再比較一下。你還有沒有更具體的說明？";
 }
 
+function buildRagContextBlock(scenario: RoleplayScenario): string {
+  const facts = scenario.sectionC.facts
+    .filter((f) => f.value && f.value !== "—")
+    .map((f) => `- ${f.label}：${f.value}`)
+    .join("\n");
+  return `【背景（僅供理解客戶心理，勿向業代提及檔名、話術表或教練指引）】\n${facts || "（無）"}`;
+}
+
+function cleanCustomerLine(text: string, fallback: string): string {
+  return sanitizeCustomerUtterance(text) || fallback;
+}
+
+function buildSystemInstruction(
+  scenario: RoleplayScenario,
+  persona: RoleplayPersona,
+): string {
+  const skill = loadRoleplaySkill("skill_ai_customer.md");
+  const diff = normalizeDrillDifficulty(scenario.sectionE.difficulty);
+  const age = scenario.sectionE.ageRange ?? "30-40";
+  return `${skill}
+
+${buildRagContextBlock(scenario)}
+
+${sessionContextBlock(scenario, persona, diff, age)}`;
+}
+
+function sessionContextBlock(
+  scenario: RoleplayScenario,
+  persona: RoleplayPersona,
+  diff: ReturnType<typeof normalizeDrillDifficulty>,
+  age: string,
+): string {
+  return `【客戶人設】${persona.name}（${persona.id}）：${persona.style}
+特質：${persona.traits.join("、")}
+決策模式：${persona.decisionMode}
+${ageRangePrompt(age)}
+${difficultyBehaviorPrompt(diff)}
+
+【情境】${scenario.sectionA.title}
+比較：${scenario.sectionA.competitor} vs ${scenario.sectionA.productDisplayName}
+關心：${scenario.sectionA.coreIssue}`;
+}
+
+/**
+ * 開場：dyn 情境已在 compose 時依 RAG+人設產生；示範 KB-T33 可再潤飾一層 LLM。
+ */
 export async function generateCustomerOpening(
   scenario: RoleplayScenario,
   persona: RoleplayPersona,
+  options?: { useLlm?: boolean },
 ): Promise<string> {
-  return scenario.sectionB.openingLine;
+  const scripted = scenario.sectionB.openingLine?.trim();
+  const fallback = "你好，我在考慮這台車，想先了解一下。";
+  if (!options?.useLlm) {
+    return cleanCustomerLine(scripted ?? "", fallback);
+  }
+
+  const prompt = `${buildSystemInstruction(scenario, persona)}
+
+請以客戶身份說出開場 1～2 句（可改寫但需保留原議題方向）。參考：${scripted}`;
+
+  const raw = await geminiGenerateText(prompt, {
+    maxOutputTokens: 200,
+    temperature: 0.75,
+  });
+  const text = raw?.trim();
+  if (text && text.length >= 6) {
+    return cleanCustomerLine(text, cleanCustomerLine(scripted ?? "", fallback));
+  }
+  return cleanCustomerLine(scripted ?? "", fallback);
 }
 
 export async function generateCustomerReply(input: {
@@ -33,24 +105,32 @@ export async function generateCustomerReply(input: {
   turns: RoleplayChatTurn[];
   agentMessage: string;
   followUpIndex: number;
+  agentTurnCount: number;
+  maxTurns: number;
 }): Promise<string> {
-  const { scenario, persona, turns, agentMessage, followUpIndex } = input;
+  const {
+    scenario,
+    persona,
+    turns,
+    agentMessage,
+    followUpIndex,
+    agentTurnCount,
+    maxTurns,
+  } = input;
 
-  const prompt = `你是汽車展間的潛在客戶，正在與業代對話。請用繁體中文、口語、1～3 句回覆。
+  const nearEnd = agentTurnCount >= maxTurns - 1;
+  const system = buildSystemInstruction(scenario, persona);
 
-【客戶人設】${persona.name}：${persona.style}
-特質：${persona.traits.join("、")}
-決策模式：${persona.decisionMode}
-
-【情境】${scenario.sectionA.title}
-關心：${scenario.sectionA.coreIssue}
-比較車款：${scenario.sectionA.competitor}
+  const prompt = `${system}
 
 【對話紀錄】
 ${formatHistory(turns)}
 業代（剛剛）：${agentMessage}
 
-請以客戶身份回覆。可適度追問或表達疑慮，不要替業代總結。不要輸出 JSON。`;
+第 ${agentTurnCount} / ${maxTurns} 輪業代回覆。
+${nearEnd ? "這是最後一輪業代發言，可總結疑慮或表示要再考慮，勿突然成交。" : ""}
+
+請以客戶身份回覆 1～3 句。不要輸出 JSON。`;
 
   const raw = await geminiGenerateText(prompt, {
     maxOutputTokens: 256,
@@ -58,7 +138,13 @@ ${formatHistory(turns)}
   });
 
   const text = raw?.trim();
-  if (text && text.length >= 4) return text;
+  if (text && text.length >= 4) {
+    const cleaned = cleanCustomerLine(text, "");
+    if (cleaned) return cleaned;
+  }
 
-  return fallbackCustomerReply(scenario, followUpIndex);
+  return cleanCustomerLine(
+    fallbackCustomerReply(scenario, followUpIndex),
+    "我了解了，不過我還是覺得需要再比較一下。",
+  );
 }

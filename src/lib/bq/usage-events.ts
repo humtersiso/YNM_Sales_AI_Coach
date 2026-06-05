@@ -76,6 +76,7 @@ export async function listUsageLogs(filters?: {
     query: `
       SELECT
         event_id,
+        user_id,
         question,
         reply_summary,
         FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%E*S%Ez', asked_at, 'Asia/Taipei') AS asked_at,
@@ -98,6 +99,7 @@ export async function listUsageLogs(filters?: {
     const isCompetitor = category === "compare" || /hr-v|kicks|rav4|corolla|cx-5|競品|比較/i.test(question);
     return {
       id: String(row.event_id ?? ""),
+      userId: String(row.user_id ?? ""),
       question,
       replySummary: String(row.reply_summary ?? ""),
       fullReply: String(row.reply_summary ?? ""),

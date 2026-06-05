@@ -49,8 +49,9 @@ function resolveGeminiApiKey() {
 /** 合併 base env + secrets（供 gcloud --env-vars-file） */
 function writeMergedEnvFile() {
   let merged = fs.readFileSync(envFile, "utf8").trimEnd();
+  const vertexOnly = /^GEMINI_USE_VERTEX_ONLY:\s*["']?true["']?\s*$/im.test(merged);
   const key = resolveGeminiApiKey();
-  if (key && !/^GEMINI_API_KEY:/m.test(merged)) {
+  if (key && !vertexOnly && !/^GEMINI_API_KEY:/m.test(merged)) {
     merged += `\nGEMINI_API_KEY: "${key.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"\n`;
   }
   if (fs.existsSync(secretsYaml)) {
@@ -59,6 +60,7 @@ function writeMergedEnvFile() {
       if (!t || t.startsWith("#")) continue;
       const name = t.split(":")[0]?.trim();
       if (!name || name === "GEMINI_API_KEY") continue;
+      if (vertexOnly && name === "GEMINI_API_KEY") continue;
       if (!new RegExp(`^${name}:`, "m").test(merged)) {
         merged += `\n${line}`;
       }
@@ -82,13 +84,21 @@ function getServiceUrl() {
   return (r.stdout || "").trim();
 }
 
+function vertexOnlyFromYaml() {
+  const text = fs.readFileSync(envFile, "utf8");
+  return /^GEMINI_USE_VERTEX_ONLY:\s*["']?true["']?\s*$/im.test(text);
+}
+
 const envOnly =
   process.argv.includes("--env-only") ||
   ["1", "true", "yes"].includes(String(process.env.DEPLOY_ENV_ONLY ?? "").trim().toLowerCase());
 
 const mergedEnv = writeMergedEnvFile();
-const geminiKey = resolveGeminiApiKey();
-if (!geminiKey) {
+const vertexOnly = vertexOnlyFromYaml();
+const geminiKey = vertexOnly ? null : resolveGeminiApiKey();
+if (vertexOnly) {
+  console.log("[deploy] GEMINI_USE_VERTEX_ONLY=true — 使用 Cloud Run 服務帳號 ADC，不注入 GEMINI_API_KEY");
+} else if (!geminiKey) {
   console.warn(
     "\n[deploy] 警告：未設定 GEMINI_API_KEY（環境變數或 deploy/cloudrun-test.secrets.yaml）。" +
       "data-agent 快路徑可能失敗而變慢。\n",

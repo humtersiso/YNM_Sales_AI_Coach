@@ -11,6 +11,9 @@ const navItems: { href: string; label: string; icon: AppIconName }[] = [
 ];
 
 function isNavActive(pathname: string, href: string) {
+  if (href === "/admin/home") {
+    return pathname === href || pathname.startsWith("/admin/usage");
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

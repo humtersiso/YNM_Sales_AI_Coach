@@ -37,11 +37,16 @@ function isPublicPath(pathname: string) {
   if (pathname === "/api/roleplay/scenarios" || pathname.startsWith("/api/roleplay/scenarios/")) {
     return true;
   }
+  if (pathname === "/api/roleplay/rag-products") return true;
   return false;
 }
 
 function requiresRoleplaySession(pathname: string) {
-  return pathname.startsWith("/api/roleplay/sessions");
+  return (
+    pathname.startsWith("/api/roleplay/sessions") ||
+    pathname === "/api/roleplay/config-options" ||
+    pathname.startsWith("/api/roleplay/me/")
+  );
 }
 
 function requiresAdminSession(pathname: string) {

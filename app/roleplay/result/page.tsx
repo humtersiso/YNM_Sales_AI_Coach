@@ -7,12 +7,17 @@ import { PortalLayout } from "@/components/mobile/PortalLayout";
 import { RoleplayScoreCard } from "@/components/roleplay/RoleplayScoreCard";
 import type { RoleplayScoreResult } from "@/lib/roleplay/session-types";
 
+type AgentStats = {
+  suggestions: { label: string; reason: string; personaId: string; difficulty: string; competitor: string }[];
+};
+
 function ResultContent() {
   const router = useRouter();
   const params = useSearchParams();
   const sessionId = params.get("sessionId") ?? "";
   const [scenarioTitle, setScenarioTitle] = useState("");
   const [scoreResult, setScoreResult] = useState<RoleplayScoreResult | null>(null);
+  const [stats, setStats] = useState<AgentStats | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -23,14 +28,17 @@ function ResultContent() {
       return;
     }
     void (async () => {
-      const res = await fetch(`/api/roleplay/sessions/${encodeURIComponent(sessionId)}`);
-      const data = (await res.json()) as {
+      const [sessRes, statsRes] = await Promise.all([
+        fetch(`/api/roleplay/sessions/${encodeURIComponent(sessionId)}`),
+        fetch("/api/roleplay/me/stats"),
+      ]);
+      const data = (await sessRes.json()) as {
         scenarioTitle?: string;
         scoreResult?: RoleplayScoreResult | null;
         error?: string;
       };
-      if (!res.ok) {
-        if (res.status === 401) {
+      if (!sessRes.ok) {
+        if (sessRes.status === 401) {
           router.replace("/login");
           return;
         }
@@ -40,6 +48,9 @@ function ResultContent() {
       }
       setScenarioTitle(data.scenarioTitle ?? "");
       setScoreResult(data.scoreResult ?? null);
+      if (statsRes.ok) {
+        setStats((await statsRes.json()) as AgentStats);
+      }
       setLoading(false);
     })();
   }, [sessionId, router]);
@@ -53,10 +64,10 @@ function ResultContent() {
       <div className="space-y-4">
         <p className="text-sm text-red-600">{error || "尚無評分結果"}</p>
         <Link
-          href="/roleplay/practice"
+          href="/roleplay/setup"
           className="block rounded-xl bg-emerald-700 py-3 text-center text-sm font-medium text-white"
         >
-          返回對練
+          返回情境設定
         </Link>
       </div>
     );
@@ -64,9 +75,24 @@ function ResultContent() {
 
   return (
     <div className="space-y-4">
+      <p className="text-center text-sm font-medium text-emerald-800">演練評分報告</p>
       <RoleplayScoreCard scenarioTitle={scenarioTitle} scoreResult={scoreResult} />
+
+      {stats?.suggestions?.length ? (
+        <div className="rounded-2xl border border-teal-100 bg-teal-50/40 p-4 text-sm">
+          <p className="font-semibold text-emerald-950">建議下一步練習</p>
+          <ul className="mt-2 space-y-2 text-emerald-800">
+            {stats.suggestions.map((s) => (
+              <li key={`${s.personaId}-${s.difficulty}-${s.competitor}`}>
+                {s.label} — {s.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <Link
-        href="/roleplay/practice"
+        href="/roleplay/setup"
         className="block rounded-xl bg-emerald-700 py-3 text-center text-sm font-medium text-white"
       >
         再練一次
@@ -83,7 +109,7 @@ function ResultContent() {
 
 export default function RoleplayResultPage() {
   return (
-    <PortalLayout title="對練結果" subtitle="評分與等級" backHref="/roleplay">
+    <PortalLayout title="對練結果" subtitle="評分與回饋" backHref="/roleplay">
       <Suspense fallback={<p className="text-sm text-emerald-600">載入中…</p>}>
         <ResultContent />
       </Suspense>
