@@ -25,6 +25,59 @@ function sessionRowKey(row: RoleplayAdminSession): string {
   return `${row.sessionId}:${row.status}:${when}`;
 }
 
+function TranscriptCollapsible({
+  lines,
+}: {
+  lines: SessionDetail["transcriptLines"];
+}) {
+  const [open, setOpen] = useState(false);
+
+  if (lines.length === 0) {
+    return <p className="text-sm text-emerald-600">尚無對話逐字稿</p>;
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left active:bg-emerald-50/60"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className="text-sm font-semibold text-emerald-950">
+          對話紀錄
+          <span className="ml-1 font-normal text-emerald-600">（{lines.length} 則）</span>
+        </span>
+        <AppIcon
+          name="chevron-right"
+          size={18}
+          className={`shrink-0 text-emerald-600 transition-transform ${open ? "rotate-90" : ""}`}
+        />
+      </button>
+      {open ? (
+        <ul className="max-h-56 space-y-2 overflow-y-auto border-t border-emerald-50 px-4 py-3">
+          {lines.map((line, i) => (
+            <li
+              key={i}
+              className={`rounded-lg px-3 py-2 text-sm ${
+                line.role === "customer"
+                  ? "bg-slate-50 text-slate-800"
+                  : "bg-emerald-50 text-emerald-900"
+              }`}
+            >
+              <p className="text-xs text-emerald-600">
+                {line.role === "customer" ? "客戶" : "業代"}
+                {line.at ? ` · ${line.at}` : ""}
+              </p>
+              <p className="mt-0.5 leading-relaxed">{line.content}</p>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 function SessionDetailBody({
   detail,
   row,
@@ -61,18 +114,24 @@ function SessionDetailBody({
       </div>
 
       {item && (item.summary || item.dimensions.length > 0) ? (
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-start gap-3">
           {item.summary ? (
-            <div className="min-w-0 flex-1">
+            <div className="w-[40%] min-w-0 shrink-0">
               <p className="text-sm font-semibold text-emerald-950">評語</p>
               <p className="mt-2 text-sm leading-relaxed text-emerald-800">{item.summary}</p>
             </div>
           ) : (
-            <div className="min-w-0 flex-1" />
+            <div className="w-[40%] shrink-0" />
           )}
           {item.dimensions.length > 0 ? (
-            <div className="w-[148px] shrink-0">
-              <RoleplayRadarChart variant="dense" dimensions={item.dimensions} embedded showScores />
+            <div className="flex w-[60%] min-w-0 justify-center [&_svg]:mx-auto [&_svg]:h-[200px] [&_svg]:w-[200px] [&_svg]:max-w-[200px]">
+              <RoleplayRadarChart
+                variant="default"
+                dimensions={item.dimensions}
+                embedded
+                showScores
+                chartSizePx={200}
+              />
             </div>
           ) : null}
         </div>
@@ -89,31 +148,7 @@ function SessionDetailBody({
         </div>
       ) : null}
 
-      {detail.transcriptLines.length > 0 ? (
-        <div>
-          <p className="text-sm font-semibold text-emerald-950">對話紀錄</p>
-          <ul className="mt-2 max-h-56 space-y-2 overflow-y-auto">
-            {detail.transcriptLines.map((line, i) => (
-              <li
-                key={i}
-                className={`rounded-lg px-3 py-2 text-sm ${
-                  line.role === "customer"
-                    ? "bg-slate-50 text-slate-800"
-                    : "bg-emerald-50 text-emerald-900"
-                }`}
-              >
-                <p className="text-xs text-emerald-600">
-                  {line.role === "customer" ? "客戶" : "業代"}
-                  {line.at ? ` · ${line.at}` : ""}
-                </p>
-                <p className="mt-0.5 leading-relaxed">{line.content}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p className="text-sm text-emerald-600">尚無對話逐字稿</p>
-      )}
+      <TranscriptCollapsible lines={detail.transcriptLines} />
     </div>
   );
 }

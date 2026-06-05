@@ -16,6 +16,18 @@ function polarToXY(cx: number, cy: number, r: number, angleDeg: number) {
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
+function viewBoxWidth(view: string): number {
+  const parts = view.trim().split(/\s+/);
+  const w = Number(parts[2]);
+  return Number.isFinite(w) && w > 0 ? w : 240;
+}
+
+/** 目標螢幕字級 → SVG user unit（隨 viewBox 等比縮放後仍為指定 px） */
+function screenPxToSvgFontSize(screenPx: number, view: string, chartSizePx: number): number {
+  const vb = viewBoxWidth(view);
+  return Math.round(screenPx * (vb / chartSizePx) * 10) / 10;
+}
+
 type Variant = "default" | "compact" | "overview" | "dense" | "mini";
 
 const SIZES: Record<
@@ -25,6 +37,9 @@ const SIZES: Record<
     cy: number;
     maxR: number;
     labelR: number;
+    /** 螢幕像素字級，不隨 SVG 縮放（圖表縮小時標籤仍清晰） */
+    labelFontSizePx: string;
+    labelFontSizeWithScorePx: string;
     view: string;
     height: string;
     maxW: string;
@@ -35,7 +50,9 @@ const SIZES: Record<
     cx: 120,
     cy: 120,
     maxR: 72,
-    labelR: 22,
+    labelR: 26,
+    labelFontSizePx: "14px",
+    labelFontSizeWithScorePx: "12px",
     view: "0 0 240 240",
     height: "h-44",
     maxW: "max-w-[240px]",
@@ -45,7 +62,9 @@ const SIZES: Record<
     cx: 100,
     cy: 100,
     maxR: 58,
-    labelR: 16,
+    labelR: 20,
+    labelFontSizePx: "13px",
+    labelFontSizeWithScorePx: "12px",
     view: "0 0 200 200",
     height: "h-32",
     maxW: "max-w-[200px]",
@@ -55,7 +74,9 @@ const SIZES: Record<
     cx: 110,
     cy: 110,
     maxR: 68,
-    labelR: 22,
+    labelR: 26,
+    labelFontSizePx: "13px",
+    labelFontSizeWithScorePx: "12px",
     view: "0 0 220 220",
     height: "aspect-square w-full",
     maxW: "mx-auto max-w-[210px]",
@@ -65,7 +86,9 @@ const SIZES: Record<
     cx: 72,
     cy: 72,
     maxR: 44,
-    labelR: 11,
+    labelR: 12,
+    labelFontSizePx: "10px",
+    labelFontSizeWithScorePx: "9px",
     view: "0 0 144 144",
     height: "h-[5.75rem]",
     maxW: "max-w-[148px]",
@@ -76,6 +99,8 @@ const SIZES: Record<
     cy: 70,
     maxR: 40,
     labelR: 12,
+    labelFontSizePx: "10px",
+    labelFontSizeWithScorePx: "9px",
     view: "0 0 140 140",
     height: "h-24",
     maxW: "max-w-[120px]",
@@ -90,6 +115,9 @@ export function RoleplayRadarChart({
   highlightIds,
   embedded = false,
   showScores = false,
+  chartSizePx,
+  labelScreenPx = 15,
+  labelScreenPxWithScore = 13,
 }: {
   dimensions: RoleplayDimensionScore[];
   variant?: Variant;
@@ -100,6 +128,11 @@ export function RoleplayRadarChart({
   embedded?: boolean;
   /** 軸標籤附分數，如「同理 16」 */
   showScores?: boolean;
+  /** 實際渲染邊長（px）；傳入後軸標籤依螢幕字級校正 */
+  chartSizePx?: number;
+  /** 軸標籤目標螢幕字級（px） */
+  labelScreenPx?: number;
+  labelScreenPxWithScore?: number;
 }) {
   const sorted = ORDER.map((id) => dimensions.find((d) => d.dimensionId === id)).filter(
     Boolean,
@@ -118,6 +151,14 @@ export function RoleplayRadarChart({
     return polarToXY(cx, cy, maxR * ratio, angles[i]);
   });
   const polygon = dataPoints.map((p) => `${p.x},${p.y}`).join(" ");
+
+  const resolvedLabelFontSize = chartSizePx
+    ? screenPxToSvgFontSize(
+        showScores ? labelScreenPxWithScore : labelScreenPx,
+        sz.view,
+        chartSizePx,
+      )
+    : null;
 
   const shell =
     variant === "mini" ? (
@@ -176,15 +217,19 @@ export function RoleplayRadarChart({
                 y={label.y}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className={
-                  variant === "overview"
-                    ? "fill-emerald-800 text-[10px] font-medium"
-                    : variant === "dense"
-                      ? "fill-emerald-800 text-[8px]"
-                      : variant === "compact"
-                        ? "fill-emerald-800 text-[9px]"
-                        : "fill-emerald-800 text-[10px]"
-                }
+                fill="#065f46"
+                fontWeight={500}
+                {...(resolvedLabelFontSize != null
+                  ? { fontSize: resolvedLabelFontSize }
+                  : {
+                      style: {
+                        fill: "#065f46",
+                        fontWeight: 500,
+                        fontSize: showScores
+                          ? sz.labelFontSizeWithScorePx
+                          : sz.labelFontSizePx,
+                      },
+                    })}
               >
                 {showScores
                   ? `${LABELS[d.dimensionId] ?? d.label} ${d.score}`

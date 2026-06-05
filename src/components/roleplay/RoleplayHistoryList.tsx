@@ -95,29 +95,30 @@ export function RoleplayHistoryList({ items }: { items: RoleplayHistoryItem[] })
                     </p>
                   ) : (
                     <>
-                      {item.dimensions.length > 0 ? (
-                        <RoleplayRadarChart
-                          variant="compact"
-                          dimensions={item.dimensions}
-                        />
-                      ) : null}
-
-                      <ul className="mt-3 space-y-1 text-sm text-emerald-900">
-                        {item.dimensions.map((d) => (
-                          <li
-                            key={d.dimensionId}
-                            className="flex justify-between tabular-nums"
-                          >
-                            <span>{d.label}</span>
-                            <span>
-                              {d.score}/{d.maxScore}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      {item.summary ? (
-                        <p className="mt-3 text-sm text-emerald-800">{item.summary}</p>
+                      {item.summary || item.dimensions.length > 0 ? (
+                        <div className="flex w-full items-start gap-3">
+                          {item.summary ? (
+                            <div className="w-[40%] min-w-0 shrink-0">
+                              <p className="text-sm font-semibold text-emerald-950">評語</p>
+                              <p className="mt-2 text-sm leading-relaxed text-emerald-800">
+                                {item.summary}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="w-[40%] shrink-0" />
+                          )}
+                          {item.dimensions.length > 0 ? (
+                            <div className="flex w-[60%] min-w-0 justify-center [&_svg]:mx-auto [&_svg]:h-[200px] [&_svg]:w-[200px] [&_svg]:max-w-[200px]">
+                              <RoleplayRadarChart
+                                variant="default"
+                                dimensions={item.dimensions}
+                                embedded
+                                showScores
+                                chartSizePx={200}
+                              />
+                            </div>
+                          ) : null}
+                        </div>
                       ) : null}
 
                       {item.improvementTips.length > 0 ? (
