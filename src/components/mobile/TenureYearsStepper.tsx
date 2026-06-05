@@ -5,11 +5,17 @@ export function TenureYearsStepper({
   onChange,
   min = 0,
   max = 50,
+  suffix = "年",
+  decrementAriaLabel = "減少",
+  incrementAriaLabel = "增加",
 }: {
   value: number;
   onChange: (next: number) => void;
   min?: number;
   max?: number;
+  suffix?: string;
+  decrementAriaLabel?: string;
+  incrementAriaLabel?: string;
 }) {
   const safe = Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
 
@@ -17,7 +23,7 @@ export function TenureYearsStepper({
     <div className="mt-1 flex items-center gap-2">
       <button
         type="button"
-        aria-label="減少年資"
+        aria-label={decrementAriaLabel}
         disabled={safe <= min}
         onClick={() => onChange(Math.max(min, safe - 1))}
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-200 bg-white text-lg font-medium text-emerald-800 hover:bg-emerald-50 disabled:opacity-40"
@@ -32,14 +38,14 @@ export function TenureYearsStepper({
       </span>
       <button
         type="button"
-        aria-label="增加年資"
+        aria-label={incrementAriaLabel}
         disabled={safe >= max}
         onClick={() => onChange(Math.min(max, safe + 1))}
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-200 bg-white text-lg font-medium text-emerald-800 hover:bg-emerald-50 disabled:opacity-40"
       >
         +
       </button>
-      <span className="shrink-0 text-sm text-emerald-700">年</span>
+      {suffix ? <span className="shrink-0 text-sm text-emerald-700">{suffix}</span> : null}
     </div>
   );
 }

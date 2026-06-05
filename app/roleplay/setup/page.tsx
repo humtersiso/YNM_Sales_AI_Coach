@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { PortalLayout } from "@/components/mobile/PortalLayout";
+import { TenureYearsStepper } from "@/components/mobile/TenureYearsStepper";
 import { RoleplayRagProductSheet } from "@/components/roleplay/RoleplayRagProductSheet";
 import type { RoleplayAgeRange, RoleplayDrillDifficulty } from "@/lib/roleplay/scenario-contract";
 
@@ -239,17 +240,18 @@ function SetupForm() {
           </select>
         </label>
 
-        <label className="block text-sm font-medium text-emerald-950">
+        <div className="block text-sm font-medium text-emerald-950">
           練習輪數
-          <input
-            type="number"
+          <TenureYearsStepper
+            value={maxTurns}
+            onChange={setMaxTurns}
             min={options?.maxTurns.min ?? 3}
             max={options?.maxTurns.max ?? 10}
-            className="mt-1 w-full rounded-xl border border-emerald-200 px-3 py-2.5"
-            value={maxTurns}
-            onChange={(e) => setMaxTurns(Number(e.target.value))}
+            suffix="輪"
+            decrementAriaLabel="減少練習輪數"
+            incrementAriaLabel="增加練習輪數"
           />
-        </label>
+        </div>
 
         <fieldset>
           <legend className="text-sm font-medium text-emerald-950">AI 難度</legend>

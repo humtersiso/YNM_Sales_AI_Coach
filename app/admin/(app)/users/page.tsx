@@ -399,6 +399,8 @@ export default function UsersPage() {
                   <TenureYearsStepper
                     value={form.tenureYears}
                     onChange={(tenureYears) => setForm((f) => ({ ...f, tenureYears }))}
+                    decrementAriaLabel="減少年資"
+                    incrementAriaLabel="增加年資"
                   />
                 </div>
                 <label className="block text-sm text-emerald-900">
