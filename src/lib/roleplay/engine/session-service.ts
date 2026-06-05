@@ -52,6 +52,8 @@ async function createSessionFromScenario(input: {
   turn: number;
   scenarioTitle: string;
   config: RoleplaySessionConfig | null;
+  /** 業代先發模式：前端不立即顯示客戶開場，等業代打招呼後才顯示 */
+  agentSpeaksFirst: boolean;
 }> {
   const personaId = input.config?.personaId ?? input.scenario.sectionE.personaId;
   const persona = resolvePersona(personaId);
@@ -95,6 +97,7 @@ async function createSessionFromScenario(input: {
     turn: 0,
     scenarioTitle: session.scenario.sectionA.title,
     config: input.config ?? null,
+    agentSpeaksFirst: true,
   };
 }
 
@@ -162,6 +165,22 @@ export async function submitRoleplayTurn(input: {
   const now = new Date().toISOString();
   session.turns.push({ role: "agent", content: text, at: now });
   session.agentTurnCount += 1;
+
+  // 業代先發：第一輪 /turn 回傳已生成的客戶開場，不重複呼叫 LLM
+  const opening = session.turns[0];
+  if (
+    session.agentTurnCount === 1 &&
+    session.turns.length === 2 &&
+    opening?.role === "customer"
+  ) {
+    saveSession(session);
+    return {
+      customerMessage: opening.content,
+      turn: session.agentTurnCount,
+      maxTurns: session.maxTurns,
+      shouldFinish: session.agentTurnCount >= session.maxTurns,
+    };
+  }
 
   const persona = resolvePersona(session.personaId);
   const customerReply = await generateCustomerReply({
@@ -256,6 +275,10 @@ export function getRoleplayPracticeBootstrap(sessionId: string, userId: string) 
     scenarioTitle: session.scenario.sectionA.title,
     maxTurns: session.maxTurns,
     turn: session.agentTurnCount,
+    agentSpeaksFirst:
+      session.agentTurnCount === 0 &&
+      session.turns.length > 0 &&
+      session.turns[0]?.role === "customer",
     messages: session.turns.map((t, i) => ({
       id: `${session.sessionId}-${i}`,
       role: t.role as "customer" | "agent",

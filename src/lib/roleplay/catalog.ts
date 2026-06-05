@@ -36,7 +36,13 @@ export function getRoleplayConfigOptions() {
 
   const personas = ROLEPLAY_GLOBAL_CONFIG.personas
     .filter((p) => p.id.startsWith("P-"))
-    .map((p) => ({ id: p.id, name: p.name, style: p.style }));
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      style: p.style,
+      traits: p.traits,
+      decisionMode: p.decisionMode,
+    }));
 
   return {
     products,

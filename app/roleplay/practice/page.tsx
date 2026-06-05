@@ -19,6 +19,7 @@ type PracticeBootstrap = {
   maxTurns: number;
   turn: number;
   messages: RoleplayUiMessage[];
+  agentSpeaksFirst?: boolean;
 };
 
 function PracticeContent() {
@@ -35,16 +36,26 @@ function PracticeContent() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // 業代先發模式：等業代打招呼後才顯示 AI 客戶第一句
+  const [waitingForAgent, setWaitingForAgent] = useState(false);
 
   function applyBootstrap(data: PracticeBootstrap) {
     setSessionId(data.sessionId);
     setMaxTurns(data.maxTurns ?? 5);
     setTurn(data.turn ?? 0);
-    setMessages(
-      data.messages.length > 0
-        ? data.messages
-        : [{ id: newId(), role: "customer", content: "" }],
-    );
+
+    if (data.agentSpeaksFirst) {
+      // 業代先發：messages 先留空，等第一輪 /turn 後才顯示客戶開場
+      setMessages([]);
+      setWaitingForAgent(true);
+    } else {
+      setMessages(
+        data.messages.length > 0
+          ? data.messages
+          : [{ id: newId(), role: "customer", content: "" }],
+      );
+      setWaitingForAgent(false);
+    }
   }
 
   useEffect(() => {
@@ -96,12 +107,14 @@ function PracticeContent() {
             maxTurns?: number;
             turn?: number;
             scenarioTitle?: string;
+            agentSpeaksFirst?: boolean;
           };
           applyBootstrap({
             sessionId: urlSessionId,
             status: "active",
             maxTurns: boot.maxTurns ?? 5,
             turn: boot.turn ?? 0,
+            agentSpeaksFirst: boot.agentSpeaksFirst ?? true,
             messages: [
               {
                 id: newId(),
@@ -130,6 +143,8 @@ function PracticeContent() {
     setInput("");
     setError("");
     const agentId = newId();
+    const isFirstAgentTurn = waitingForAgent;
+
     setMessages((m) => [...m, { id: agentId, role: "agent", content: text }]);
     const pendingId = newId();
     setMessages((m) => [...m, { id: pendingId, role: "customer", content: "", pending: true }]);
@@ -153,6 +168,7 @@ function PracticeContent() {
         return;
       }
       setTurn(data.turn ?? turn + 1);
+      if (isFirstAgentTurn) setWaitingForAgent(false);
       setMessages((m) =>
         m.map((x) =>
           x.id === pendingId
@@ -222,8 +238,9 @@ function PracticeContent() {
       onSend={(e) => void send(e)}
       onFinish={() => void finish()}
       busy={busy}
-      canFinish={turn >= 1}
+      canFinish={turn >= 1 && !waitingForAgent}
       error={error}
+      waitingForAgent={waitingForAgent}
     />
   );
 }

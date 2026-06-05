@@ -1,20 +1,169 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { PortalLayout } from "@/components/mobile/PortalLayout";
 import { TenureYearsStepper } from "@/components/mobile/TenureYearsStepper";
 import { RoleplayRagProductSheet } from "@/components/roleplay/RoleplayRagProductSheet";
+import { AppIcon } from "@/components/icons/AppIcon";
 import type { RoleplayAgeRange, RoleplayDrillDifficulty } from "@/lib/roleplay/scenario-contract";
 
 type ConfigOptions = {
   products: { id: string; displayName: string }[];
-  personas: { id: string; name: string; style: string }[];
+  personas: { id: string; name: string; style: string; traits?: string[]; decisionMode?: string }[];
   ageRanges: { id: RoleplayAgeRange; label: string }[];
   competitors: string[];
   difficulties: { id: RoleplayDrillDifficulty; label: string; hint: string }[];
   maxTurns: { min: number; max: number; default: number };
 };
+
+type SessionResult = {
+  sessionId: string;
+  customerMessage: string;
+  maxTurns: number;
+  turn: number;
+  scenarioTitle?: string;
+  agentSpeaksFirst?: boolean;
+};
+
+/** 人設確認彈窗 */
+function PersonaConfirmModal({
+  options,
+  personaId,
+  difficulty,
+  competitor,
+  productLine,
+  maxTurns,
+  ageRange,
+  pending,
+  error,
+  onConfirm,
+  onCancel,
+}: {
+  options: ConfigOptions;
+  personaId: string;
+  difficulty: RoleplayDrillDifficulty;
+  competitor: string;
+  productLine: string;
+  maxTurns: number;
+  ageRange: RoleplayAgeRange;
+  pending: boolean;
+  error: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const persona = options.personas.find((p) => p.id === personaId);
+  const diff = options.difficulties.find((d) => d.id === difficulty);
+  const product = options.products.find((p) => p.id === productLine);
+  const age = options.ageRanges.find((a) => a.id === ageRange);
+
+  const DIFFICULTY_COLOR: Record<string, string> = {
+    beginner: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    advanced: "bg-amber-50 text-amber-800 border-amber-200",
+    challenge: "bg-red-50 text-red-800 border-red-200",
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 sm:items-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="persona-modal-title"
+    >
+      <div className="flex max-h-[92dvh] w-full max-w-md flex-col rounded-t-2xl border border-emerald-100 bg-white shadow-2xl sm:rounded-2xl">
+        {/* Header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-emerald-100 px-4 py-3">
+          <h3 id="persona-modal-title" className="text-base font-semibold text-emerald-950">
+            確認本場設定
+          </h3>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg p-1.5 text-emerald-700 hover:bg-emerald-50"
+            aria-label="取消"
+          >
+            <AppIcon name="x" size={20} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          {/* 情境摘要 */}
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50/40 px-4 py-3 space-y-1">
+            <p className="text-sm font-semibold text-emerald-950">情境摘要</p>
+            <p className="text-sm text-emerald-800">
+              <span className="font-medium">{product?.displayName ?? productLine}</span>
+              {" vs "}
+              <span className="font-medium">{competitor}</span>
+            </p>
+            <div className="flex flex-wrap gap-2 mt-1">
+              <span className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-medium ${DIFFICULTY_COLOR[difficulty] ?? DIFFICULTY_COLOR.advanced}`}>
+                {diff?.label ?? difficulty} 難度
+              </span>
+              <span className="inline-flex items-center rounded-lg border border-emerald-200 bg-white px-2 py-0.5 text-xs text-emerald-800">
+                {age?.label ?? ageRange}
+              </span>
+              <span className="inline-flex items-center rounded-lg border border-emerald-200 bg-white px-2 py-0.5 text-xs text-emerald-800">
+                {maxTurns} 輪
+              </span>
+            </div>
+          </div>
+
+          {/* 客戶人設 */}
+          {persona ? (
+            <div className="rounded-xl border border-teal-100 bg-white px-4 py-3 space-y-2">
+              <p className="text-sm font-semibold text-emerald-950">
+                客戶人設：{persona.id} {persona.name}
+              </p>
+              <p className="text-sm text-emerald-700">{persona.style}</p>
+              {persona.traits && persona.traits.length > 0 ? (
+                <ul className="mt-1 flex flex-wrap gap-1.5">
+                  {persona.traits.map((t) => (
+                    <li
+                      key={t}
+                      className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs text-teal-800 border border-teal-100"
+                    >
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {persona.decisionMode ? (
+                <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2">
+                  <p className="text-xs font-semibold text-amber-900">業代應對提示</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-amber-800">{persona.decisionMode}</p>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        </div>
+
+        {/* Footer */}
+        <div className="shrink-0 border-t border-emerald-100 px-4 py-4">
+          {pending ? (
+            <div className="flex items-center justify-center gap-2 py-2">
+              <svg className="h-5 w-5 animate-spin text-teal-600" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+              </svg>
+              <span className="text-sm text-teal-700">情境組合中，請稍候…</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onConfirm}
+              className="w-full min-h-12 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 py-3 text-[15px] font-medium text-white"
+            >
+              進場開始
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function SetupForm() {
   const router = useRouter();
@@ -28,8 +177,11 @@ function SetupForm() {
   const [competitor, setCompetitor] = useState("");
   const [maxTurns, setMaxTurns] = useState(5);
   const [difficulty, setDifficulty] = useState<RoleplayDrillDifficulty>("advanced");
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalPending, setModalPending] = useState(false);
+  const [modalError, setModalError] = useState("");
+  const pendingSession = useRef<Promise<SessionResult | null>>(Promise.resolve(null));
 
   useEffect(() => {
     void (async () => {
@@ -99,63 +251,68 @@ function SetupForm() {
     Boolean(competitor?.trim()) &&
     Boolean(productLine?.trim());
 
-  async function start() {
-    if (busy || !canStart) return;
-    if (!competitor.trim()) {
-      setError("請選擇競品");
-      return;
-    }
-    setBusy(true);
-    setError("");
+  async function fetchSession(): Promise<SessionResult | null> {
     try {
       const res = await fetch("/api/roleplay/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "custom",
-          config: {
-            productLine,
-            personaId,
-            ageRange,
-            competitor,
-            maxTurns,
-            difficulty,
-          },
+          config: { productLine, personaId, ageRange, competitor, maxTurns, difficulty },
         }),
       });
-      const data = (await res.json()) as {
-        sessionId?: string;
-        customerMessage?: string;
-        maxTurns?: number;
-        turn?: number;
-        scenarioTitle?: string;
-        error?: string;
-      };
-      if (!res.ok) {
-        setError(data.error ?? "無法開始對練");
-        return;
-      }
-      const sid = data.sessionId ?? "";
-      if (!sid || !data.customerMessage?.trim()) {
-        setError("建立場次失敗，請稍後再試");
-        return;
-      }
-      sessionStorage.setItem(
-        `roleplay-boot-${sid}`,
-        JSON.stringify({
-          customerMessage: data.customerMessage,
-          maxTurns: data.maxTurns,
-          turn: data.turn,
-          scenarioTitle: data.scenarioTitle,
-        }),
-      );
-      router.push(`/roleplay/practice?sessionId=${encodeURIComponent(sid)}`);
-      return;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "連線失敗，請稍後再試");
-    } finally {
-      setBusy(false);
+      const data = (await res.json()) as SessionResult & { error?: string };
+      if (!res.ok) return null;
+      if (!data.sessionId || !data.customerMessage?.trim()) return null;
+      return data;
+    } catch {
+      return null;
     }
+  }
+
+  function openModal() {
+    if (!canStart) return;
+    if (!competitor.trim()) { setError("請選擇競品"); return; }
+    setError("");
+    setModalError("");
+    setModalPending(true);
+    setModalOpen(true);
+
+    // 背景 fetch，彈窗展示期間同步進行
+    const p = fetchSession();
+    pendingSession.current = p;
+    p.then((result) => {
+      if (!result) setModalError("情境建立失敗，請關閉後重試");
+      setModalPending(false);
+    }).catch(() => {
+      setModalError("連線失敗，請關閉後重試");
+      setModalPending(false);
+    });
+  }
+
+  async function handleConfirm() {
+    const data = await pendingSession.current;
+    if (!data) {
+      setModalError("情境建立失敗，請關閉後重試");
+      return;
+    }
+    sessionStorage.setItem(
+      `roleplay-boot-${data.sessionId}`,
+      JSON.stringify({
+        customerMessage: data.customerMessage,
+        maxTurns: data.maxTurns,
+        turn: data.turn,
+        scenarioTitle: data.scenarioTitle,
+        agentSpeaksFirst: data.agentSpeaksFirst ?? true,
+      }),
+    );
+    router.push(`/roleplay/practice?sessionId=${encodeURIComponent(data.sessionId)}`);
+  }
+
+  function handleCancel() {
+    setModalOpen(false);
+    setModalError("");
+    setModalPending(false);
   }
 
   if (!ready) {
@@ -285,16 +442,29 @@ function SetupForm() {
 
         <button
           type="button"
-          disabled={busy || !canStart}
-          onClick={() => void start()}
+          disabled={!canStart}
+          onClick={openModal}
           className="w-full min-h-12 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 py-3 text-[15px] font-medium text-white disabled:opacity-60"
         >
-          {busy ? "準備情境中，約需 10–30 秒…" : "開始演練"}
+          開始演練
         </button>
-        {busy ? (
-          <p className="text-center text-xs text-emerald-600">正在組合情境並取得客戶開場，請稍候</p>
-        ) : null}
       </div>
+
+      {modalOpen && options ? (
+        <PersonaConfirmModal
+          options={options}
+          personaId={personaId}
+          difficulty={difficulty}
+          competitor={competitor}
+          productLine={productLine}
+          maxTurns={maxTurns}
+          ageRange={ageRange}
+          pending={modalPending}
+          error={modalError}
+          onConfirm={() => void handleConfirm()}
+          onCancel={handleCancel}
+        />
+      ) : null}
 
       <RoleplayRagProductSheet open={ragOpen} onClose={() => setRagOpen(false)} />
     </>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>對練助手 · RAG 知識 QA 詳解（挖空練習）</title>
+  <style>
+    :root {
+      --bg: #f8faf9;
+      --card: #fff;
+      --border: #d1e7dd;
+      --text: #064e3b;
+      --muted: #3d6b5c;
+      --accent: #0d9488;
+      --accent-light: #ecfdf5;
+      --q-bg: #f0fdf4;
+      --a-blank-bg: #fffbeb;
+      --a-full-bg: #ecfdf5;
+      --blank: #b45309;
+      --blank-bg: #fef3c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 15px;
+    }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.35rem; }
+    h2 {
+      font-size: 1.15rem;
+      margin: 2.25rem 0 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: linear-gradient(90deg, #d1fae5, transparent);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+    }
+    .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.25rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:hover { background: var(--accent-light); }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: #0f766e; }
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .toc ol { margin: 0.5rem 0 0; padding-left: 1.25rem; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    .qa {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+    .qa-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem 0.6rem;
+      padding: 0.65rem 1rem;
+      background: var(--accent-light);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .qa-num { font-weight: 700; font-size: 0.9rem; color: var(--accent); }
+    .tag {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .tag-scenario { background: #dbeafe; color: #1e40af; }
+    .tag-persona { background: #ede9fe; color: #5b21b6; }
+    .tag-dim { background: #fef3c7; color: #92400e; }
+    .qa-body { padding: 1rem 1.15rem; }
+    .label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+    .label-q { color: #047857; }
+    .label-a { color: #b45309; }
+    .label-full { color: #0d9488; }
+    .block-q {
+      background: var(--q-bg);
+      border-left: 3px solid #10b981;
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+    .block-a-blank {
+      background: var(--a-blank-bg);
+      border-left: 3px solid #f59e0b;
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 0.75rem;
+    }
+    .block-a-full {
+      background: var(--a-full-bg);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 0.5rem;
+      display: none;
+    }
+    .block-a-full.visible { display: block; }
+    .blank {
+      display: inline;
+      color: var(--blank);
+      background: var(--blank-bg);
+      padding: 0 0.25rem;
+      border-radius: 3px;
+      font-weight: 600;
+      border-bottom: 2px dashed #f59e0b;
+      cursor: help;
+    }
+    .blank.revealed {
+      color: #065f46;
+      background: #d1fae5;
+      border-bottom-color: transparent;
+    }
+    .qa-actions { padding: 0 1.15rem 1rem; }
+    .qa-actions .btn { font-size: 0.8rem; }
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+    .facts-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    .facts-table th, .facts-table td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .facts-table th { background: var(--accent-light); }
+    .forbidden { color: #b91c1c; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>對練助手 · RAG 知識 QA 詳解</h1>
+    <p class="meta">
+      依知識庫 Section A–D（情境、客戶話語、佐證資料、策略方向）與教戰手則整理。<br />
+      用法：先看 <strong>Q</strong> 想像自己怎麼回 → 對照 <strong>挖空版 A</strong> 填入關鍵字 → 按「顯示詳解」核對完整話術。
+    </p>
+
+    <div class="toolbar">
+      <button type="button" class="btn btn-primary" id="expandAll">全部展開詳解</button>
+      <button type="button" class="btn" id="collapseAll">全部收合</button>
+      <button type="button" class="btn" id="revealBlanks">顯示所有挖空答案</button>
+    </div>
+
+    <nav class="toc card">
+      <strong>目錄</strong>
+      <ol>
+        <li><a href="#ch1">第一章　X-TRAIL vs RAV4　油耗／持有成本</a></li>
+        <li><a href="#ch2">第二章　KICKS vs HR-V　價格／促銷</a></li>
+        <li><a href="#ch3">第三章　其他競品延伸（CR-V、Tucson L、Outlander）</a></li>
+        <li><a href="#ch4">第四章　依客戶人設調整（P-01～P-05）</a></li>
+        <li><a href="#appendix">附錄　佐證數字速查 &amp; 禁止說法</a></li>
+      </ol>
+    </nav>
+
+    <!-- ========== 第一章 ========== -->
+    <h2 id="ch1">第一章　X-TRAIL vs RAV4　油耗／持有成本</h2>
+    <p class="meta">情境代碼 KB-T33-001 · 核心議題：客戶認為竞品油耗更低，質疑日常用車成本</p>
+
+  <article class="qa" data-id="1-1">
+    <div class="qa-head">
+      <span class="qa-num">Q1</span>
+      <span class="tag tag-scenario">開場疑慮</span>
+      <span class="tag tag-dim">同理 · 事實</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「我最近在比 X-TRAIL 跟 RAV4，網路上都說 RAV4 比較省油。你們這台真的不會比較貴嗎？」</div>
+      <p class="label label-a">挖空版回答（請填入橘色空格）</p>
+      <div class="block-a-blank">
+        我理解您會拿<span class="blank" data-answer="油耗">＿＿＿</span>來比，這很合理，很多客戶也會先看這一項。<br />
+        以<span class="blank" data-answer="WLTC">＿＿＿</span>綜合油耗來看，X-TRAIL 約<span class="blank" data-answer="14.3 km/L">＿＿＿</span>（依等級），比較時我們會用<span class="blank" data-answer="同一測試基準">＿＿＿</span>，避免只看網路片段數字。<br />
+        若您一年開<span class="blank" data-answer="15,000">＿＿＿</span>公里、油價<span class="blank" data-answer="30">＿＿＿</span>元，我可以幫您用<span class="blank" data-answer="年里程 × 油價 ÷ 油耗">＿＿＿</span>試算年油費差額。<br />
+        除了油費，這台同級還有<span class="blank" data-answer="ProPILOT">＿＿＿</span>等 L2 輔助，長途比較有感；要不要這週安排<span class="blank" data-answer="試乘">＿＿＿</span>，實際路況一起算給您？
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        我理解您會拿油耗來比，這很合理，很多客戶也會先看這一項。<br />
+        以 WLTC 綜合油耗來看，X-TRAIL 約 14.3 km/L（依等級），比較時我們會用同一測試基準，避免只看網路片段數字。<br />
+        若您一年開 15,000 公里、油價 30 元，我可以幫您用「年里程 × 油價 ÷ 油耗」試算年油費差額。<br />
+        除了油費，這台同級還有 ProPILOT 等 L2 輔助，長途比較有感；要不要這週安排試乘，實際路況一起算給您？
+      </div>
+      <p class="hint">策略重點：① 同理 ② WLTC 基準 ③ 試算公式 ④ 差異化配備 ⑤ 試乘邀約</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="1-2">
+    <div class="qa-head">
+      <span class="qa-num">Q2</span>
+      <span class="tag tag-scenario">追問數據</span>
+      <span class="tag tag-persona">P-01 / P-05</span>
+      <span class="tag tag-dim">事實 · 策略</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「那你有沒有實際路況的數據？官網數字我都看過了。」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        官網的<span class="blank" data-answer="WLTC">＿＿＿</span>是統一測試基準，方便跟同級車比較；實際路況會因<span class="blank" data-answer="駕駛習慣、市區／高速比例">＿＿＿</span>而不同，所以我們不會用「一定比較省」這種說法。<br />
+        我建議用您的<span class="blank" data-answer="年里程">＿＿＿</span>做試算，再搭配<span class="blank" data-answer="試乘">＿＿＿</span>感受市區跟快速道路的油耗差異，這樣比只看網路文章更具體。<br />
+        若您有看到的 RAV4 數字，我們也可以一起確認是不是<span class="blank" data-answer="同一等級、同一測試條件">＿＿＿</span>，避免斷章取義。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        官網的 WLTC 是統一測試基準，方便跟同級車比較；實際路況會因駕駛習慣、市區／高速比例而不同，所以我們不會用「一定比較省」這種說法。<br />
+        我建議用您的年里程做試算，再搭配試乘感受市區跟快速道路的油耗差異，這樣比只看網路文章更具體。<br />
+        若您有看到的 RAV4 數字，我們也可以一起確認是不是同一等級、同一測試條件，避免斷章取義。
+      </div>
+      <p class="hint">禁止：保證一定比競品省油 · 未經查證的數字</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="1-3">
+    <div class="qa-head">
+      <span class="qa-num">Q3</span>
+      <span class="tag tag-scenario">價值差異</span>
+      <span class="tag tag-dim">策略 · 完整度</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「如果油耗差不多，那為什麼我要選你們而不是 RAV4？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        若油耗在<span class="blank" data-answer="同一基準">＿＿＿</span>下差距不大，我會建議把<span class="blank" data-answer="總持有成本">＿＿＿</span>一起看：除了油費，還有<span class="blank" data-answer="保養、保險、配備價值">＿＿＿</span>。<br />
+        X-TRAIL 在同級有<span class="blank" data-answer="ProPILOT">＿＿＿</span>、<span class="blank" data-answer="空間／舒適">＿＿＿</span>等優勢，長途跟家人出遊會比較有感。<br />
+        我不會去說競品不好，而是邀請您<span class="blank" data-answer="試乘">＿＿＿</span>比較駕駛輔助跟乘坐感受，再決定哪台更適合您的用車情境。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        若油耗在同一基準下差距不大，我會建議把總持有成本一起看：除了油費，還有保養、保險、配備價值。<br />
+        X-TRAIL 在同級有 ProPILOT、空間／舒適等優勢，長途跟家人出遊會比較有感。<br />
+        我不會去說競品不好，而是邀請您試乘比較駕駛輔助跟乘坐感受，再決定哪台更適合您的用車情境。
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="1-4">
+    <div class="qa-head">
+      <span class="qa-num">Q4</span>
+      <span class="tag tag-scenario">縮小範圍</span>
+      <span class="tag tag-persona">P-03</span>
+      <span class="tag tag-dim">事實 · 成交</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「你剛說的配備我沒興趣，我就想知道一年油錢差多少。」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        好，我們就專注在油錢。請問您一年大約開<span class="blank" data-answer="幾公里">＿＿＿</span>？油價我們先用<span class="blank" data-answer="30">＿＿＿</span>元估算。<br />
+        X-TRAIL 綜合油耗約<span class="blank" data-answer="14.3 km/L">＿＿＿</span>，公式是<span class="blank" data-answer="年里程 × 油價 ÷ 油耗">＿＿＿</span>，年油費大約<span class="blank" data-answer="（當場試算）">＿＿＿</span>元。<br />
+        跟您心中的 RAV4 數字比，差額大約<span class="blank" data-answer="（當場試算）">＿＿＿</span>元／年；試算完若您覺得可接受，我們再談<span class="blank" data-answer="試乘">＿＿＿</span>或<span class="blank" data-answer="第二次到店">＿＿＿</span>時間。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        好，我們就專注在油錢。請問您一年大約開幾公里？油價我們先用 30 元估算。<br />
+        X-TRAIL 綜合油耗約 14.3 km/L，公式是「年里程 × 油價 ÷ 油耗」，年油費大約（當場試算）元。<br />
+        跟您心中的 RAV4 數字比，差額大約（當場試算）元／年；試算完若您覺得可接受，我們再談試乘或第二次到店時間。
+      </div>
+      <p class="hint">成交動作：提供油耗試算表 · 約第二次到店</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="1-5">
+    <div class="qa-head">
+      <span class="qa-num">Q5</span>
+      <span class="tag tag-scenario">要求具體</span>
+      <span class="tag tag-persona">P-05 挑戰</span>
+      <span class="tag tag-dim">事實 · 成交</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「聽起來還是很空，能不能給我一個具體試算？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        可以，我們現在就算。假設年里程<span class="blank" data-answer="15,000">＿＿＿</span>公里、油價<span class="blank" data-answer="30">＿＿＿</span>元／升：<br />
+        X-TRAIL（<span class="blank" data-answer="14.3">＿＿＿</span> km/L）年油費 ≈ 15,000 × 30 ÷ 14.3 ≈ <span class="blank" data-answer="31,469">＿＿＿</span>元。<br />
+        若 RAV4 用您提供的<span class="blank" data-answer="（客戶數字）">＿＿＿</span> km/L 同公式計算，差額約<span class="blank" data-answer="（當場試算）">＿＿＿</span>元／年。<br />
+        我把這份<span class="blank" data-answer="試算表">＿＿＿</span>留給您，這週<span class="blank" data-answer="六上午">＿＿＿</span>方便試乘 30 分鐘嗎？
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        可以，我們現在就算。假設年里程 15,000 公里、油價 30 元／升：<br />
+        X-TRAIL（14.3 km/L）年油費 ≈ 15,000 × 30 ÷ 14.3 ≈ 31,469 元。<br />
+        若 RAV4 用您提供的（客戶數字）km/L 同公式計算，差額約（當場試算）元／年。<br />
+        我把這份試算表留給您，這週六上午方便試乘 30 分鐘嗎？
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+    <!-- ========== 第二章 ========== -->
+    <h2 id="ch2">第二章　KICKS vs HR-V　價格／促銷</h2>
+    <p class="meta">情境代碼 KB-T33-002 · 核心議題：客戶看到競品促銷，質疑 KICKS 性價比</p>
+
+  <article class="qa" data-id="2-1">
+    <div class="qa-head">
+      <span class="qa-num">Q6</span>
+      <span class="tag tag-scenario">開場疑慮</span>
+      <span class="tag tag-persona">P-03</span>
+      <span class="tag tag-dim">同理 · 成交</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「HR-V 現在促銷很大，KICKS 有什麼比較划算的？不然我就去別家看了。」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        了解您有看到 HR-V 的促銷，<span class="blank" data-answer="預算跟決策時間">＿＿＿</span>對您很重要。<br />
+        目前 KICKS 依<span class="blank" data-answer="總部當月方案">＿＿＿</span>是<span class="blank" data-answer="（透明說明條件）">＿＿＿</span>，我不會口頭多加您沒看到的優惠。<br />
+        KICKS 是<span class="blank" data-answer="都會 crossover">＿＿＿</span>，<span class="blank" data-answer="省油、好停車">＿＿＿</span>，適合市區通勤；總價要看<span class="blank" data-answer="車價、保養、油耗、保險">＿＿＿</span>一起算。<br />
+        我今天可以幫您<span class="blank" data-answer="試算月供">＿＿＿</span>，若滿意再<span class="blank" data-answer="保留優惠名額">＿＿＿</span>，您覺得呢？
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        了解您有看到 HR-V 的促銷，預算跟決策時間對您很重要。<br />
+        目前 KICKS 依總部當月方案是（透明說明條件），我不會口頭多加您沒看到的優惠。<br />
+        KICKS 是都會 crossover，省油、好停車，適合市區通勤；總價要看車價、保養、油耗、保險一起算。<br />
+        我今天可以幫您試算月供，若滿意再保留優惠名額，您覺得呢？
+      </div>
+      <p class="hint">禁止：承諾未公布的折扣 · 貶低他牌客戶選擇</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="2-2">
+    <div class="qa-head">
+      <span class="qa-num">Q7</span>
+      <span class="tag tag-scenario">追問優惠</span>
+      <span class="tag tag-dim">事實 · 完整度</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「你說的優惠是現在有嗎？還是要等我下訂才有？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        這個方案是<span class="blank" data-answer="本月總部公告">＿＿＿</span>的，條件是<span class="blank" data-answer="（說明適用車款／期限）">＿＿＿</span>；若您<span class="blank" data-answer="下訂">＿＿＿</span>時方案有調整，會以<span class="blank" data-answer="當時總部公告">＿＿＿</span>為準，我會如實告知。<br />
+        與其猜測，不如我們先<span class="blank" data-answer="試算月供">＿＿＿</span>，您看是否在預算內，再決定要不要<span class="blank" data-answer="今日試乘">＿＿＿</span>。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        這個方案是本月總部公告的，條件是（說明適用車款／期限）；若您下訂時方案有調整，會以當時總部公告為準，我會如實告知。<br />
+        與其猜測，不如我們先試算月供，您看是否在預算內，再決定要不要今日試乘。
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="2-3">
+    <div class="qa-head">
+      <span class="qa-num">Q8</span>
+      <span class="tag tag-scenario">預算壓力</span>
+      <span class="tag tag-dim">成交</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「我預算有限，月供能不能再低一點？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        了解，我們先看您的<span class="blank" data-answer="頭期款">＿＿＿</span>跟<span class="blank" data-answer="期數">＿＿＿</span>偏好。<br />
+        以 KICKS <span class="blank" data-answer="（車型）">＿＿＿</span>、頭期<span class="blank" data-answer="（金額）">＿＿＿</span>、<span class="blank" data-answer="60">＿＿＿</span>期估算，月供約<span class="blank" data-answer="（試算）">＿＿＿</span>元。<br />
+        若仍偏高，我們可以調整<span class="blank" data-answer="頭期或期數">＿＿＿</span>，或看當月是否有<span class="blank" data-answer="原廠金融方案">＿＿＿</span>；您今天方便先<span class="blank" data-answer="試乘">＿＿＿</span>，滿意再談細節？
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        了解，我們先看您的頭期款跟期數偏好。<br />
+        以 KICKS（車型）、頭期（金額）、60 期估算，月供約（試算）元。<br />
+        若仍偏高，我們可以調整頭期或期數，或看當月是否有原廠金融方案；您今天方便先試乘，滿意再談細節？
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="2-4">
+    <div class="qa-head">
+      <span class="qa-num">Q9</span>
+      <span class="tag tag-scenario">離場威脅</span>
+      <span class="tag tag-dim">成交 · 策略</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「如果今天沒辦法給我明確方案，我可能就不等了。」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        我理解您希望今天就有<span class="blank" data-answer="可執行的方案">＿＿＿</span>。<br />
+        我現在能承諾的是：<span class="blank" data-answer="當月總部方案內容">＿＿＿</span>＋<span class="blank" data-answer="月供試算">＿＿＿</span>＋<span class="blank" data-answer="今日試乘時段">＿＿＿</span>。<br />
+        若您願意，我先幫您<span class="blank" data-answer="保留優惠名額">＿＿＿</span>到<span class="blank" data-answer="（日期）">＿＿＿</span>，您跟家人討論後我們再確認，這樣可以嗎？
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        我理解您希望今天就有可執行的方案。<br />
+        我現在能承諾的是：當月總部方案內容＋月供試算＋今日試乘時段。<br />
+        若您願意，我先幫您保留優惠名額到（日期），您跟家人討論後我們再確認，這樣可以嗎？
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+    <!-- ========== 第三章 ========== -->
+    <h2 id="ch3">第三章　其他競品延伸（CR-V、Tucson L、Outlander）</h2>
+    <p class="meta">動態情境由 RAG 注入細節；以下為 X-TRAIL 對練常用競品的回應骨架</p>
+
+  <article class="qa" data-id="3-1">
+    <div class="qa-head">
+      <span class="qa-num">Q10</span>
+      <span class="tag tag-scenario">Honda CR-V</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「CR-V 空間也很大，而且品牌口碑不錯，X-TRAIL 有什麼一定要選的理由？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        CR-V 確實是熱門選擇。X-TRAIL 在同級可以特別看<span class="blank" data-answer="ProPILOT">＿＿＿</span>、<span class="blank" data-answer="乘坐舒適">＿＿＿</span>跟<span class="blank" data-answer="油耗試算後的總成本">＿＿＿</span>。<br />
+        建議用<span class="blank" data-answer="同一 WLTC 基準">＿＿＿</span>比油耗，再<span class="blank" data-answer="試乘">＿＿＿</span>比較輔助系統體感，用您實際在意的項目決定。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        CR-V 確實是熱門選擇。X-TRAIL 在同級可以特別看 ProPILOT、乘坐舒適跟油耗試算後的總成本。<br />
+        建議用同一 WLTC 基準比油耗，再試乘比較輔助系統體感，用您實際在意的項目決定。
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="3-2">
+    <div class="qa-head">
+      <span class="qa-num">Q11</span>
+      <span class="tag tag-scenario">Hyundai Tucson L</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「Tucson L 配備給很多，價格又有競爭力，你們怎麼比？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        配備多確實吸引人，我們比較時會看<span class="blank" data-answer="您最常用的功能">＿＿＿</span>是不是每天都用到，以及<span class="blank" data-answer="售後保養">＿＿＿</span>、<span class="blank" data-answer="油耗">＿＿＿</span>等長期成本。<br />
+        我不會說對方不好，邀請您<span class="blank" data-answer="試乘">＿＿＿</span> X-TRAIL 的<span class="blank" data-answer="輔助駕駛">＿＿＿</span>跟<span class="blank" data-answer="實際乘坐">＿＿＿</span>，再跟 Tucson L 的感受對照。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        配備多確實吸引人，我們比較時會看您最常用的功能是不是每天都用到，以及售後保養、油耗等長期成本。<br />
+        我不會說對方不好，邀請您試乘 X-TRAIL 的輔助駕駛跟實際乘坐，再跟 Tucson L 的感受對照。
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="3-3">
+    <div class="qa-head">
+      <span class="qa-num">Q12</span>
+      <span class="tag tag-scenario">Mitsubishi Outlander</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p>
+      <div class="block-q">「Outlander 有七人座版本，你們 X-TRAIL 適合我們一家出遊嗎？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        若您需要<span class="blank" data-answer="七人">＿＿＿</span>滿載，Outlander 是合理選項；X-TRAIL 則強在<span class="blank" data-answer="五人乘坐舒適">＿＿＿</span>、<span class="blank" data-answer="行李空間">＿＿＿</span>與<span class="blank" data-answer="長途輔助駕駛">＿＿＿</span>。<br />
+        請問您出遊通常是<span class="blank" data-answer="幾人">＿＿＿</span>？我可以依您的座位需求建議合適車型，並安排<span class="blank" data-answer="試乘">＿＿＿</span>實際感受。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        若您需要七人滿載，Outlander 是合理選項；X-TRAIL 則強在五人乘坐舒適、行李空間與長途輔助駕駛。<br />
+        請問您出遊通常是幾人？我可以依您的座位需求建議合適車型，並安排試乘實際感受。
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+    <!-- ========== 第四章 ========== -->
+    <h2 id="ch4">第四章　依客戶人設調整（P-01～P-05）</h2>
+    <p class="meta">同一個 Q，不同人設要調整回應重心（詳見 Persona 畫像庫）</p>
+
+  <article class="qa" data-id="4-1">
+    <div class="qa-head">
+      <span class="qa-num">Q13</span>
+      <span class="tag tag-persona">P-02 情感品牌型</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶說（容易岔題）</p>
+      <div class="block-q">「其實我也沒那麼在意數字啦，主要是覺得日產品牌好像比較沒那麼紅？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        了解，您在意的是<span class="blank" data-answer="品牌信任跟用車感受">＿＿＿</span>，這比只看網路排名重要。<br />
+        很多客戶試乘後會提到<span class="blank" data-answer="駕駛輔助">＿＿＿</span>跟<span class="blank" data-answer="乘坐舒適">＿＿＿</span>，比規格表更有感。<br />
+        數字我們可以簡短帶過，不如您親自<span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span>，感受服務跟我們怎麼陪您選車？
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        了解，您在意的是品牌信任跟用車感受，這比只看網路排名重要。<br />
+        很多客戶試乘後會提到駕駛輔助跟乘坐舒適，比規格表更有感。<br />
+        數字我們可以簡短帶過，不如您親自試乘 30 分鐘，感受服務跟我們怎麼陪您選車？
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="4-2">
+    <div class="qa-head">
+      <span class="qa-num">Q14</span>
+      <span class="tag tag-persona">P-04 猶豫從眾型</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶說</p>
+      <div class="block-q">「聽起來還不錯，但我還是要回去跟家人商量一下。」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        跟家人商量很合理。為了方便討論，我今天先給您<span class="blank" data-answer="油耗試算表">＿＿＿</span>跟<span class="blank" data-answer="方案摘要">＿＿＿</span>。<br />
+        我們先訂一個<span class="blank" data-answer="小步驟">＿＿＿</span>：這週<span class="blank" data-answer="六">＿＿＿</span>帶家人來<span class="blank" data-answer="試乘">＿＿＿</span> 30 分鐘，或您先<span class="blank" data-answer="第二次到店">＿＿＿</span>看車，哪個比較方便？
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        跟家人商量很合理。為了方便討論，我今天先給您油耗試算表跟方案摘要。<br />
+        我們先訂一個小步驟：這週六帶家人來試乘 30 分鐘，或您先第二次到店看車，哪個比較方便？
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+  <article class="qa" data-id="4-3">
+    <div class="qa-head">
+      <span class="qa-num">Q15</span>
+      <span class="tag tag-persona">P-05 深度研究型</span>
+    </div>
+    <div class="qa-body">
+      <p class="label label-q">客戶說</p>
+      <div class="block-q">「論壇上有人說 WLTC 跟實際差很多，你們會不會灌水？」</div>
+      <p class="label label-a">挖空版回答</p>
+      <div class="block-a-blank">
+        這個質疑很常見。WLTC 是<span class="blank" data-answer="法規統一測試">＿＿＿</span>，用途是<span class="blank" data-answer="同級橫向比較">＿＿＿</span>，不是保證每個人實際油耗。<br />
+        所以我們會用<span class="blank" data-answer="您的年里程">＿＿＿</span>試算，並邀請<span class="blank" data-answer="試乘">＿＿＿</span>看您的路況；若有論壇數字，我們一起核對<span class="blank" data-answer="測試條件">＿＿＿</span>是否一致，我不會迴避也不會瞎掰。
+      </div>
+      <p class="label label-full">完整詳解</p>
+      <div class="block-a-full">
+        這個質疑很常見。WLTC 是法規統一測試，用途是同級橫向比較，不是保證每個人實際油耗。<br />
+        所以我們會用您的年里程試算，並邀請試乘看您的路況；若有論壇數字，我們一起核對測試條件是否一致，我不會迴避也不會瞎掰。
+      </div>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+
+    <!-- ========== 附錄 ========== -->
+    <h2 id="appendix">附錄　佐證數字速查 &amp; 禁止說法</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">Section C　佐證資料（X-TRAIL 油耗情境）</h3>
+      <table class="facts-table">
+        <thead><tr><th>項目</th><th>佐證內容</th></tr></thead>
+        <tbody>
+          <tr><td>X-TRAIL 綜合油耗</td><td>約 14.3 km/L（WLTC，依等級）</td></tr>
+          <tr><td>同級競品對照</td><td>需說明測試基準一致，避免斷章取義</td></tr>
+          <tr><td>ProPILOT</td><td>同級少見 L2 輔助，長途舒適與安全</td></tr>
+          <tr><td>試算方式</td><td>年里程 × 油價 ÷ 油耗 → 比較差額</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Section C　佐證資料（KICKS 價格情境）</h3>
+      <table class="facts-table">
+        <thead><tr><th>項目</th><th>佐證內容</th></tr></thead>
+        <tbody>
+          <tr><td>KICKS 定位</td><td>都會 crossover，省油、好停車</td></tr>
+          <tr><td>優惠說明</td><td>需依總部當月方案，避免口頭亂承諾</td></tr>
+          <tr><td>總價思維</td><td>車價、保養、油耗、保險一併說明</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Section D　禁止說法（地雷）</h3>
+      <ul class="forbidden">
+        <li>直接攻擊競品品質差</li>
+        <li>保證一定比競品省油／一定最便宜</li>
+        <li>未經查證的數據、誇大優惠</li>
+        <li>承諾未公布的折扣</li>
+        <li>貶低客戶選擇（「你怎麼會看那台」）</li>
+      </ul>
+      <p style="margin-bottom:0;font-size:0.85rem;color:var(--muted)">原則：比較「基準與條件」，不比較「人身或品牌優劣」。</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">建議成交動作池</h3>
+      <p style="margin:0">邀請試乘 · 提供油耗試算表 · 試算月供 · 約第二次到店 · 保留優惠名額</p>
+    </div>
+
+    <p class="meta" style="margin-top:2rem">
+      文件版本：對應 PoC 知識庫 KB-T33-001／002、RAG 三類語料（product_info / competitor_compare / sales_script）。<br />
+      動態情境細節以當次對練「素材區」為準；本頁為固定情境詳解與練習用。
+    </p>
+  </div>
+
+  <script>
+    document.querySelectorAll(".toggle-full").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const qa = btn.closest(".qa");
+        const full = qa.querySelector(".block-a-full");
+        const visible = full.classList.toggle("visible");
+        btn.textContent = visible ? "收合詳解" : "顯示詳解";
+      });
+    });
+
+    document.getElementById("expandAll").addEventListener("click", () => {
+      document.querySelectorAll(".block-a-full").forEach((el) => el.classList.add("visible"));
+      document.querySelectorAll(".toggle-full").forEach((btn) => { btn.textContent = "收合詳解"; });
+    });
+
+    document.getElementById("collapseAll").addEventListener("click", () => {
+      document.querySelectorAll(".block-a-full").forEach((el) => el.classList.remove("visible"));
+      document.querySelectorAll(".toggle-full").forEach((btn) => { btn.textContent = "顯示詳解"; });
+    });
+
+    document.getElementById("revealBlanks").addEventListener("click", () => {
+      document.querySelectorAll(".blank").forEach((el) => {
+        el.textContent = el.dataset.answer || "—";
+        el.classList.add("revealed");
+        el.title = "已顯示答案";
+      });
+    });
+
+    document.querySelectorAll(".blank").forEach((el) => {
+      el.title = "點「顯示所有挖空答案」或自行填入";
+    });
+  </script>
+</body>
+</html>

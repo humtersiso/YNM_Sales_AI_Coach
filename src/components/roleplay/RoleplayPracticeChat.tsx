@@ -21,6 +21,7 @@ export function RoleplayPracticeChat({
   busy,
   canFinish,
   error,
+  waitingForAgent = false,
 }: {
   messages: RoleplayUiMessage[];
   turn: number;
@@ -32,6 +33,7 @@ export function RoleplayPracticeChat({
   busy: boolean;
   canFinish: boolean;
   error: string;
+  waitingForAgent?: boolean;
 }) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +50,16 @@ export function RoleplayPracticeChat({
         </p>
       </div>
       <div className="flex-1 space-y-3 overflow-y-auto px-3 py-3">
+        {/* 業代先發提示卡 */}
+        {waitingForAgent ? (
+          <div className="mx-auto max-w-sm rounded-2xl border border-teal-200 bg-teal-50 px-4 py-4 text-center shadow-sm">
+            <p className="text-sm font-semibold text-teal-900">情境已就緒，請先向客戶打招呼</p>
+            <p className="mt-2 text-sm leading-relaxed text-teal-800">
+              例如：「您好，在看這台車有什麼問題嗎？我都可以為您說明喔！」
+            </p>
+          </div>
+        ) : null}
+
         {messages.map((m) => (
           <div
             key={m.id}
@@ -75,7 +87,13 @@ export function RoleplayPracticeChat({
         <textarea
           className="w-full resize-none rounded-xl border border-emerald-200 px-3 py-2.5 text-[15px] leading-snug"
           rows={3}
-          placeholder={turn >= maxTurns ? "已達輪次上限" : "輸入你的回覆…"}
+          placeholder={
+            waitingForAgent
+              ? "向客戶打招呼，開始對練…"
+              : turn >= maxTurns
+                ? "已達輪次上限"
+                : "輸入你的回覆…"
+          }
           value={input}
           onChange={(e) => onInputChange(e.target.value)}
           disabled={busy || turn >= maxTurns}
@@ -87,7 +105,7 @@ export function RoleplayPracticeChat({
             className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-emerald-700 py-2.5 text-sm font-medium text-white disabled:opacity-50"
           >
             <AppIcon name="send" size={16} className="text-white" />
-            送出
+            {waitingForAgent ? "發起對話" : "送出"}
           </button>
           <button
             type="button"
