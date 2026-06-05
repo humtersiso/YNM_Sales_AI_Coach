@@ -31,6 +31,7 @@
     "test:roleplay:five-agents": "tsx scripts/ops/test-roleplay-five-agents.ts",
     "test:roleplay:admin-five": "tsx scripts/ops/test-roleplay-admin-five-direct.ts",
     "test:roleplay:setup-flow": "node scripts/ops/test-roleplay-setup-flow.mjs",
+    "docs:roleplay-qa-drill": "node scripts/ops/generate-roleplay-rag-qa-drill.mjs",
     "bq:create:roleplay-facts": "node scripts/ops/create-roleplay-facts-table.cjs",
     "bq:create:roleplay-dashboard": "node scripts/ops/create-roleplay-agent-dashboard.cjs",
     "bq:backfill:admin-briefing": "tsx scripts/ops/backfill-admin-dashboard-briefing.ts",
