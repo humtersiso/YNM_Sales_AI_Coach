@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { TenureYearsStepper } from "@/components/mobile/TenureYearsStepper";
 
 type UserRow = {
   userId: string;
@@ -393,18 +394,13 @@ export default function UsersPage() {
                 </select>
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block text-sm text-emerald-900">
+                <div className="block text-sm text-emerald-900">
                   年資(年)
-                  <input
-                    type="number"
-                    className="mt-1 w-full rounded-lg border border-emerald-200 px-3 py-2"
-                    placeholder="0"
-                    min={0}
-                    max={50}
+                  <TenureYearsStepper
                     value={form.tenureYears}
-                    onChange={(e) => setForm((f) => ({ ...f, tenureYears: Number(e.target.value || 0) }))}
+                    onChange={(tenureYears) => setForm((f) => ({ ...f, tenureYears }))}
                   />
-                </label>
+                </div>
                 <label className="block text-sm text-emerald-900">
                   角色
                   <select

@@ -81,6 +81,12 @@ export default function AdminRoleplayUsagePage() {
     };
   }, [branch, agentUserId]);
 
+  const totalSessions = kpis.completedSessions + kpis.startedIncomplete;
+  const incompleteRatio =
+    totalSessions > 0
+      ? Math.round((kpis.startedIncomplete / totalSessions) * 100)
+      : 0;
+
   return (
     <div className="space-y-4">
       <Link
@@ -97,10 +103,10 @@ export default function AdminRoleplayUsagePage() {
       </div>
 
       <div className="grid gap-3 rounded-xl border border-emerald-100 bg-white p-3">
-        <label className="block text-xs text-emerald-800">
+        <label className="block text-sm text-emerald-800">
           據點
           <select
-            className="mt-1 block w-full rounded-lg border border-emerald-200 px-2 py-2 text-sm"
+            className="mt-1 block w-full rounded-lg border border-emerald-200 px-3 py-2.5 text-base"
             value={branch}
             onChange={(e) => setBranch(e.target.value)}
           >
@@ -112,10 +118,10 @@ export default function AdminRoleplayUsagePage() {
             ))}
           </select>
         </label>
-        <label className="block text-xs text-emerald-800">
+        <label className="block text-sm text-emerald-800">
           姓名
           <select
-            className="mt-1 block w-full rounded-lg border border-emerald-200 px-2 py-2 text-sm"
+            className="mt-1 block w-full rounded-lg border border-emerald-200 px-3 py-2.5 text-base"
             value={agentUserId}
             onChange={(e) => setAgentUserId(e.target.value)}
           >
@@ -128,16 +134,20 @@ export default function AdminRoleplayUsagePage() {
             ))}
           </select>
         </label>
-        {loading ? <p className="text-xs text-emerald-600">載入中…</p> : null}
+        {loading ? <p className="text-sm text-emerald-600">載入中…</p> : null}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <StatCard label="活躍業代" value={kpis.activeAgents} compact />
+        <StatCard label="業代數量" value={kpis.activeAgents} compact />
         <StatCard label="完賽場次" value={kpis.completedSessions} compact />
         <StatCard
           label="未完賽"
           value={kpis.startedIncomplete}
-          hint="已開局未評分"
+          hint={
+            totalSessions > 0
+              ? `已開局未評分 · 占 ${incompleteRatio}%`
+              : "已開局未評分"
+          }
           compact
         />
         <StatCard
@@ -149,9 +159,9 @@ export default function AdminRoleplayUsagePage() {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white">
-        <div className="border-b border-emerald-100 bg-emerald-50/50 px-3 py-2">
-          <p className="text-xs font-medium text-emerald-800">業代對練概況</p>
-          <p className="text-[11px] text-emerald-700">完賽場次與平均分（可點列篩選）</p>
+        <div className="border-b border-emerald-100 bg-emerald-50/50 px-4 py-3">
+          <p className="text-sm font-medium text-emerald-800">業代對練概況</p>
+          <p className="mt-0.5 text-sm text-emerald-700">完賽場次與平均分（可點列篩選）</p>
         </div>
         <RoleplayAgentSummaryTable
           summaries={summaries}
@@ -161,31 +171,31 @@ export default function AdminRoleplayUsagePage() {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white">
-        <div className="border-b border-emerald-100 bg-emerald-50/50 px-3 py-2">
-          <p className="text-xs font-medium text-emerald-800">對練歷程</p>
-          <p className="text-[11px] text-emerald-700">
-            共 {sessions.length} 筆 · 每頁 {LOG_PAGE_SIZE} 筆
+        <div className="border-b border-emerald-100 bg-emerald-50/50 px-4 py-3">
+          <p className="text-sm font-medium text-emerald-800">對練歷程</p>
+          <p className="mt-0.5 text-sm text-emerald-700">
+            共 {sessions.length} 筆 · 每頁 {LOG_PAGE_SIZE} 筆 · 點卡片查看紀錄
           </p>
         </div>
         <RoleplaySessionCardList sessions={pagedSessions} />
         {sessions.length > LOG_PAGE_SIZE ? (
-          <div className="flex items-center justify-between gap-2 border-t border-emerald-100 px-3 py-2">
+          <div className="flex items-center justify-between gap-2 border-t border-emerald-100 px-4 py-3">
             <button
               type="button"
               disabled={logPage <= 1}
               onClick={() => setLogPage((p) => Math.max(1, p - 1))}
-              className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs text-emerald-800 disabled:opacity-40"
+              className="rounded-lg border border-emerald-200 px-4 py-2 text-sm text-emerald-800 disabled:opacity-40"
             >
               上一頁
             </button>
-            <span className="text-xs text-emerald-700">
+            <span className="text-sm text-emerald-700">
               第 {logPage} / {totalPages} 頁
             </span>
             <button
               type="button"
               disabled={logPage >= totalPages}
               onClick={() => setLogPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs text-emerald-800 disabled:opacity-40"
+              className="rounded-lg border border-emerald-200 px-4 py-2 text-sm text-emerald-800 disabled:opacity-40"
             >
               下一頁
             </button>

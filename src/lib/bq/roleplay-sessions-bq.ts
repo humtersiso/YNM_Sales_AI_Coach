@@ -26,6 +26,12 @@ export type RoleplaySessionRecord = {
   finishedAt: string;
 };
 
+export type RoleplayTranscriptLine = {
+  at: string;
+  role: "customer" | "agent";
+  content: string;
+};
+
 export type RoleplayCompletedDetail = RoleplaySessionRecord & {
   scoreEmpathy: number | null;
   scoreStructure: number | null;
@@ -40,7 +46,28 @@ export type RoleplayCompletedDetail = RoleplaySessionRecord & {
   factCheckComment?: string;
   /** Gate2 report_json 原文（含 dashboardBriefing 快取） */
   reportJson?: string | null;
+  transcript?: string | null;
 };
+
+/** 將 BQ transcript 字串解析為對話列（供後台檢視） */
+export function parseRoleplayTranscriptLines(raw: string | null | undefined): RoleplayTranscriptLine[] {
+  if (!raw?.trim()) return [];
+  return raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const m = line.match(/^\[([^\]]+)\]\s*(客戶|業代)[：:]\s*(.*)$/);
+      if (!m) {
+        return { at: "", role: "agent" as const, content: line };
+      }
+      return {
+        at: m[1],
+        role: m[2] === "客戶" ? ("customer" as const) : ("agent" as const),
+        content: m[3],
+      };
+    });
+}
 
 const DIMENSION_LABELS: Record<string, string> = {
   empathy: "同理承接",
@@ -225,6 +252,7 @@ function rowToCompletedDetail(r: Record<string, unknown>): RoleplayCompletedDeta
     factCheckComment:
       report.dimensions.find((d) => d.dimensionId === "factCheck")?.comment ?? "",
     reportJson: r.reportJson != null ? String(r.reportJson) : null,
+    transcript: r.transcript != null ? String(r.transcript) : null,
   };
 }
 
@@ -677,6 +705,69 @@ export async function countUserRoleplaySessions(userId: string): Promise<{
   } catch (e) {
     console.warn("[roleplay] count user sessions failed", e);
     return { started: 0, completed: 0 };
+  }
+}
+
+/** 管理後台：單一場次詳情（含 transcript；同 sessionId 優先 COMPLETED） */
+export async function getAdminRoleplaySessionById(
+  sessionId: string,
+): Promise<RoleplayCompletedDetail | null> {
+  const { projectId } = getBigQueryScriptDrillsConfig();
+  if (!projectId || !sessionId.trim()) return null;
+
+  const runQuery = async (withReport: boolean) => {
+    const client = getBigQueryClient();
+    const reportCol = withReport ? ",\n  report_json AS reportJson" : "";
+    const [rows] = await client.query({
+      query: `
+        SELECT
+          status,
+          session_id AS sessionId,
+          agent_id AS userId,
+          agent_username AS username,
+          dealership_id AS branch,
+          customer_type AS personaId,
+          competitor,
+          target_model AS targetModel,
+          age_range AS ageRange,
+          difficulty,
+          score_total AS score,
+          grade,
+          score_empathy AS scoreEmpathy,
+          score_structure AS scoreStructure,
+          score_fact_check AS scoreFactCheck,
+          score_strategy AS scoreStrategy,
+          score_closing AS scoreClosing,
+          created_at AS startedAt,
+          completed_at AS finishedAt,
+          transcript${reportCol}
+        FROM ${factsTable()}
+        WHERE session_id = @sessionId AND status IN ('STARTED', 'COMPLETED')
+        ORDER BY COALESCE(completed_at, created_at) DESC
+        LIMIT 10
+      `,
+      params: { sessionId: sessionId.trim() },
+      location: "asia-east1",
+    });
+    return (rows as Record<string, unknown>[]).map(rowToCompletedDetail);
+  };
+
+  try {
+    const deduped = dedupeSessionsPreferCompleted(await runQuery(true));
+    return deduped[0] ?? null;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/report_json|Unrecognized name/i.test(msg)) {
+      try {
+        const deduped = dedupeSessionsPreferCompleted(await runQuery(false));
+        return deduped[0] ?? null;
+      } catch {
+        console.warn("[roleplay] get admin session failed", e);
+        return null;
+      }
+    }
+    console.warn("[roleplay] get admin session failed", e);
+    return null;
   }
 }
 

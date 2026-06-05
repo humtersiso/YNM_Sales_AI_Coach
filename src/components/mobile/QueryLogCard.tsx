@@ -8,13 +8,13 @@ import { AppIcon } from "@/components/icons/AppIcon";
 function KindBadge({ kind }: { kind: QueryLog["questionKind"] }) {
   if (kind === "new") {
     return (
-      <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-900">
+      <span className="inline-block rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-900">
         新問題
       </span>
     );
   }
   return (
-    <span className="inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+    <span className="inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
       題庫回覆
     </span>
   );
@@ -32,21 +32,21 @@ function QueryLogRow({ row }: { row: QueryLog }) {
         disabled={!canExpand}
         onClick={() => canExpand && setOpen((v) => !v)}
         aria-expanded={canExpand ? open : undefined}
-        className={`w-full px-3 py-3 text-left transition-colors ${
+        className={`w-full px-4 py-4 text-left transition-colors ${
           canExpand ? "cursor-pointer hover:bg-emerald-50/60" : "cursor-default"
         }`}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[11px] tabular-nums text-emerald-700">
+          <p className="text-sm tabular-nums text-emerald-700">
             {formatAskedAtZhTw(row.askedAt)}
           </p>
           <div className="flex items-center gap-2">
             {canExpand ? (
-              <span className="inline-flex items-center gap-0.5 text-[11px] text-emerald-700">
+              <span className="inline-flex items-center gap-0.5 text-sm text-emerald-700">
                 {open ? "收合" : "展開回答"}
                 <AppIcon
                   name="chevron-right"
-                  size={14}
+                  size={16}
                   className={`rotate-90 text-emerald-600 transition-transform ${open ? "-rotate-90" : ""}`}
                 />
               </span>
@@ -54,19 +54,19 @@ function QueryLogRow({ row }: { row: QueryLog }) {
             <KindBadge kind={row.questionKind} />
           </div>
         </div>
-        <p className="mt-1 text-xs text-emerald-800">
+        <p className="mt-2 text-base text-emerald-800">
           {row.branch} · {row.agentName}
         </p>
-        <p className="mt-1.5 text-sm font-medium leading-relaxed text-zinc-900">{row.question}</p>
+        <p className="mt-2 text-base font-medium leading-relaxed text-zinc-900">{row.question}</p>
         {!canExpand && row.questionKind === "new" ? (
-          <p className="mt-2 text-xs text-amber-800/80">尚未建檔，無系統回覆</p>
+          <p className="mt-2 text-sm text-amber-800/80">尚未建檔，無系統回覆</p>
         ) : null}
       </button>
 
       {canExpand && open ? (
-        <div className="border-t border-emerald-100 bg-emerald-50/40 px-3 pb-3 pt-2">
-          <p className="text-[11px] font-medium text-emerald-800">回答</p>
-          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-zinc-700">{answer}</p>
+        <div className="border-t border-emerald-100 bg-emerald-50/40 px-4 pb-4 pt-3">
+          <p className="text-sm font-medium text-emerald-800">回答</p>
+          <p className="mt-2 whitespace-pre-line text-base leading-relaxed text-zinc-700">{answer}</p>
         </div>
       ) : null}
     </li>
@@ -76,7 +76,7 @@ function QueryLogRow({ row }: { row: QueryLog }) {
 export function QueryLogCardList({ logs }: { logs: QueryLog[] }) {
   if (logs.length === 0) {
     return (
-      <p className="px-3 py-8 text-center text-sm text-emerald-700">尚無提問紀錄</p>
+      <p className="px-4 py-8 text-center text-base text-emerald-700">尚無提問紀錄</p>
     );
   }
 

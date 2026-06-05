@@ -7,7 +7,7 @@ const cards = [
   {
     href: "/admin/usage/sales",
     title: "銷售助手使用狀況",
-    desc: "提問紀錄、活躍業代與題庫／新問題分布",
+    desc: "提問紀錄、業代數量與題庫／新問題分布",
     icon: "message" as const,
   },
   {
