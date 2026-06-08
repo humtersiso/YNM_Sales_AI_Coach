@@ -134,11 +134,6 @@ export function buildKnowledgeRemindersFromSessions(
 }
 
 export function ruleKnowledgeLines(reminders: string[]): string[] {
-  if (reminders.length === 0) {
-    return [
-      "記熟：X-TRAIL 綜合油耗約 14.3 km/L（WLTC）",
-      "記熟：年里程×油價÷油耗，試算持有成本差額",
-    ];
-  }
-  return reminders.slice(0, 3).map((r) => (r.startsWith("記熟") ? r : `記熟：${r}`));
+  if (reminders.length === 0) return [];
+  return reminders.slice(0, 3).map((r) => (r.startsWith("記熟") || r.startsWith("須牢記") ? r : `須牢記：${r}`));
 }

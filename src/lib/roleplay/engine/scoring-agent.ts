@@ -1,14 +1,27 @@
 import { geminiGenerateText } from "@/lib/gemini/gemini-client";
+import {
+  buildSessionCorrections,
+  detectCorrectionCandidates,
+  inferCorrectionCategory,
+  isGarbageIssue,
+  isRawRagDump,
+  normalizeCorrectionPoint,
+} from "@/lib/roleplay/engine/correction-builder";
 import type { RoleplayScenario } from "@/lib/roleplay/scenario-contract";
 import { loadRoleplaySkill } from "@/lib/roleplay/skills/load-skill";
 import { ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
-import type { RoleplayChatTurn, RoleplayScoreResult } from "@/lib/roleplay/session-types";
+import type {
+  RoleplayChatTurn,
+  RoleplayCorrectionPoint,
+  RoleplayScoreResult,
+} from "@/lib/roleplay/session-types";
 import { clampScore, scoreToGrade } from "@/lib/roleplay/engine/grade-mapper";
+import { coalesceAdjacentAgentTurns } from "@/lib/roleplay/engine/turn-coalesce";
 
 const DIMENSION_MAX = 20;
 
 function formatHistory(turns: RoleplayChatTurn[]): string {
-  return turns
+  return coalesceAdjacentAgentTurns(turns)
     .map((t) => `${t.role === "customer" ? "客戶" : "業代"}：${t.content}`)
     .join("\n");
 }
@@ -21,91 +34,127 @@ function hasEmpathyCue(text: string): boolean {
   return /理解|了解|合理|正常|很多客戶|確實|同意|在意/.test(text);
 }
 
-function hasFactCue(text: string): boolean {
-  return /WLTC|km\/L|試算|年里程|油價|14\.3|綜合油耗|測試基準|測試條件/.test(text);
-}
-
 function hasAdvanceCue(text: string): boolean {
   return /試乘|試算|第二次|保留|週[一二三四五六日天]|明天|今天|方便.*嗎|安排/.test(text);
 }
 
-function buildHeuristicSummary(
+function extractFactCues(scenario: RoleplayScenario): string[] {
+  const cues: string[] = ["WLTC", "試算", "年里程", "油價", "km/L", "綜合油耗", "測試基準", "測試條件"];
+  for (const f of scenario.sectionC.facts) {
+    const nums = f.value.match(/\d+\.?\d*/g) ?? [];
+    for (const n of nums) {
+      if (n.length >= 2) cues.push(n);
+    }
+  }
+  return [...new Set(cues)];
+}
+
+function hasSessionFactCue(text: string, scenario: RoleplayScenario): boolean {
+  const cues = extractFactCues(scenario);
+  const lower = text.toLowerCase();
+  return cues.some((c) => lower.includes(c.toLowerCase()) || text.includes(c));
+}
+
+function customerAskedFactTopic(turns: RoleplayChatTurn[]): boolean {
+  const customerText = turns.filter((t) => t.role === "customer").map((t) => t.content).join("\n");
+  return /油耗|價格|保養|配備|數字|試算|隔音|玻璃|盲|旋鈕/.test(customerText);
+}
+
+function toLegacyUnused(correctionPoints: RoleplayCorrectionPoint[]): string[] {
+  return correctionPoints.map((c) => c.issue).slice(0, 5);
+}
+
+async function applyCorrections(
   scenario: RoleplayScenario,
+  turns: RoleplayChatTurn[],
+  partial: Omit<RoleplayScoreResult, "unusedStrategies" | "correctionPoints" | "improvementTips"> & {
+    correctionPoints?: RoleplayCorrectionPoint[];
+    improvementTips?: string[];
+  },
+): Promise<RoleplayScoreResult> {
+  const correctionPoints = await buildSessionCorrections(scenario, turns);
+
+  return {
+    ...partial,
+    correctionPoints,
+    improvementTips: [],
+    unusedStrategies: toLegacyUnused(correctionPoints),
+  };
+}
+
+/** 舊場次重新產出修正點（依對話紀錄） */
+export async function enrichScoreResult(
+  scenario: RoleplayScenario,
+  turns: RoleplayChatTurn[],
+  result: RoleplayScoreResult,
+): Promise<RoleplayScoreResult> {
+  return applyCorrections(scenario, turns, {
+    ...result,
+    correctionPoints: (result.correctionPoints ?? []).filter(
+      (p) => !isGarbageIssue(p.issue) && !isRawRagDump(p.correctGuide),
+    ),
+    improvementTips: [],
+  });
+}
+
+function buildHeuristicSummary(
   agentJoined: string,
-  gaps: string[],
+  correctionPoints: RoleplayCorrectionPoint[],
 ): string {
   const strengths: string[] = [];
   if (hasEmpathyCue(agentJoined)) strengths.push("有先承接客戶疑慮");
-  if (hasFactCue(agentJoined)) strengths.push("有帶入油耗或試算基準");
   if (hasAdvanceCue(agentJoined)) strengths.push("有推進試乘或下一步");
 
   const strengthPart =
     strengths.length > 0
       ? `本場${strengths.join("、")}。`
-      : "本場已完成對話回應，建議加強結構化表達。";
+      : "本場已完成對話回應。";
   const gapPart =
-    gaps.length > 0
-      ? `可再精進：${gaps.slice(0, 2).join("、")}。`
-      : "可對照本場素材區策略方向再練一次。";
+    correctionPoints.length > 0
+      ? `以下 ${correctionPoints.length} 處為客戶有問到、可再精準補強。`
+      : "客戶疑慮皆有回應到，表現穩定。";
 
-  const issue = scenario.sectionA.coreIssue;
-  if (issue && !hasFactCue(agentJoined) && /油耗|成本|油錢/.test(issue)) {
-    return `${strengthPart}此情境重點在油耗與試算，建議補上 WLTC 基準與年油費差額。${gapPart}`;
-  }
-  if (issue && !hasAdvanceCue(agentJoined) && /價格|促銷|預算/.test(issue)) {
-    return `${strengthPart}此情境重點在方案透明與成交推進，建議補上月供試算或今日可行動。${gapPart}`;
-  }
   return `${strengthPart}${gapPart}`;
 }
 
-function heuristicScore(scenario: RoleplayScenario, turns: RoleplayChatTurn[]): RoleplayScoreResult {
+async function heuristicScore(
+  scenario: RoleplayScenario,
+  turns: RoleplayChatTurn[],
+): Promise<RoleplayScoreResult> {
   const agentTexts = turns.filter((t) => t.role === "agent").map((t) => t.content);
   const joined = agentTexts.join("\n");
+  const factRelevant = customerAskedFactTopic(turns);
+  const gapCount = detectCorrectionCandidates(scenario, turns).length;
+
   let base = 12;
   if (agentTexts.length >= 3) base += 2;
-  if (agentTexts.length >= 5) base += 2;
   if (hasEmpathyCue(joined)) base += 2;
-  if (hasFactCue(joined)) base += 2;
+  if (!factRelevant || hasSessionFactCue(joined, scenario)) base += 2;
   if (hasAdvanceCue(joined)) base += 2;
-  for (const kp of scenario.sectionD.keyPoints) {
-    if (joined.includes(kp.slice(0, 6))) base += 1;
-  }
-  for (const f of scenario.sectionD.forbidden) {
-    if (joined.includes(f.slice(0, 4))) base -= 3;
-  }
-
-  const gaps: string[] = [];
-  if (!hasEmpathyCue(joined)) gaps.push("開場先同理客戶疑慮");
-  if (!hasFactCue(joined)) gaps.push("補上佐證數字與試算方式");
-  if (!hasAdvanceCue(joined)) gaps.push("結尾邀請試乘或提供試算表");
-  const unused = scenario.sectionD.keyPoints.filter(
-    (kp) => !joined.includes(kp.slice(0, Math.min(6, kp.length))),
-  );
+  if (gapCount >= 3) base -= 3;
+  else if (gapCount >= 1) base -= 1;
 
   const dimensions = ROLEPLAY_GLOBAL_CONFIG.rubricDimensions.map((d) => {
     let dimBase = base;
-    if (d.id === "empathy") dimBase += hasEmpathyCue(joined) ? 3 : -2;
-    if (d.id === "factCheck") dimBase += hasFactCue(joined) ? 3 : -2;
-    if (d.id === "advance") dimBase += hasAdvanceCue(joined) ? 3 : -2;
+    if (d.id === "empathy") dimBase += hasEmpathyCue(joined) ? 3 : 0;
+    if (d.id === "factCheck") {
+      if (!factRelevant) dimBase += 1;
+      else dimBase += hasSessionFactCue(joined, scenario) ? 3 : -2;
+    }
+    if (d.id === "advance") dimBase += hasAdvanceCue(joined) ? 3 : -1;
     if (d.id === "structure") dimBase += agentTexts.length >= 3 ? 2 : 0;
-    if (d.id === "strategy") dimBase += unused.length <= 1 ? 2 : -1;
+    if (d.id === "strategy") dimBase += gapCount <= 1 ? 2 : -1;
 
     const comments: Record<string, string> = {
-      empathy: hasEmpathyCue(joined)
-        ? "有接住客戶情緒與動機。"
-        : "建議先認同客戶比較或疑慮的合理性。",
-      structure: agentTexts.length >= 3
-        ? "多輪回應有持續推進。"
-        : "建議依「承接→事實→價值→引導」順序回應。",
-      factCheck: hasFactCue(joined)
-        ? "有引用基準或試算方式。"
-        : "建議對照素材區佐證，說明 WLTC 或試算公式。",
-      strategy: unused.length <= 1
-        ? "多數策略方向有落地。"
-        : "部分策略尚未使用，可對照素材區補強。",
-      advance: hasAdvanceCue(joined)
-        ? "有具體下一步邀約。"
-        : "建議給試乘時段、試算表或二訪時間。",
+      empathy: hasEmpathyCue(joined) ? "有接住客戶情緒。" : "客戶追問時可多一句同理。",
+      structure: agentTexts.length >= 3 ? "多輪回應有推進。" : "建議承接→事實→引導。",
+      factCheck: !factRelevant
+        ? "客戶未深入追問事實。"
+        : hasSessionFactCue(joined, scenario)
+          ? "有引用具體數字或條件。"
+          : "客戶問到的數字／條件可再補齊。",
+      strategy: gapCount <= 1 ? "回應方向大致正確。" : "部分追問可再對準客戶問題。",
+      advance: hasAdvanceCue(joined) ? "有具體下一步。" : "收尾可邀請試乘或試算。",
     };
 
     return {
@@ -113,35 +162,53 @@ function heuristicScore(scenario: RoleplayScenario, turns: RoleplayChatTurn[]): 
       label: d.label,
       score: clampDimension(dimBase),
       maxScore: DIMENSION_MAX,
-      comment: comments[d.id] ?? "請參考素材區策略方向再練習。",
+      comment: comments[d.id] ?? "—",
     };
   });
 
   const score = clampScore(dimensions.reduce((s, x) => s + x.score, 0));
   const { grade, gradeLabel, advice } = scoreToGrade(score);
-  const improvementTips = gaps.length > 0 ? gaps.slice(0, 2) : ["對照五維圖較低項目再練同一情境"];
 
-  return {
+  return applyCorrections(scenario, turns, {
     score,
     grade,
     gradeLabel,
     advice,
-    summary: buildHeuristicSummary(scenario, joined, gaps),
+    summary: buildHeuristicSummary(joined, []),
     dimensions,
-    improvementTips,
-    unusedStrategies: unused.slice(0, 3),
-    previousScore: null,
-    scoreDelta: null,
-  };
+  });
 }
+
+type LlmCorrectionPayload = {
+  issue?: string;
+  whatYouSaid?: string;
+  correctGuide?: string;
+};
 
 type LlmScorePayload = {
   score?: number;
   summary?: string;
   improvementTips?: string[];
-  unusedStrategies?: string[];
+  correctionPoints?: LlmCorrectionPayload[];
   dimensions?: { dimensionId?: string; score?: number; comment?: string }[];
 };
+
+function parseCorrectionPoints(raw: LlmCorrectionPayload[] | undefined): RoleplayCorrectionPoint[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((c) =>
+      normalizeCorrectionPoint({
+        issue: String(c.issue ?? "").trim(),
+        category: inferCorrectionCategory(String(c.issue ?? "")),
+        customerAsk: String((c as { customerAsk?: string }).customerAsk ?? "").trim() || undefined,
+        whatYouSaid: String(c.whatYouSaid ?? "").trim() || undefined,
+        correctGuide: String(c.correctGuide ?? "").trim(),
+      }),
+    )
+    .filter((c) => c.issue.length >= 4 && c.correctGuide.length >= 12)
+    .filter((c) => !isGarbageIssue(c.issue) && !isRawRagDump(c.correctGuide))
+    .slice(0, 4);
+}
 
 export async function scoreRoleplaySession(input: {
   scenario: RoleplayScenario;
@@ -149,46 +216,31 @@ export async function scoreRoleplaySession(input: {
 }): Promise<RoleplayScoreResult> {
   const { scenario, turns } = input;
   const dims = ROLEPLAY_GLOBAL_CONFIG.rubricDimensions;
-  const facts = scenario.sectionC.facts.map((f) => `- ${f.label}：${f.value}`).join("\n");
-  const criteria = scenario.sectionF.criteria
-    .map(
-      (c) =>
-        `- ${c.dimensionId} 高分：${c.highExample}；低分：${c.lowExample}`,
-    )
+  const facts = scenario.sectionC.facts
+    .map((f) => `- ${f.label}：${f.value.slice(0, 200)}`)
     .join("\n");
 
   const skill = loadRoleplaySkill("skill_post_chat_evaluator.md");
   const prompt = `${skill}
 
-【評分維度】每項 0～20 分，五項加總為總分（0～100）
-${dims.map((d) => `- ${d.id} ${d.label} 權重${d.weight}`).join("\n")}
+【評分維度】每項 0～20，加總 0～100
+${dims.map((d) => `- ${d.id} ${d.label}`).join("\n")}
 
-【佐證資料（事實查核）】
-${facts}
-
-【策略】建議：${scenario.sectionD.keyPoints.join("；")}
-禁止：${scenario.sectionD.forbidden.join("；")}
-建議成交動作：${scenario.sectionD.closingActions.join("、")}
-
-【情境專屬標準】
-${criteria}
+【佐證資料】
+${facts || "（無）"}
 
 【完整對話】
 ${formatHistory(turns)}
 
-輸出 JSON：
+輸出 JSON（correctionPoints 僅列客戶「有問到」且業代「該輪沒答好」者，開場打招呼不糾正，客戶沒問保養勿列）：
 {
-  "score": 0-100 整數（五維度之和）,
-  "summary": "2-3句總評",
-  "improvementTips": ["最需改進 1-2 點"],
-  "unusedStrategies": ["未使用的策略方向 1-3 項"],
-  "dimensions": [
-    { "dimensionId": "empathy", "score": 0-20, "comment": "一句話" }
-  ]
-}
-dimensions 需包含：${dims.map((d) => d.id).join(", ")}`;
+  "score": 0-100,
+  "summary": "2-3句",
+  "correctionPoints": [{ "issue": "", "whatYouSaid": "", "correctGuide": "2-3句口語詳解，勿貼PDF" }],
+  "dimensions": [{ "dimensionId": "empathy", "score": 0-20, "comment": "" }]
+}`;
 
-  const raw = await geminiGenerateText(prompt, { json: true, maxOutputTokens: 1100, temperature: 0.2 });
+  const raw = await geminiGenerateText(prompt, { json: true, maxOutputTokens: 1200, temperature: 0.2 });
   if (!raw) return heuristicScore(scenario, turns);
 
   try {
@@ -207,21 +259,26 @@ dimensions 需包含：${dims.map((d) => d.id).join(", ")}`;
       Number(parsed.score ?? dimensions.reduce((s, x) => s + x.score, 0)),
     );
     const { grade, gradeLabel, advice } = scoreToGrade(score);
-    return {
+
+    const result = await applyCorrections(scenario, turns, {
       score,
       grade,
       gradeLabel,
       advice,
       summary: String(parsed.summary ?? "").trim() || "已完成評分。",
       dimensions,
-      improvementTips: Array.isArray(parsed.improvementTips)
-        ? parsed.improvementTips.map(String).filter(Boolean).slice(0, 3)
-        : [],
-      unusedStrategies: Array.isArray(parsed.unusedStrategies)
-        ? parsed.unusedStrategies.map(String).filter(Boolean).slice(0, 5)
-        : scenario.sectionD.keyPoints.slice(0, 2),
-      previousScore: null,
-      scoreDelta: null,
+      correctionPoints: parseCorrectionPoints(parsed.correctionPoints),
+    });
+
+    return {
+      ...result,
+      summary: buildHeuristicSummary(
+        turns
+          .filter((t) => t.role === "agent")
+          .map((t) => t.content)
+          .join("\n"),
+        result.correctionPoints,
+      ),
     };
   } catch {
     return heuristicScore(scenario, turns);

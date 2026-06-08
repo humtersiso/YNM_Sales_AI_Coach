@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>對練助手 · RAG QA 詳解（133 題）</title>
+<title>對練助手 · RAG QA 詳解（163 題）</title>
 <style>
 :root{--bg:#f8faf9;--card:#fff;--border:#d1e7dd;--text:#064e3b;--muted:#3d6b5c;--accent:#0d9488;--accent-light:#ecfdf5;--q-bg:#f0fdf4;--a-blank-bg:#fffbeb;--a-full-bg:#ecfdf5;--blank:#b45309;--blank-bg:#fef3c7}
 *{box-sizing:border-box}body{margin:0;font-family:"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
@@ -37,7 +37,7 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
 <body>
 <div class="wrap">
 <h1>對練助手 · RAG 知識 QA 詳解（高分攻略版）</h1>
-<p class="meta">共 <strong id="totalCount">133</strong> 題 · 依車型×競品×人設×年齡×難度×輪次模擬 · 含挖空練習與完整話術</p>
+<p class="meta">共 <strong id="totalCount">163</strong> 題 · 依車型×競品×人設×年齡×難度×輪次模擬 · 含挖空練習與完整話術</p>
 <div class="toolbar">
 <button type="button" class="btn btn-primary" id="expandAll">全部展開詳解</button>
 <button type="button" class="btn" id="collapseAll">全部收合</button>
@@ -50,6 +50,9 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
 <button type="button" class="filter-btn" data-filter="CR-V">CR-V</button>
 <button type="button" class="filter-btn" data-filter="Tucson L">Tucson</button>
 <button type="button" class="filter-btn" data-filter="Outlander">Outlander</button>
+<button type="button" class="filter-btn" data-filter="Sportage">Sportage</button>
+<button type="button" class="filter-btn" data-filter="VC-TURBO">VC-TURBO</button>
+<button type="button" class="filter-btn" data-filter="保養">保養費</button>
 <button type="button" class="filter-btn" data-filter="KICKS">KICKS</button>
 <button type="button" class="filter-btn" data-filter="P-01">P-01</button>
 <button type="button" class="filter-btn" data-filter="P-03">P-03</button>
@@ -58,13 +61,14 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
 </div>
 <nav class="toc card"><strong>目錄</strong><ol>
 <li><a href="#guide">攻略與輪數（10）</a></li>
-<li><a href="#xtrail">X-TRAIL 情境模擬（92）</a></li>
+<li><a href="#maint">VC-TURBO／保養／Sportage（12）</a></li>
+<li><a href="#xtrail">X-TRAIL 情境模擬（110）</a></li>
 <li><a href="#kicks">KICKS 情境模擬（11）</a></li>
 <li><a href="#persona">人設專章（15）</a></li>
 <li><a href="#extra">地雷與補充（5）</a></li>
 </ol></nav>
 <div class="card" id="matrix"><h3 style="margin-top:0">情境組合矩陣</h3>
-<table class="matrix-table"><thead><tr><th>車型</th><th>競品</th><th>議題</th><th>人設</th><th>題數</th></tr></thead><tbody><tr><td>X-TRAIL ICE</td><td>Toyota RAV4</td><td>油耗／持有成本</td><td>P-01～P-05</td><td>×35 題</td></tr><tr><td>X-TRAIL ICE</td><td>Honda CR-V</td><td>空間／口碑／油耗</td><td>P-01～P-05</td><td>×23 題</td></tr><tr><td>X-TRAIL ICE</td><td>Hyundai Tucson L</td><td>配備／性價比</td><td>P-01～P-05</td><td>×17 題</td></tr><tr><td>X-TRAIL ICE</td><td>Mitsubishi Outlander</td><td>七人座／空間</td><td>P-01～P-05</td><td>×17 題</td></tr><tr><td>KICKS</td><td>Honda HR-V</td><td>促銷／月供</td><td>P-03、P-04</td><td>×11 題</td></tr></tbody></table></div>
+<table class="matrix-table"><thead><tr><th>車型</th><th>競品</th><th>議題</th><th>人設</th><th>題數</th></tr></thead><tbody><tr><td>X-TRAIL ICE</td><td>Toyota RAV4</td><td>油耗／持有成本</td><td>P-01～P-05</td><td>×35 題</td></tr><tr><td>X-TRAIL ICE</td><td>Honda CR-V</td><td>空間／口碑／油耗</td><td>P-01～P-05</td><td>×23 題</td></tr><tr><td>X-TRAIL ICE</td><td>Hyundai Tucson L</td><td>配備／性價比</td><td>P-01～P-05</td><td>×17 題</td></tr><tr><td>X-TRAIL ICE</td><td>Mitsubishi Outlander</td><td>七人座／空間</td><td>P-01～P-05</td><td>×17 題</td></tr><tr><td>X-TRAIL ICE</td><td>KIA Sportage</td><td>產品週期／油電切換／零件</td><td>P-01～P-05</td><td>×17 題</td></tr><tr><td>KICKS</td><td>Honda HR-V</td><td>促銷／月供</td><td>P-03、P-04</td><td>×11 題</td></tr></tbody></table></div>
 <h2 id="guide">第〇章　攻略、難度與輪數 <span class="count">(10 題)</span></h2><p class="meta">開練前必讀</p>
   <article class="qa" data-id="Q001" data-tags="攻略,五維">
     <div class="qa-head"><span class="qa-num">Q001</span><span class="tag tag-scenario">攻略</span><span class="tag tag-dim">五維</span></div>
@@ -116,8 +120,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q105" data-tags="輪數,3輪">
-    <div class="qa-head"><span class="qa-num">Q105</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">3輪</span></div>
+  <article class="qa" data-id="Q135" data-tags="輪數,3輪">
+    <div class="qa-head"><span class="qa-num">Q135</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">3輪</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【練習 3 輪】業代節奏怎麼壓縮？</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank"><span class="blank" data-answer="承接">＿＿＿</span>→<span class="blank" data-answer="事實試算">＿＿＿</span>→<span class="blank" data-answer="試乘邀約">＿＿＿</span> 三步步走完。</div>
@@ -126,8 +130,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q106" data-tags="輪數,4輪">
-    <div class="qa-head"><span class="qa-num">Q106</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">4輪</span></div>
+  <article class="qa" data-id="Q136" data-tags="輪數,4輪">
+    <div class="qa-head"><span class="qa-num">Q136</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">4輪</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【練習 4 輪】業代節奏怎麼壓縮？</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">標準五輪；4 輪時 R4 必須 <span class="blank" data-answer="明確下一步">＿＿＿</span>。</div>
@@ -136,8 +140,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q107" data-tags="輪數,5輪">
-    <div class="qa-head"><span class="qa-num">Q107</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">5輪</span></div>
+  <article class="qa" data-id="Q137" data-tags="輪數,5輪">
+    <div class="qa-head"><span class="qa-num">Q137</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">5輪</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【練習 5 輪】業代節奏怎麼壓縮？</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">標準五輪；5 輪時 R5 必須 <span class="blank" data-answer="明確下一步">＿＿＿</span>。</div>
@@ -146,8 +150,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q108" data-tags="輪數,7輪">
-    <div class="qa-head"><span class="qa-num">Q108</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">7輪</span></div>
+  <article class="qa" data-id="Q138" data-tags="輪數,7輪">
+    <div class="qa-head"><span class="qa-num">Q138</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">7輪</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【練習 7 輪】業代節奏怎麼壓縮？</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">7 輪避免重複；每 2 輪 <span class="blank" data-answer="策略輪換">＿＿＿</span>。</div>
@@ -156,8 +160,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q109" data-tags="輪數,10輪">
-    <div class="qa-head"><span class="qa-num">Q109</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">10輪</span></div>
+  <article class="qa" data-id="Q139" data-tags="輪數,10輪">
+    <div class="qa-head"><span class="qa-num">Q139</span><span class="tag tag-dim">輪數</span><span class="tag tag-dim">10輪</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【練習 10 輪】業代節奏怎麼壓縮？</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">10 輪避免重複；每 2 輪 <span class="blank" data-answer="策略輪換">＿＿＿</span>。</div>
@@ -166,9 +170,140 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-<h2 id="xtrail">第一～四章　X-TRAIL ICE 情境模擬 <span class="count">(92 題)</span></h2><p class="meta">含 RAV4／CR-V／Tucson L／Outlander · 標準六輪＋人設＋年齡＋動態組合</p>
-  <article class="qa" data-id="Q006" data-tags="X-TRAIL ICE,RAV4,R1 開場">
-    <div class="qa-head"><span class="qa-num">Q006</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R1 開場</span></div>
+<h2 id="maint">第〇章之二　VC-TURBO／妥善率／回廠費用／SPORTAGE <span class="count">(12 題)</span></h2><p class="meta">對練高頻追問 · 論壇 2～5 千澄清 · 累計定保參考</p>
+  <article class="qa" data-id="Q006" data-tags="X-TRAIL ICE,VC-TURBO,妥善率,P-05">
+    <div class="qa-head"><span class="qa-num">Q006</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">妥善率</span><span class="tag tag-persona">P-05</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 的 1.5T VC-TURBO 妥善率怎樣？新技術會不會常壞？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="同理">＿＿＿</span> 對新技術的疑慮。<br/>1.5T VC-TURBO 為 <span class="blank" data-answer="可變壓縮比">＿＿＿</span>、<span class="blank" data-answer="全球量產成熟">＿＿＿</span> 動力，非短期實驗機。<br/>強調 <span class="blank" data-answer="成熟量產技術、原廠保固與保修據點">＿＿＿</span>；<span class="blank" data-answer="不承諾零故障">＿＿＿</span>。<br/>邀請 <span class="blank" data-answer="試乘">＿＿＿</span>＋提供 <span class="blank" data-answer="保固／保養手冊">＿＿＿</span> 對照。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">先同理對新技術的疑慮。<br/>1.5T VC-TURBO 為可變壓縮比、全球量產成熟動力，非短期實驗機。<br/>強調成熟量產技術、原廠保固與保修據點；不承諾零故障。<br/>邀請試乘＋提供保固／保養手冊對照。</div>
+      <p class="hint"><strong>評分重點：</strong>factCheck + 同理</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q007" data-tags="X-TRAIL ICE,保養,回廠費用,P-03">
+    <div class="qa-head"><span class="qa-num">Q007</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">保養</span><span class="tag tag-dim">回廠費用</span><span class="tag tag-persona">P-03</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「論壇說 X-TRAIL ICE 回廠保養一年只要兩三千，真的嗎？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank"><span class="blank" data-answer="不未查證即認同">＿＿＿</span> 論壇金額。<br/>論壇「一年 2～5 千」常未載明里程與工項；應依 <span class="blank" data-answer="官方保養表">＿＿＿</span>＋<span class="blank" data-answer="當次工項報價">＿＿＿</span>。<br/>教材參考：8 萬公里累計定保約 <span class="blank" data-answer="約 3.2 萬元（8 萬公里累計定保，教材參考）">＿＿＿</span>（低於 Tucson L 約 <span class="blank" data-answer="Tucson L 約 4.1 萬元（同里程教材參考）">＿＿＿</span>）。<br/>邀請 <span class="blank" data-answer="當場列保養項目">＿＿＿</span> 或 <span class="blank" data-answer="試算表">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">不未查證即認同論壇金額。<br/>論壇「一年 2～5 千」常未載明里程與工項；應依官方保養表＋當次工項報價。<br/>教材參考：8 萬公里累計定保約 約 3.2 萬元（8 萬公里累計定保，教材參考）（低於 Tucson L 約 Tucson L 約 4.1 萬元（同里程教材參考））。<br/>邀請當場列保養項目或試算表。</div>
+      <p class="hint"><strong>評分重點：</strong>factCheck</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q008" data-tags="X-TRAIL ICE,保養,累計定保,P-01">
+    <div class="qa-head"><span class="qa-num">Q008</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">保養</span><span class="tag tag-dim">累計定保</span><span class="tag tag-persona">P-01</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「不要跟我說大概，保養費跟 CR-V、Tucson 比差多少？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">比較要看 <span class="blank" data-answer="同里程累計定保">＿＿＿</span>，非單次網路謠言。<br/>X-TRAIL ICE 8 萬公里教材約 <span class="blank" data-answer="約 3.2 萬元（8 萬公里累計定保，教材參考）">＿＿＿</span>；請客戶提供競品 <span class="blank" data-answer="同等級">＿＿＿</span> 保養表 <span class="blank" data-answer="並排對照">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用 <span class="blank" data-answer="工項透明">＿＿＿</span> 建立信任。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">比較要看同里程累計定保，非單次網路謠言。<br/>X-TRAIL ICE 8 萬公里教材約 約 3.2 萬元（8 萬公里累計定保，教材參考）；請客戶提供競品同等等級保養表並排對照。<br/>不攻擊競品，用工項透明建立信任。</div>
+      <p class="hint"><strong>評分重點：</strong>factCheck + 策略</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q009" data-tags="X-TRAIL ICE,SPORTAGE,零件,對戰">
+    <div class="qa-head"><span class="qa-num">Q009</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">SPORTAGE</span><span class="tag tag-dim">零件</span><span class="tag tag-dim">對戰</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「我也在看 Sportage，零件跟保養會不會比你們省事？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接比較動機；X-TRAIL ICE 強調 <span class="blank" data-answer="國產保修據點">＿＿＿</span> 與 <span class="blank" data-answer="零件取得">＿＿＿</span>。<br/>Sportage 對戰看 <span class="blank" data-answer="產品週期">＿＿＿</span>、<span class="blank" data-answer="長期持有成本">＿＿＿</span>，不人身攻擊。<br/>若客戶在意油電切換零件，引導看 <span class="blank" data-answer="累計定保">＿＿＿</span> 而非論壇單篇。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="保養試算">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">承接比較動機；X-TRAIL ICE 強調國產保修據點與零件取得。<br/>Sportage 對戰看產品週期、長期持有成本，不人身攻擊。<br/>若客戶在意油電切換零件，引導看累計定保而非論壇單篇。<br/>試乘＋保養試算。</div>
+      <p class="hint"><strong>評分重點：</strong>策略 + factCheck</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q010" data-tags="X-TRAIL ICE,VC-TURBO,保養,P-01,人設專章">
+    <div class="qa-head"><span class="qa-num">Q010</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">保養</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設專章</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「1.5T VC-TURBO 妥善率有官方數據嗎？跟自然進氣比呢？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">數據、WLTC、試算公式：<span class="blank" data-answer="承接">＿＿＿</span>→<span class="blank" data-answer="成熟量產技術、原廠保固與保修據點">＿＿＿</span>→<span class="blank" data-answer="保養表報價">＿＿＿</span>→<span class="blank" data-answer="不認同論壇未載明工項">＿＿＿</span>→<span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">數據、WLTC、試算公式：承接→成熟量產技術、原廠保固與保修據點→保養表報價→不認同論壇未載明工項→試乘/試算。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 P-01</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q011" data-tags="X-TRAIL ICE,VC-TURBO,保養,P-02,人設專章">
+    <div class="qa-head"><span class="qa-num">Q011</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">保養</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設專章</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「VC-TURBO 開起來會不會有頓挫？保養會不會很麻煩？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">駕駛感受、服務、試乘體感：<span class="blank" data-answer="承接">＿＿＿</span>→<span class="blank" data-answer="成熟量產技術、原廠保固與保修據點">＿＿＿</span>→<span class="blank" data-answer="保養表報價">＿＿＿</span>→<span class="blank" data-answer="不認同論壇未載明工項">＿＿＿</span>→<span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">駕駛感受、服務、試乘體感：承接→成熟量產技術、原廠保固與保修據點→保養表報價→不認同論壇未載明工項→試乘/試算。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 P-02</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q012" data-tags="X-TRAIL ICE,VC-TURBO,保養,P-03,人設專章">
+    <div class="qa-head"><span class="qa-num">Q012</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">保養</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設專章</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「論壇說一年保養 2～5 千，你們實際回廠要多少？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">總價、月供、年油費、促銷：<span class="blank" data-answer="承接">＿＿＿</span>→<span class="blank" data-answer="成熟量產技術、原廠保固與保修據點">＿＿＿</span>→<span class="blank" data-answer="保養表報價">＿＿＿</span>→<span class="blank" data-answer="不認同論壇未載明工項">＿＿＿</span>→<span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">總價、月供、年油費、促銷：承接→成熟量產技術、原廠保固與保修據點→保養表報價→不認同論壇未載明工項→試乘/試算。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 P-03</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q013" data-tags="X-TRAIL ICE,VC-TURBO,保養,P-04,人設專章">
+    <div class="qa-head"><span class="qa-num">Q013</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">保養</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設專章</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「引擎這麼新，我怕家人反對，有什麼資料可以帶回去？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">小步驟、家人商量、二訪：<span class="blank" data-answer="承接">＿＿＿</span>→<span class="blank" data-answer="成熟量產技術、原廠保固與保修據點">＿＿＿</span>→<span class="blank" data-answer="保養表報價">＿＿＿</span>→<span class="blank" data-answer="不認同論壇未載明工項">＿＿＿</span>→<span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">小步驟、家人商量、二訪：承接→成熟量產技術、原廠保固與保修據點→保養表報價→不認同論壇未載明工項→試乘/試算。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 P-04</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q014" data-tags="X-TRAIL ICE,VC-TURBO,保養,P-05,人設專章">
+    <div class="qa-head"><span class="qa-num">Q014</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">保養</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設專章</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「Ptt 說 VC-TURBO 妥善率有問題，你們怎麼回？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">論壇質疑、測試條件、來源查核：<span class="blank" data-answer="承接">＿＿＿</span>→<span class="blank" data-answer="成熟量產技術、原廠保固與保修據點">＿＿＿</span>→<span class="blank" data-answer="保養表報價">＿＿＿</span>→<span class="blank" data-answer="不認同論壇未載明工項">＿＿＿</span>→<span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">論壇質疑、測試條件、來源查核：承接→成熟量產技術、原廠保固與保修據點→保養表報價→不認同論壇未載明工項→試乘/試算。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 P-05</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q015" data-tags="X-TRAIL ICE,VC-TURBO,新手,挑戰">
+    <div class="qa-head"><span class="qa-num">Q015</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">新手</span><span class="tag tag-dim">挑戰</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">【新手】「你們 1.5T VC-TURBO 就是實驗品，妥善率差對吧？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">新手客戶：<span class="blank" data-answer="不防禦不攻擊">＿＿＿</span>；說明 <span class="blank" data-answer="量產成熟">＿＿＿</span>＋<span class="blank" data-answer="保固">＿＿＿</span>；<span class="blank" data-answer="約 3.2 萬元（8 萬公里累計定保，教材參考）">＿＿＿</span> 累計定保參考；<span class="blank" data-answer="邀請查保養手冊">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">新手客戶：不防禦不攻擊；說明量產成熟＋保固；約 3.2 萬元（8 萬公里累計定保，教材參考） 累計定保參考；邀請查保養手冊。</div>
+      
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q016" data-tags="X-TRAIL ICE,VC-TURBO,進階,挑戰">
+    <div class="qa-head"><span class="qa-num">Q016</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">進階</span><span class="tag tag-dim">挑戰</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">【進階】「你們 1.5T VC-TURBO 就是實驗品，妥善率差對吧？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">進階客戶：<span class="blank" data-answer="不防禦不攻擊">＿＿＿</span>；說明 <span class="blank" data-answer="量產成熟">＿＿＿</span>＋<span class="blank" data-answer="保固">＿＿＿</span>；<span class="blank" data-answer="約 3.2 萬元（8 萬公里累計定保，教材參考）">＿＿＿</span> 累計定保參考；<span class="blank" data-answer="邀請查保養手冊">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">進階客戶：不防禦不攻擊；說明量產成熟＋保固；約 3.2 萬元（8 萬公里累計定保，教材參考） 累計定保參考；邀請查保養手冊。</div>
+      
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q017" data-tags="X-TRAIL ICE,VC-TURBO,挑戰,挑戰">
+    <div class="qa-head"><span class="qa-num">Q017</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">VC-TURBO</span><span class="tag tag-dim">挑戰</span><span class="tag tag-dim">挑戰</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">【挑戰】「你們 1.5T VC-TURBO 就是實驗品，妥善率差對吧？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">挑戰客戶：<span class="blank" data-answer="不防禦不攻擊">＿＿＿</span>；說明 <span class="blank" data-answer="量產成熟">＿＿＿</span>＋<span class="blank" data-answer="保固">＿＿＿</span>；<span class="blank" data-answer="約 3.2 萬元（8 萬公里累計定保，教材參考）">＿＿＿</span> 累計定保參考；<span class="blank" data-answer="邀請查保養手冊">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">挑戰客戶：不防禦不攻擊；說明量產成熟＋保固；約 3.2 萬元（8 萬公里累計定保，教材參考） 累計定保參考；邀請查保養手冊。</div>
+      
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+<h2 id="xtrail">第一～五章　X-TRAIL ICE 情境模擬 <span class="count">(110 題)</span></h2><p class="meta">含 RAV4／CR-V／Tucson L／Outlander／Sportage · 標準六輪＋人設＋年齡＋動態組合</p>
+  <article class="qa" data-id="Q018" data-tags="X-TRAIL ICE,地雷,論壇 2-5千">
+    <div class="qa-head"><span class="qa-num">Q018</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">論壇 2-5千</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「對啊，論壇都說一年 2～5 千，你就說是這個價格吧。」（業代若順口認同…）</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">【錯誤】<span class="blank" data-answer="未查證即認同">＿＿＿</span> 論壇金額。<br/>正確：<span class="blank" data-answer="依工項報價">＿＿＿</span>；論壇「一年 2～5 千」常未載明里程與工項；給 <span class="blank" data-answer="累計定保參考">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">【錯誤】未查證即認同論壇金額。正確：依工項報價；論壇「一年 2～5 千」常未載明里程與工項；給累計定保參考。</div>
+      <p class="hint"><strong>評分重點：</strong>factCheck 扣分</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q019" data-tags="X-TRAIL ICE,RAV4,R1 開場">
+    <div class="qa-head"><span class="qa-num">Q019</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R1 開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我最近在比 X-TRAIL ICE 跟 RAV4，網路上都說 RAV4 比較省油。你們值得考慮嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您會比較<span class="blank" data-answer="油耗／成本／空間">＿＿＿</span>，這很合理。<br/>X-TRAIL ICE 綜合油耗約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>（<span class="blank" data-answer="WLTC">＿＿＿</span>），比較要用 <span class="blank" data-answer="同一測試基準">＿＿＿</span>。<br/>年里程 <span class="blank" data-answer="15,000">＿＿＿</span>、油價 <span class="blank" data-answer="30">＿＿＿</span> 元 → 年油費約 <span class="blank" data-answer="31,469">＿＿＿</span> 元。<br/>同級還有 <span class="blank" data-answer="ProPILOT">＿＿＿</span>；這週 <span class="blank" data-answer="六上午">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span> 方便嗎？</div>
@@ -177,8 +312,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q007" data-tags="X-TRAIL ICE,RAV4,R2 追數據,P-05">
-    <div class="qa-head"><span class="qa-num">Q007</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
+  <article class="qa" data-id="Q020" data-tags="X-TRAIL ICE,RAV4,R2 追數據,P-05">
+    <div class="qa-head"><span class="qa-num">Q020</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「RAV4 官網數字我都看過了，有沒有實際路況？WLTC 跟真實差很多吧？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 是 <span class="blank" data-answer="法規統一測試">＿＿＿</span>，用於 <span class="blank" data-answer="同級橫向比較">＿＿＿</span>，不保證個人實際油耗。<br/>受 <span class="blank" data-answer="市區／高速比例">＿＿＿</span> 影響；我們不說 <span class="blank" data-answer="一定比較省">＿＿＿</span>。<br/>用您的 <span class="blank" data-answer="年里程">＿＿＿</span> 試算＋<span class="blank" data-answer="試乘">＿＿＿</span>；RAV4 數字可核對 <span class="blank" data-answer="同等等級">＿＿＿</span>。</div>
@@ -187,8 +322,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q008" data-tags="X-TRAIL ICE,RAV4,R3 選擇理由">
-    <div class="qa-head"><span class="qa-num">Q008</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R3 選擇理由</span></div>
+  <article class="qa" data-id="Q021" data-tags="X-TRAIL ICE,RAV4,R3 選擇理由">
+    <div class="qa-head"><span class="qa-num">Q021</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R3 選擇理由</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「如果油耗差不多，為什麼要選 X-TRAIL ICE 不選 RAV4？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">同一基準下差距不大時，看 <span class="blank" data-answer="總持有成本">＿＿＿</span>：油費＋<span class="blank" data-answer="保養、保險、配備價值">＿＿＿</span>。<br/>X-TRAIL ICE 有 <span class="blank" data-answer="ProPILOT L2 輔助、空間舒適、長途體感">＿＿＿</span>；不攻擊 RAV4，邀請 <span class="blank" data-answer="試乘比較體感">＿＿＿</span>。</div>
@@ -197,8 +332,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q009" data-tags="X-TRAIL ICE,RAV4,R4 縮小範圍,P-03">
-    <div class="qa-head"><span class="qa-num">Q009</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
+  <article class="qa" data-id="Q022" data-tags="X-TRAIL ICE,RAV4,R4 縮小範圍,P-03">
+    <div class="qa-head"><span class="qa-num">Q022</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「配備我不在意，就告訴我一年油錢跟 RAV4 差多少。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">專注油錢：請問年里程？油價先用 <span class="blank" data-answer="30">＿＿＿</span> 元。<br/>X-TRAIL ICE <span class="blank" data-answer="14.3">＿＿＿</span> km/L → 公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> → <span class="blank" data-answer="當場試算">＿＿＿</span>。<br/><span class="blank" data-answer="試算表">＿＿＿</span>留給您，<span class="blank" data-answer="明天下午">＿＿＿</span> <span class="blank" data-answer="二訪">＿＿＿</span>確認？</div>
@@ -207,8 +342,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q010" data-tags="X-TRAIL ICE,RAV4,R5 逼試算,挑戰">
-    <div class="qa-head"><span class="qa-num">Q010</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
+  <article class="qa" data-id="Q023" data-tags="X-TRAIL ICE,RAV4,R5 逼試算,挑戰">
+    <div class="qa-head"><span class="qa-num">Q023</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來很空，給具體試算，不然我去 Toyota RAV4 了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">現在算：15,000×30÷14.3≈<span class="blank" data-answer="31,469">＿＿＿</span> 元／年。<br/>RAV4 用您提供的 km/L 同公式 → 差額 <span class="blank" data-answer="當場計算">＿＿＿</span>。<br/>今天 <span class="blank" data-answer="17:00">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span>？</div>
@@ -217,8 +352,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q011" data-tags="X-TRAIL ICE,RAV4,R6 離場,P-04">
-    <div class="qa-head"><span class="qa-num">Q011</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
+  <article class="qa" data-id="Q024" data-tags="X-TRAIL ICE,RAV4,R6 離場,P-04">
+    <div class="qa-head"><span class="qa-num">Q024</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我今天沒得到滿意答案，就先走了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您要 <span class="blank" data-answer="可執行方案">＿＿＿</span>：<span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span>＋<span class="blank" data-answer="試乘時段">＿＿＿</span>。<br/>先 <span class="blank" data-answer="保留名額至日期">＿＿＿</span>，您商量後再確認？</div>
@@ -227,8 +362,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q012" data-tags="X-TRAIL ICE,RAV4,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q012</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q025" data-tags="X-TRAIL ICE,RAV4,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q025</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「Toyota 保值又好，日產會不會比較沒那麼熱門？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="油耗">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -237,8 +372,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q013" data-tags="X-TRAIL ICE,RAV4,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q013</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q026" data-tags="X-TRAIL ICE,RAV4,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q026</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「RAV4 混動版很紅，你們 ICE 會不會很耗？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="油耗">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -247,8 +382,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q014" data-tags="X-TRAIL ICE,CR-V,R1 開場">
-    <div class="qa-head"><span class="qa-num">Q014</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R1 開場</span></div>
+  <article class="qa" data-id="Q027" data-tags="X-TRAIL ICE,CR-V,R1 開場">
+    <div class="qa-head"><span class="qa-num">Q027</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R1 開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我最近在比 X-TRAIL ICE 跟 CR-V，CR-V 口碑好、後座空間也大。你們值得考慮嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您會比較<span class="blank" data-answer="油耗／成本／空間">＿＿＿</span>，這很合理。<br/>X-TRAIL ICE 綜合油耗約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>（<span class="blank" data-answer="WLTC">＿＿＿</span>），比較要用 <span class="blank" data-answer="同一測試基準">＿＿＿</span>。<br/>年里程 <span class="blank" data-answer="15,000">＿＿＿</span>、油價 <span class="blank" data-answer="30">＿＿＿</span> 元 → 年油費約 <span class="blank" data-answer="31,469">＿＿＿</span> 元。<br/>同級還有 <span class="blank" data-answer="ProPILOT">＿＿＿</span>；這週 <span class="blank" data-answer="六上午">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span> 方便嗎？</div>
@@ -257,8 +392,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q015" data-tags="X-TRAIL ICE,CR-V,R2 追數據,P-05">
-    <div class="qa-head"><span class="qa-num">Q015</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
+  <article class="qa" data-id="Q028" data-tags="X-TRAIL ICE,CR-V,R2 追數據,P-05">
+    <div class="qa-head"><span class="qa-num">Q028</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「CR-V 官網數字我都看過了，有沒有實際路況？WLTC 跟真實差很多吧？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 是 <span class="blank" data-answer="法規統一測試">＿＿＿</span>，用於 <span class="blank" data-answer="同級橫向比較">＿＿＿</span>，不保證個人實際油耗。<br/>受 <span class="blank" data-answer="市區／高速比例">＿＿＿</span> 影響；我們不說 <span class="blank" data-answer="一定比較省">＿＿＿</span>。<br/>用您的 <span class="blank" data-answer="年里程">＿＿＿</span> 試算＋<span class="blank" data-answer="試乘">＿＿＿</span>；CR-V 數字可核對 <span class="blank" data-answer="同等等級">＿＿＿</span>。</div>
@@ -267,8 +402,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q016" data-tags="X-TRAIL ICE,CR-V,R3 選擇理由">
-    <div class="qa-head"><span class="qa-num">Q016</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R3 選擇理由</span></div>
+  <article class="qa" data-id="Q029" data-tags="X-TRAIL ICE,CR-V,R3 選擇理由">
+    <div class="qa-head"><span class="qa-num">Q029</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R3 選擇理由</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「如果油耗差不多，為什麼要選 X-TRAIL ICE 不選 CR-V？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">同一基準下差距不大時，看 <span class="blank" data-answer="總持有成本">＿＿＿</span>：油費＋<span class="blank" data-answer="保養、保險、配備價值">＿＿＿</span>。<br/>X-TRAIL ICE 有 <span class="blank" data-answer="ProPILOT L2 輔助、空間舒適、長途體感">＿＿＿</span>；不攻擊 CR-V，邀請 <span class="blank" data-answer="試乘比較體感">＿＿＿</span>。</div>
@@ -277,8 +412,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q017" data-tags="X-TRAIL ICE,CR-V,R4 縮小範圍,P-03">
-    <div class="qa-head"><span class="qa-num">Q017</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
+  <article class="qa" data-id="Q030" data-tags="X-TRAIL ICE,CR-V,R4 縮小範圍,P-03">
+    <div class="qa-head"><span class="qa-num">Q030</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「配備我不在意，就告訴我一年油錢跟 CR-V 差多少。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">專注油錢：請問年里程？油價先用 <span class="blank" data-answer="30">＿＿＿</span> 元。<br/>X-TRAIL ICE <span class="blank" data-answer="14.3">＿＿＿</span> km/L → 公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> → <span class="blank" data-answer="當場試算">＿＿＿</span>。<br/><span class="blank" data-answer="試算表">＿＿＿</span>留給您，<span class="blank" data-answer="明天下午">＿＿＿</span> <span class="blank" data-answer="二訪">＿＿＿</span>確認？</div>
@@ -287,8 +422,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q018" data-tags="X-TRAIL ICE,CR-V,R5 逼試算,挑戰">
-    <div class="qa-head"><span class="qa-num">Q018</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
+  <article class="qa" data-id="Q031" data-tags="X-TRAIL ICE,CR-V,R5 逼試算,挑戰">
+    <div class="qa-head"><span class="qa-num">Q031</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來很空，給具體試算，不然我去 Honda CR-V 了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">現在算：15,000×30÷14.3≈<span class="blank" data-answer="31,469">＿＿＿</span> 元／年。<br/>CR-V 用您提供的 km/L 同公式 → 差額 <span class="blank" data-answer="當場計算">＿＿＿</span>。<br/>今天 <span class="blank" data-answer="17:00">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span>？</div>
@@ -297,8 +432,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q019" data-tags="X-TRAIL ICE,CR-V,R6 離場,P-04">
-    <div class="qa-head"><span class="qa-num">Q019</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
+  <article class="qa" data-id="Q032" data-tags="X-TRAIL ICE,CR-V,R6 離場,P-04">
+    <div class="qa-head"><span class="qa-num">Q032</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我今天沒得到滿意答案，就先走了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您要 <span class="blank" data-answer="可執行方案">＿＿＿</span>：<span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span>＋<span class="blank" data-answer="試乘時段">＿＿＿</span>。<br/>先 <span class="blank" data-answer="保留名額至日期">＿＿＿</span>，您商量後再確認？</div>
@@ -307,8 +442,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q020" data-tags="X-TRAIL ICE,CR-V,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q020</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q033" data-tags="X-TRAIL ICE,CR-V,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q033</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「CR-V 後座跟行李空間感覺都比較大。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="空間">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -317,8 +452,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q021" data-tags="X-TRAIL ICE,CR-V,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q021</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q034" data-tags="X-TRAIL ICE,CR-V,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q034</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「Honda 比較有面子吧？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="空間">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -327,8 +462,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q022" data-tags="X-TRAIL ICE,Tucson L,R1 開場">
-    <div class="qa-head"><span class="qa-num">Q022</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R1 開場</span></div>
+  <article class="qa" data-id="Q035" data-tags="X-TRAIL ICE,Tucson L,R1 開場">
+    <div class="qa-head"><span class="qa-num">Q035</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R1 開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我最近在比 X-TRAIL ICE 跟 Tucson L，Tucson L 配備給很多、價格又有競爭力。你們值得考慮嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您會比較<span class="blank" data-answer="油耗／成本／空間">＿＿＿</span>，這很合理。<br/>X-TRAIL ICE 綜合油耗約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>（<span class="blank" data-answer="WLTC">＿＿＿</span>），比較要用 <span class="blank" data-answer="同一測試基準">＿＿＿</span>。<br/>年里程 <span class="blank" data-answer="15,000">＿＿＿</span>、油價 <span class="blank" data-answer="30">＿＿＿</span> 元 → 年油費約 <span class="blank" data-answer="31,469">＿＿＿</span> 元。<br/>同級還有 <span class="blank" data-answer="ProPILOT">＿＿＿</span>；這週 <span class="blank" data-answer="六上午">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span> 方便嗎？</div>
@@ -337,8 +472,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q023" data-tags="X-TRAIL ICE,Tucson L,R2 追數據,P-05">
-    <div class="qa-head"><span class="qa-num">Q023</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
+  <article class="qa" data-id="Q036" data-tags="X-TRAIL ICE,Tucson L,R2 追數據,P-05">
+    <div class="qa-head"><span class="qa-num">Q036</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「Tucson L 官網數字我都看過了，有沒有實際路況？WLTC 跟真實差很多吧？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 是 <span class="blank" data-answer="法規統一測試">＿＿＿</span>，用於 <span class="blank" data-answer="同級橫向比較">＿＿＿</span>，不保證個人實際油耗。<br/>受 <span class="blank" data-answer="市區／高速比例">＿＿＿</span> 影響；我們不說 <span class="blank" data-answer="一定比較省">＿＿＿</span>。<br/>用您的 <span class="blank" data-answer="年里程">＿＿＿</span> 試算＋<span class="blank" data-answer="試乘">＿＿＿</span>；Tucson L 數字可核對 <span class="blank" data-answer="同等等級">＿＿＿</span>。</div>
@@ -347,8 +482,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q024" data-tags="X-TRAIL ICE,Tucson L,R3 選擇理由">
-    <div class="qa-head"><span class="qa-num">Q024</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R3 選擇理由</span></div>
+  <article class="qa" data-id="Q037" data-tags="X-TRAIL ICE,Tucson L,R3 選擇理由">
+    <div class="qa-head"><span class="qa-num">Q037</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R3 選擇理由</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「如果油耗差不多，為什麼要選 X-TRAIL ICE 不選 Tucson L？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">同一基準下差距不大時，看 <span class="blank" data-answer="總持有成本">＿＿＿</span>：油費＋<span class="blank" data-answer="保養、保險、配備價值">＿＿＿</span>。<br/>X-TRAIL ICE 有 <span class="blank" data-answer="ProPILOT L2 輔助、空間舒適、長途體感">＿＿＿</span>；不攻擊 Tucson L，邀請 <span class="blank" data-answer="試乘比較體感">＿＿＿</span>。</div>
@@ -357,8 +492,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q025" data-tags="X-TRAIL ICE,Tucson L,R4 縮小範圍,P-03">
-    <div class="qa-head"><span class="qa-num">Q025</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
+  <article class="qa" data-id="Q038" data-tags="X-TRAIL ICE,Tucson L,R4 縮小範圍,P-03">
+    <div class="qa-head"><span class="qa-num">Q038</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「配備我不在意，就告訴我一年油錢跟 Tucson L 差多少。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">專注油錢：請問年里程？油價先用 <span class="blank" data-answer="30">＿＿＿</span> 元。<br/>X-TRAIL ICE <span class="blank" data-answer="14.3">＿＿＿</span> km/L → 公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> → <span class="blank" data-answer="當場試算">＿＿＿</span>。<br/><span class="blank" data-answer="試算表">＿＿＿</span>留給您，<span class="blank" data-answer="明天下午">＿＿＿</span> <span class="blank" data-answer="二訪">＿＿＿</span>確認？</div>
@@ -367,8 +502,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q026" data-tags="X-TRAIL ICE,Tucson L,R5 逼試算,挑戰">
-    <div class="qa-head"><span class="qa-num">Q026</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
+  <article class="qa" data-id="Q039" data-tags="X-TRAIL ICE,Tucson L,R5 逼試算,挑戰">
+    <div class="qa-head"><span class="qa-num">Q039</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來很空，給具體試算，不然我去 Hyundai Tucson L 了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">現在算：15,000×30÷14.3≈<span class="blank" data-answer="31,469">＿＿＿</span> 元／年。<br/>Tucson L 用您提供的 km/L 同公式 → 差額 <span class="blank" data-answer="當場計算">＿＿＿</span>。<br/>今天 <span class="blank" data-answer="17:00">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span>？</div>
@@ -377,8 +512,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q027" data-tags="X-TRAIL ICE,Tucson L,R6 離場,P-04">
-    <div class="qa-head"><span class="qa-num">Q027</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
+  <article class="qa" data-id="Q040" data-tags="X-TRAIL ICE,Tucson L,R6 離場,P-04">
+    <div class="qa-head"><span class="qa-num">Q040</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我今天沒得到滿意答案，就先走了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您要 <span class="blank" data-answer="可執行方案">＿＿＿</span>：<span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span>＋<span class="blank" data-answer="試乘時段">＿＿＿</span>。<br/>先 <span class="blank" data-answer="保留名額至日期">＿＿＿</span>，您商量後再確認？</div>
@@ -387,8 +522,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q028" data-tags="X-TRAIL ICE,Tucson L,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q028</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q041" data-tags="X-TRAIL ICE,Tucson L,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q041</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「Tucson 現金優惠比較直接，你們呢？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="配備">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -397,8 +532,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q029" data-tags="X-TRAIL ICE,Tucson L,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q029</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q042" data-tags="X-TRAIL ICE,Tucson L,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q042</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「韓系配備比較敢給，你們 ProPILOT 有比較厲害嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="配備">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -407,8 +542,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q030" data-tags="X-TRAIL ICE,Outlander,R1 開場">
-    <div class="qa-head"><span class="qa-num">Q030</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R1 開場</span></div>
+  <article class="qa" data-id="Q043" data-tags="X-TRAIL ICE,Outlander,R1 開場">
+    <div class="qa-head"><span class="qa-num">Q043</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R1 開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我最近在比 X-TRAIL ICE 跟 Outlander，Outlander 有七人座，一家出遊比較實用。你們值得考慮嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您會比較<span class="blank" data-answer="油耗／成本／空間">＿＿＿</span>，這很合理。<br/>X-TRAIL ICE 綜合油耗約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>（<span class="blank" data-answer="WLTC">＿＿＿</span>），比較要用 <span class="blank" data-answer="同一測試基準">＿＿＿</span>。<br/>年里程 <span class="blank" data-answer="15,000">＿＿＿</span>、油價 <span class="blank" data-answer="30">＿＿＿</span> 元 → 年油費約 <span class="blank" data-answer="31,469">＿＿＿</span> 元。<br/>同級還有 <span class="blank" data-answer="ProPILOT">＿＿＿</span>；這週 <span class="blank" data-answer="六上午">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span> 方便嗎？</div>
@@ -417,8 +552,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q031" data-tags="X-TRAIL ICE,Outlander,R2 追數據,P-05">
-    <div class="qa-head"><span class="qa-num">Q031</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
+  <article class="qa" data-id="Q044" data-tags="X-TRAIL ICE,Outlander,R2 追數據,P-05">
+    <div class="qa-head"><span class="qa-num">Q044</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「Outlander 官網數字我都看過了，有沒有實際路況？WLTC 跟真實差很多吧？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 是 <span class="blank" data-answer="法規統一測試">＿＿＿</span>，用於 <span class="blank" data-answer="同級橫向比較">＿＿＿</span>，不保證個人實際油耗。<br/>受 <span class="blank" data-answer="市區／高速比例">＿＿＿</span> 影響；我們不說 <span class="blank" data-answer="一定比較省">＿＿＿</span>。<br/>用您的 <span class="blank" data-answer="年里程">＿＿＿</span> 試算＋<span class="blank" data-answer="試乘">＿＿＿</span>；Outlander 數字可核對 <span class="blank" data-answer="同等等級">＿＿＿</span>。</div>
@@ -427,8 +562,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q032" data-tags="X-TRAIL ICE,Outlander,R3 選擇理由">
-    <div class="qa-head"><span class="qa-num">Q032</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R3 選擇理由</span></div>
+  <article class="qa" data-id="Q045" data-tags="X-TRAIL ICE,Outlander,R3 選擇理由">
+    <div class="qa-head"><span class="qa-num">Q045</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R3 選擇理由</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「如果油耗差不多，為什麼要選 X-TRAIL ICE 不選 Outlander？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">同一基準下差距不大時，看 <span class="blank" data-answer="總持有成本">＿＿＿</span>：油費＋<span class="blank" data-answer="保養、保險、配備價值">＿＿＿</span>。<br/>X-TRAIL ICE 有 <span class="blank" data-answer="ProPILOT L2 輔助、空間舒適、長途體感">＿＿＿</span>；不攻擊 Outlander，邀請 <span class="blank" data-answer="試乘比較體感">＿＿＿</span>。</div>
@@ -437,8 +572,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q033" data-tags="X-TRAIL ICE,Outlander,R4 縮小範圍,P-03">
-    <div class="qa-head"><span class="qa-num">Q033</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
+  <article class="qa" data-id="Q046" data-tags="X-TRAIL ICE,Outlander,R4 縮小範圍,P-03">
+    <div class="qa-head"><span class="qa-num">Q046</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「配備我不在意，就告訴我一年油錢跟 Outlander 差多少。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">專注油錢：請問年里程？油價先用 <span class="blank" data-answer="30">＿＿＿</span> 元。<br/>X-TRAIL ICE <span class="blank" data-answer="14.3">＿＿＿</span> km/L → 公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> → <span class="blank" data-answer="當場試算">＿＿＿</span>。<br/><span class="blank" data-answer="試算表">＿＿＿</span>留給您，<span class="blank" data-answer="明天下午">＿＿＿</span> <span class="blank" data-answer="二訪">＿＿＿</span>確認？</div>
@@ -447,8 +582,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q034" data-tags="X-TRAIL ICE,Outlander,R5 逼試算,挑戰">
-    <div class="qa-head"><span class="qa-num">Q034</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
+  <article class="qa" data-id="Q047" data-tags="X-TRAIL ICE,Outlander,R5 逼試算,挑戰">
+    <div class="qa-head"><span class="qa-num">Q047</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來很空，給具體試算，不然我去 Mitsubishi Outlander 了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">現在算：15,000×30÷14.3≈<span class="blank" data-answer="31,469">＿＿＿</span> 元／年。<br/>Outlander 用您提供的 km/L 同公式 → 差額 <span class="blank" data-answer="當場計算">＿＿＿</span>。<br/>今天 <span class="blank" data-answer="17:00">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span>？</div>
@@ -457,8 +592,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q035" data-tags="X-TRAIL ICE,Outlander,R6 離場,P-04">
-    <div class="qa-head"><span class="qa-num">Q035</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
+  <article class="qa" data-id="Q048" data-tags="X-TRAIL ICE,Outlander,R6 離場,P-04">
+    <div class="qa-head"><span class="qa-num">Q048</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我今天沒得到滿意答案，就先走了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您要 <span class="blank" data-answer="可執行方案">＿＿＿</span>：<span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span>＋<span class="blank" data-answer="試乘時段">＿＿＿</span>。<br/>先 <span class="blank" data-answer="保留名額至日期">＿＿＿</span>，您商量後再確認？</div>
@@ -467,8 +602,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q036" data-tags="X-TRAIL ICE,Outlander,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q036</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q049" data-tags="X-TRAIL ICE,Outlander,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q049</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我們常六、七人出遊，五人車夠嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="七人座">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -477,8 +612,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q037" data-tags="X-TRAIL ICE,Outlander,競品專屬">
-    <div class="qa-head"><span class="qa-num">Q037</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">競品專屬</span></div>
+  <article class="qa" data-id="Q050" data-tags="X-TRAIL ICE,Outlander,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q050</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">競品專屬</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「Outlander 也有安全配備，差在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="七人座">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
@@ -487,8 +622,88 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q038" data-tags="X-TRAIL ICE,RAV4,P-01,人設開場">
-    <div class="qa-head"><span class="qa-num">Q038</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q051" data-tags="X-TRAIL ICE,Sportage,R1 開場">
+    <div class="qa-head"><span class="qa-num">Q051</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-scenario">R1 開場</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「我最近在比 X-TRAIL ICE 跟 Sportage，Sportage 配備很新，韓系保養會不會比較麻煩？。你們值得考慮嗎？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您會比較<span class="blank" data-answer="油耗／成本／空間">＿＿＿</span>，這很合理。<br/>X-TRAIL ICE 綜合油耗約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>（<span class="blank" data-answer="WLTC">＿＿＿</span>），比較要用 <span class="blank" data-answer="同一測試基準">＿＿＿</span>。<br/>年里程 <span class="blank" data-answer="15,000">＿＿＿</span>、油價 <span class="blank" data-answer="30">＿＿＿</span> 元 → 年油費約 <span class="blank" data-answer="31,469">＿＿＿</span> 元。<br/>同級還有 <span class="blank" data-answer="ProPILOT">＿＿＿</span>；這週 <span class="blank" data-answer="六上午">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span> 方便嗎？</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">理解您會比較油耗／成本／空間，這很合理。<br/>X-TRAIL ICE 綜合油耗約 14.3 km/L（WLTC），比較要用同一測試基準。<br/>年里程 15,000、油價 30 元 → 年油費約 31,469 元。<br/>同級還有 ProPILOT；這週六上午試乘 30 分鐘方便嗎？</div>
+      <p class="hint"><strong>評分重點：</strong>同理+事實</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q052" data-tags="X-TRAIL ICE,Sportage,R2 追數據,P-05">
+    <div class="qa-head"><span class="qa-num">Q052</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-scenario">R2 追數據</span><span class="tag tag-persona">P-05</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「Sportage 官網數字我都看過了，有沒有實際路況？WLTC 跟真實差很多吧？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 是 <span class="blank" data-answer="法規統一測試">＿＿＿</span>，用於 <span class="blank" data-answer="同級橫向比較">＿＿＿</span>，不保證個人實際油耗。<br/>受 <span class="blank" data-answer="市區／高速比例">＿＿＿</span> 影響；我們不說 <span class="blank" data-answer="一定比較省">＿＿＿</span>。<br/>用您的 <span class="blank" data-answer="年里程">＿＿＿</span> 試算＋<span class="blank" data-answer="試乘">＿＿＿</span>；Sportage 數字可核對 <span class="blank" data-answer="同等等級">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">WLTC 是法規統一測試，用於同級橫向比較，不保證個人實際油耗。<br/>受市區／高速比例影響；我們不說一定比較省。<br/>用您的年里程試算＋試乘；Sportage 數字可核對同等等級。</div>
+      <p class="hint"><strong>評分重點：</strong>策略+事實</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q053" data-tags="X-TRAIL ICE,Sportage,R3 選擇理由">
+    <div class="qa-head"><span class="qa-num">Q053</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-scenario">R3 選擇理由</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「如果油耗差不多，為什麼要選 X-TRAIL ICE 不選 Sportage？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">同一基準下差距不大時，看 <span class="blank" data-answer="總持有成本">＿＿＿</span>：油費＋<span class="blank" data-answer="保養、保險、配備價值">＿＿＿</span>。<br/>X-TRAIL ICE 有 <span class="blank" data-answer="ProPILOT L2 輔助、空間舒適、長途體感">＿＿＿</span>；不攻擊 Sportage，邀請 <span class="blank" data-answer="試乘比較體感">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">同一基準下差距不大時，看總持有成本：油費＋保養、保險、配備價值。<br/>X-TRAIL ICE 有 ProPILOT L2 輔助、空間舒適、長途體感；不攻擊 Sportage，邀請試乘比較體感。</div>
+      <p class="hint"><strong>評分重點：</strong>策略+事實</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q054" data-tags="X-TRAIL ICE,Sportage,R4 縮小範圍,P-03">
+    <div class="qa-head"><span class="qa-num">Q054</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-scenario">R4 縮小範圍</span><span class="tag tag-persona">P-03</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「配備我不在意，就告訴我一年油錢跟 Sportage 差多少。」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">專注油錢：請問年里程？油價先用 <span class="blank" data-answer="30">＿＿＿</span> 元。<br/>X-TRAIL ICE <span class="blank" data-answer="14.3">＿＿＿</span> km/L → 公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> → <span class="blank" data-answer="當場試算">＿＿＿</span>。<br/><span class="blank" data-answer="試算表">＿＿＿</span>留給您，<span class="blank" data-answer="明天下午">＿＿＿</span> <span class="blank" data-answer="二訪">＿＿＿</span>確認？</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">專注油錢：請問年里程？油價先用 30 元。<br/>X-TRAIL ICE 14.3 km/L → 公式年里程×油價÷油耗 → 當場試算。<br/>試算表留給您，明天下午二訪確認？</div>
+      <p class="hint"><strong>評分重點：</strong>策略+事實</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q055" data-tags="X-TRAIL ICE,Sportage,R5 逼試算,挑戰">
+    <div class="qa-head"><span class="qa-num">Q055</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-scenario">R5 逼試算</span><span class="tag tag-dim">挑戰</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「聽起來很空，給具體試算，不然我去 KIA Sportage 了。」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">現在算：15,000×30÷14.3≈<span class="blank" data-answer="31,469">＿＿＿</span> 元／年。<br/>Sportage 用您提供的 km/L 同公式 → 差額 <span class="blank" data-answer="當場計算">＿＿＿</span>。<br/>今天 <span class="blank" data-answer="17:00">＿＿＿</span> <span class="blank" data-answer="試乘 30 分鐘">＿＿＿</span>？</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">現在算：15,000×30÷14.3≈31,469 元／年。<br/>Sportage 用您提供的 km/L 同公式 → 差額當場計算。<br/>今天 17:00 試乘 30 分鐘？</div>
+      <p class="hint"><strong>評分重點：</strong>成交</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q056" data-tags="X-TRAIL ICE,Sportage,R6 離場,P-04">
+    <div class="qa-head"><span class="qa-num">Q056</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-scenario">R6 離場</span><span class="tag tag-persona">P-04</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「我今天沒得到滿意答案，就先走了。」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">理解您要 <span class="blank" data-answer="可執行方案">＿＿＿</span>：<span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span>＋<span class="blank" data-answer="試乘時段">＿＿＿</span>。<br/>先 <span class="blank" data-answer="保留名額至日期">＿＿＿</span>，您商量後再確認？</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">理解您要可執行方案：當月方案＋油耗試算＋試乘時段。<br/>先保留名額至日期，您商量後再確認？</div>
+      <p class="hint"><strong>評分重點：</strong>策略+事實</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q057" data-tags="X-TRAIL ICE,Sportage,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q057</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-dim">競品專屬</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「Sportage 配備很敢給，你們 ProPILOT 有比較厲害嗎？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="產品週期">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">先承接：您在意產品週期很合理。<br/>X-TRAIL ICE 強在ProPILOT L2 輔助；若座位需求是關鍵我們可實際試乘／量測。<br/>不攻擊競品，用試算與體感決定。</div>
+      <p class="hint"><strong>評分重點：</strong>策略+事實</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q058" data-tags="X-TRAIL ICE,Sportage,競品專屬">
+    <div class="qa-head"><span class="qa-num">Q058</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-dim">競品專屬</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「韓系零件會不會比較難等、保養比較貴？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">先 <span class="blank" data-answer="承接">＿＿＿</span>：您在意 <span class="blank" data-answer="產品週期">＿＿＿</span> 很合理。<br/>X-TRAIL ICE 強在 <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span>；若 <span class="blank" data-answer="座位需求">＿＿＿</span> 是關鍵我們可實際 <span class="blank" data-answer="試乘／量測">＿＿＿</span>。<br/><span class="blank" data-answer="不攻擊競品">＿＿＿</span>，用試算與體感決定。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">先承接：您在意產品週期很合理。<br/>X-TRAIL ICE 強在ProPILOT L2 輔助；若座位需求是關鍵我們可實際試乘／量測。<br/>不攻擊競品，用試算與體感決定。</div>
+      <p class="hint"><strong>評分重點：</strong>策略+事實</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q059" data-tags="X-TRAIL ICE,RAV4,P-01,人設開場">
+    <div class="qa-head"><span class="qa-num">Q059</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我是 理性分析型，請把 RAV4 跟 X-TRAIL ICE 的 WLTC 條件跟試算公式講清楚。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 來自 <span class="blank" data-answer="法規測試">＿＿＿</span>；X-TRAIL ICE 約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>；公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> 當場算。</div>
@@ -497,8 +712,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q039" data-tags="X-TRAIL ICE,RAV4,P-02,人設開場">
-    <div class="qa-head"><span class="qa-num">Q039</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q060" data-tags="X-TRAIL ICE,RAV4,P-02,人設開場">
+    <div class="qa-head"><span class="qa-num">Q060</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我不太看數字，RAV4 跟 X-TRAIL ICE 開起來、服務上差在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">了解您重視 <span class="blank" data-answer="感受與服務">＿＿＿</span>；<span class="blank" data-answer="30 分鐘試乘">＿＿＿</span> 比規格表準；數字簡短帶過。</div>
@@ -507,8 +722,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q040" data-tags="X-TRAIL ICE,RAV4,P-03,人設開場">
-    <div class="qa-head"><span class="qa-num">Q040</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q061" data-tags="X-TRAIL ICE,RAV4,P-03,人設開場">
+    <div class="qa-head"><span class="qa-num">Q061</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我預算緊，RAV4 促銷那麼兇，X-TRAIL ICE 一年總共多花多少？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">透明 <span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="年油費試算">＿＿＿</span>＋<span class="blank" data-answer="月供">＿＿＿</span> 一起看總價。</div>
@@ -517,8 +732,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q041" data-tags="X-TRAIL ICE,RAV4,P-04,人設開場">
-    <div class="qa-head"><span class="qa-num">Q041</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q062" data-tags="X-TRAIL ICE,RAV4,P-04,人設開場">
+    <div class="qa-head"><span class="qa-num">Q062</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來都可以，但我得跟家人商量，你們能給什麼讓我帶回去討論？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">給 <span class="blank" data-answer="試算表＋方案摘要">＿＿＿</span>；小步驟 <span class="blank" data-answer="週六家人試乘">＿＿＿</span> 或 <span class="blank" data-answer="二訪">＿＿＿</span>。</div>
@@ -527,8 +742,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q042" data-tags="X-TRAIL ICE,RAV4,P-05,人設開場">
-    <div class="qa-head"><span class="qa-num">Q042</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q063" data-tags="X-TRAIL ICE,RAV4,P-05,人設開場">
+    <div class="qa-head"><span class="qa-num">Q063</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「論壇上 RAV4 贏面大，你們數據來源哪裡來的？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">數字來自 <span class="blank" data-answer="官網 WLTC">＿＿＿</span>；論壇截圖核對 <span class="blank" data-answer="等級與條件">＿＿＿</span>；不迴避不瞎掰。</div>
@@ -537,8 +752,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q043" data-tags="X-TRAIL ICE,CR-V,P-01,人設開場">
-    <div class="qa-head"><span class="qa-num">Q043</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q064" data-tags="X-TRAIL ICE,CR-V,P-01,人設開場">
+    <div class="qa-head"><span class="qa-num">Q064</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我是 理性分析型，請把 CR-V 跟 X-TRAIL ICE 的 WLTC 條件跟試算公式講清楚。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 來自 <span class="blank" data-answer="法規測試">＿＿＿</span>；X-TRAIL ICE 約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>；公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> 當場算。</div>
@@ -547,8 +762,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q044" data-tags="X-TRAIL ICE,CR-V,P-02,人設開場">
-    <div class="qa-head"><span class="qa-num">Q044</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q065" data-tags="X-TRAIL ICE,CR-V,P-02,人設開場">
+    <div class="qa-head"><span class="qa-num">Q065</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我不太看數字，CR-V 跟 X-TRAIL ICE 開起來、服務上差在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">了解您重視 <span class="blank" data-answer="感受與服務">＿＿＿</span>；<span class="blank" data-answer="30 分鐘試乘">＿＿＿</span> 比規格表準；數字簡短帶過。</div>
@@ -557,8 +772,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q045" data-tags="X-TRAIL ICE,CR-V,P-03,人設開場">
-    <div class="qa-head"><span class="qa-num">Q045</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q066" data-tags="X-TRAIL ICE,CR-V,P-03,人設開場">
+    <div class="qa-head"><span class="qa-num">Q066</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我預算緊，CR-V 促銷那麼兇，X-TRAIL ICE 一年總共多花多少？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">透明 <span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="年油費試算">＿＿＿</span>＋<span class="blank" data-answer="月供">＿＿＿</span> 一起看總價。</div>
@@ -567,8 +782,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q046" data-tags="X-TRAIL ICE,CR-V,P-04,人設開場">
-    <div class="qa-head"><span class="qa-num">Q046</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q067" data-tags="X-TRAIL ICE,CR-V,P-04,人設開場">
+    <div class="qa-head"><span class="qa-num">Q067</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來都可以，但我得跟家人商量，你們能給什麼讓我帶回去討論？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">給 <span class="blank" data-answer="試算表＋方案摘要">＿＿＿</span>；小步驟 <span class="blank" data-answer="週六家人試乘">＿＿＿</span> 或 <span class="blank" data-answer="二訪">＿＿＿</span>。</div>
@@ -577,8 +792,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q047" data-tags="X-TRAIL ICE,CR-V,P-05,人設開場">
-    <div class="qa-head"><span class="qa-num">Q047</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q068" data-tags="X-TRAIL ICE,CR-V,P-05,人設開場">
+    <div class="qa-head"><span class="qa-num">Q068</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「論壇上 CR-V 贏面大，你們數據來源哪裡來的？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">數字來自 <span class="blank" data-answer="官網 WLTC">＿＿＿</span>；論壇截圖核對 <span class="blank" data-answer="等級與條件">＿＿＿</span>；不迴避不瞎掰。</div>
@@ -587,8 +802,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q048" data-tags="X-TRAIL ICE,Tucson L,P-01,人設開場">
-    <div class="qa-head"><span class="qa-num">Q048</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q069" data-tags="X-TRAIL ICE,Tucson L,P-01,人設開場">
+    <div class="qa-head"><span class="qa-num">Q069</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我是 理性分析型，請把 Tucson L 跟 X-TRAIL ICE 的 WLTC 條件跟試算公式講清楚。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 來自 <span class="blank" data-answer="法規測試">＿＿＿</span>；X-TRAIL ICE 約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>；公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> 當場算。</div>
@@ -597,8 +812,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q049" data-tags="X-TRAIL ICE,Tucson L,P-02,人設開場">
-    <div class="qa-head"><span class="qa-num">Q049</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q070" data-tags="X-TRAIL ICE,Tucson L,P-02,人設開場">
+    <div class="qa-head"><span class="qa-num">Q070</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我不太看數字，Tucson L 跟 X-TRAIL ICE 開起來、服務上差在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">了解您重視 <span class="blank" data-answer="感受與服務">＿＿＿</span>；<span class="blank" data-answer="30 分鐘試乘">＿＿＿</span> 比規格表準；數字簡短帶過。</div>
@@ -607,8 +822,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q050" data-tags="X-TRAIL ICE,Tucson L,P-03,人設開場">
-    <div class="qa-head"><span class="qa-num">Q050</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q071" data-tags="X-TRAIL ICE,Tucson L,P-03,人設開場">
+    <div class="qa-head"><span class="qa-num">Q071</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我預算緊，Tucson L 促銷那麼兇，X-TRAIL ICE 一年總共多花多少？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">透明 <span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="年油費試算">＿＿＿</span>＋<span class="blank" data-answer="月供">＿＿＿</span> 一起看總價。</div>
@@ -617,8 +832,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q051" data-tags="X-TRAIL ICE,Tucson L,P-04,人設開場">
-    <div class="qa-head"><span class="qa-num">Q051</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q072" data-tags="X-TRAIL ICE,Tucson L,P-04,人設開場">
+    <div class="qa-head"><span class="qa-num">Q072</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來都可以，但我得跟家人商量，你們能給什麼讓我帶回去討論？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">給 <span class="blank" data-answer="試算表＋方案摘要">＿＿＿</span>；小步驟 <span class="blank" data-answer="週六家人試乘">＿＿＿</span> 或 <span class="blank" data-answer="二訪">＿＿＿</span>。</div>
@@ -627,8 +842,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q052" data-tags="X-TRAIL ICE,Tucson L,P-05,人設開場">
-    <div class="qa-head"><span class="qa-num">Q052</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q073" data-tags="X-TRAIL ICE,Tucson L,P-05,人設開場">
+    <div class="qa-head"><span class="qa-num">Q073</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「論壇上 Tucson L 贏面大，你們數據來源哪裡來的？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">數字來自 <span class="blank" data-answer="官網 WLTC">＿＿＿</span>；論壇截圖核對 <span class="blank" data-answer="等級與條件">＿＿＿</span>；不迴避不瞎掰。</div>
@@ -637,8 +852,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q053" data-tags="X-TRAIL ICE,Outlander,P-01,人設開場">
-    <div class="qa-head"><span class="qa-num">Q053</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q074" data-tags="X-TRAIL ICE,Outlander,P-01,人設開場">
+    <div class="qa-head"><span class="qa-num">Q074</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我是 理性分析型，請把 Outlander 跟 X-TRAIL ICE 的 WLTC 條件跟試算公式講清楚。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 來自 <span class="blank" data-answer="法規測試">＿＿＿</span>；X-TRAIL ICE 約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>；公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> 當場算。</div>
@@ -647,8 +862,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q054" data-tags="X-TRAIL ICE,Outlander,P-02,人設開場">
-    <div class="qa-head"><span class="qa-num">Q054</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q075" data-tags="X-TRAIL ICE,Outlander,P-02,人設開場">
+    <div class="qa-head"><span class="qa-num">Q075</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我不太看數字，Outlander 跟 X-TRAIL ICE 開起來、服務上差在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">了解您重視 <span class="blank" data-answer="感受與服務">＿＿＿</span>；<span class="blank" data-answer="30 分鐘試乘">＿＿＿</span> 比規格表準；數字簡短帶過。</div>
@@ -657,8 +872,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q055" data-tags="X-TRAIL ICE,Outlander,P-03,人設開場">
-    <div class="qa-head"><span class="qa-num">Q055</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q076" data-tags="X-TRAIL ICE,Outlander,P-03,人設開場">
+    <div class="qa-head"><span class="qa-num">Q076</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我預算緊，Outlander 促銷那麼兇，X-TRAIL ICE 一年總共多花多少？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">透明 <span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="年油費試算">＿＿＿</span>＋<span class="blank" data-answer="月供">＿＿＿</span> 一起看總價。</div>
@@ -667,8 +882,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q056" data-tags="X-TRAIL ICE,Outlander,P-04,人設開場">
-    <div class="qa-head"><span class="qa-num">Q056</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q077" data-tags="X-TRAIL ICE,Outlander,P-04,人設開場">
+    <div class="qa-head"><span class="qa-num">Q077</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「聽起來都可以，但我得跟家人商量，你們能給什麼讓我帶回去討論？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">給 <span class="blank" data-answer="試算表＋方案摘要">＿＿＿</span>；小步驟 <span class="blank" data-answer="週六家人試乘">＿＿＿</span> 或 <span class="blank" data-answer="二訪">＿＿＿</span>。</div>
@@ -677,8 +892,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q057" data-tags="X-TRAIL ICE,Outlander,P-05,人設開場">
-    <div class="qa-head"><span class="qa-num">Q057</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
+  <article class="qa" data-id="Q078" data-tags="X-TRAIL ICE,Outlander,P-05,人設開場">
+    <div class="qa-head"><span class="qa-num">Q078</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「論壇上 Outlander 贏面大，你們數據來源哪裡來的？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">數字來自 <span class="blank" data-answer="官網 WLTC">＿＿＿</span>；論壇截圖核對 <span class="blank" data-answer="等級與條件">＿＿＿</span>；不迴避不瞎掰。</div>
@@ -687,8 +902,58 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q058" data-tags="X-TRAIL ICE,RAV4,20-30,年齡">
-    <div class="qa-head"><span class="qa-num">Q058</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q079" data-tags="X-TRAIL ICE,Sportage,P-01,人設開場">
+    <div class="qa-head"><span class="qa-num">Q079</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-persona">P-01</span><span class="tag tag-scenario">人設開場</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「我是 理性分析型，請把 Sportage 跟 X-TRAIL ICE 的 WLTC 條件跟試算公式講清楚。」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">WLTC 來自 <span class="blank" data-answer="法規測試">＿＿＿</span>；X-TRAIL ICE 約 <span class="blank" data-answer="14.3 km/L">＿＿＿</span>；公式 <span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> 當場算。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">WLTC 來自法規測試；X-TRAIL ICE 約 14.3 km/L；公式年里程×油價÷油耗當場算。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 數據、WLTC、試算公式</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q080" data-tags="X-TRAIL ICE,Sportage,P-02,人設開場">
+    <div class="qa-head"><span class="qa-num">Q080</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-persona">P-02</span><span class="tag tag-scenario">人設開場</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「我不太看數字，Sportage 跟 X-TRAIL ICE 開起來、服務上差在哪？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">了解您重視 <span class="blank" data-answer="感受與服務">＿＿＿</span>；<span class="blank" data-answer="30 分鐘試乘">＿＿＿</span> 比規格表準；數字簡短帶過。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">了解您重視感受與服務；30 分鐘試乘比規格表準；數字簡短帶過。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 駕駛感受、服務、試乘體感</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q081" data-tags="X-TRAIL ICE,Sportage,P-03,人設開場">
+    <div class="qa-head"><span class="qa-num">Q081</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-persona">P-03</span><span class="tag tag-scenario">人設開場</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「我預算緊，Sportage 促銷那麼兇，X-TRAIL ICE 一年總共多花多少？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">透明 <span class="blank" data-answer="當月方案">＿＿＿</span>＋<span class="blank" data-answer="年油費試算">＿＿＿</span>＋<span class="blank" data-answer="月供">＿＿＿</span> 一起看總價。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">透明當月方案＋年油費試算＋月供一起看總價。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 總價、月供、年油費、促銷</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q082" data-tags="X-TRAIL ICE,Sportage,P-04,人設開場">
+    <div class="qa-head"><span class="qa-num">Q082</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-persona">P-04</span><span class="tag tag-scenario">人設開場</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「聽起來都可以，但我得跟家人商量，你們能給什麼讓我帶回去討論？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">給 <span class="blank" data-answer="試算表＋方案摘要">＿＿＿</span>；小步驟 <span class="blank" data-answer="週六家人試乘">＿＿＿</span> 或 <span class="blank" data-answer="二訪">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">給試算表＋方案摘要；小步驟週六家人試乘或二訪。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 小步驟、家人商量、二訪</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q083" data-tags="X-TRAIL ICE,Sportage,P-05,人設開場">
+    <div class="qa-head"><span class="qa-num">Q083</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-persona">P-05</span><span class="tag tag-scenario">人設開場</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">「論壇上 Sportage 贏面大，你們數據來源哪裡來的？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">數字來自 <span class="blank" data-answer="官網 WLTC">＿＿＿</span>；論壇截圖核對 <span class="blank" data-answer="等級與條件">＿＿＿</span>；不迴避不瞎掰。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">數字來自官網 WLTC；論壇截圖核對等級與條件；不迴避不瞎掰。</div>
+      <p class="hint"><strong>評分重點：</strong>人設 論壇質疑、測試條件、來源查核</p>
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q084" data-tags="X-TRAIL ICE,RAV4,20-30,年齡">
+    <div class="qa-head"><span class="qa-num">Q084</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【20–30 歲客戶】「我們這年紀首購、預算緊，RAV4 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">20–30 歲 常重視 <span class="blank" data-answer="總價與月供">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 RAV4">＿＿＿</span>。</div>
@@ -697,8 +962,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q059" data-tags="X-TRAIL ICE,RAV4,30-40,年齡">
-    <div class="qa-head"><span class="qa-num">Q059</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q085" data-tags="X-TRAIL ICE,RAV4,30-40,年齡">
+    <div class="qa-head"><span class="qa-num">Q085</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【30–40 歲客戶】「我們這年紀家庭用車、比較理性，RAV4 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">30–40 歲 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 RAV4">＿＿＿</span>。</div>
@@ -707,8 +972,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q060" data-tags="X-TRAIL ICE,RAV4,40-50,年齡">
-    <div class="qa-head"><span class="qa-num">Q060</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q086" data-tags="X-TRAIL ICE,RAV4,40-50,年齡">
+    <div class="qa-head"><span class="qa-num">Q086</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【40–50 歲客戶】「我們這年紀重視舒適與安全，RAV4 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">40–50 歲 常重視 <span class="blank" data-answer="舒適與安全">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 RAV4">＿＿＿</span>。</div>
@@ -717,8 +982,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q061" data-tags="X-TRAIL ICE,RAV4,50+,年齡">
-    <div class="qa-head"><span class="qa-num">Q061</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q087" data-tags="X-TRAIL ICE,RAV4,50+,年齡">
+    <div class="qa-head"><span class="qa-num">Q087</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【50 歲以上客戶】「我們這年紀重視可靠與好上手，RAV4 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">50 歲以上 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 RAV4">＿＿＿</span>。</div>
@@ -727,8 +992,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q062" data-tags="X-TRAIL ICE,CR-V,20-30,年齡">
-    <div class="qa-head"><span class="qa-num">Q062</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q088" data-tags="X-TRAIL ICE,CR-V,20-30,年齡">
+    <div class="qa-head"><span class="qa-num">Q088</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【20–30 歲客戶】「我們這年紀首購、預算緊，CR-V 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">20–30 歲 常重視 <span class="blank" data-answer="總價與月供">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 CR-V">＿＿＿</span>。</div>
@@ -737,8 +1002,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q063" data-tags="X-TRAIL ICE,CR-V,30-40,年齡">
-    <div class="qa-head"><span class="qa-num">Q063</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q089" data-tags="X-TRAIL ICE,CR-V,30-40,年齡">
+    <div class="qa-head"><span class="qa-num">Q089</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【30–40 歲客戶】「我們這年紀家庭用車、比較理性，CR-V 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">30–40 歲 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 CR-V">＿＿＿</span>。</div>
@@ -747,8 +1012,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q064" data-tags="X-TRAIL ICE,CR-V,40-50,年齡">
-    <div class="qa-head"><span class="qa-num">Q064</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q090" data-tags="X-TRAIL ICE,CR-V,40-50,年齡">
+    <div class="qa-head"><span class="qa-num">Q090</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【40–50 歲客戶】「我們這年紀重視舒適與安全，CR-V 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">40–50 歲 常重視 <span class="blank" data-answer="舒適與安全">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 CR-V">＿＿＿</span>。</div>
@@ -757,8 +1022,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q065" data-tags="X-TRAIL ICE,CR-V,50+,年齡">
-    <div class="qa-head"><span class="qa-num">Q065</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q091" data-tags="X-TRAIL ICE,CR-V,50+,年齡">
+    <div class="qa-head"><span class="qa-num">Q091</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【50 歲以上客戶】「我們這年紀重視可靠與好上手，CR-V 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">50 歲以上 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 CR-V">＿＿＿</span>。</div>
@@ -767,8 +1032,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q066" data-tags="X-TRAIL ICE,Tucson L,20-30,年齡">
-    <div class="qa-head"><span class="qa-num">Q066</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q092" data-tags="X-TRAIL ICE,Tucson L,20-30,年齡">
+    <div class="qa-head"><span class="qa-num">Q092</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【20–30 歲客戶】「我們這年紀首購、預算緊，Tucson L 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">20–30 歲 常重視 <span class="blank" data-answer="總價與月供">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Tucson L">＿＿＿</span>。</div>
@@ -777,8 +1042,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q067" data-tags="X-TRAIL ICE,Tucson L,30-40,年齡">
-    <div class="qa-head"><span class="qa-num">Q067</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q093" data-tags="X-TRAIL ICE,Tucson L,30-40,年齡">
+    <div class="qa-head"><span class="qa-num">Q093</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【30–40 歲客戶】「我們這年紀家庭用車、比較理性，Tucson L 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">30–40 歲 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Tucson L">＿＿＿</span>。</div>
@@ -787,8 +1052,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q068" data-tags="X-TRAIL ICE,Tucson L,40-50,年齡">
-    <div class="qa-head"><span class="qa-num">Q068</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q094" data-tags="X-TRAIL ICE,Tucson L,40-50,年齡">
+    <div class="qa-head"><span class="qa-num">Q094</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【40–50 歲客戶】「我們這年紀重視舒適與安全，Tucson L 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">40–50 歲 常重視 <span class="blank" data-answer="舒適與安全">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Tucson L">＿＿＿</span>。</div>
@@ -797,8 +1062,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q069" data-tags="X-TRAIL ICE,Tucson L,50+,年齡">
-    <div class="qa-head"><span class="qa-num">Q069</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q095" data-tags="X-TRAIL ICE,Tucson L,50+,年齡">
+    <div class="qa-head"><span class="qa-num">Q095</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Tucson L</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【50 歲以上客戶】「我們這年紀重視可靠與好上手，Tucson L 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">50 歲以上 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Tucson L">＿＿＿</span>。</div>
@@ -807,8 +1072,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q070" data-tags="X-TRAIL ICE,Outlander,20-30,年齡">
-    <div class="qa-head"><span class="qa-num">Q070</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q096" data-tags="X-TRAIL ICE,Outlander,20-30,年齡">
+    <div class="qa-head"><span class="qa-num">Q096</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【20–30 歲客戶】「我們這年紀首購、預算緊，Outlander 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">20–30 歲 常重視 <span class="blank" data-answer="總價與月供">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Outlander">＿＿＿</span>。</div>
@@ -817,8 +1082,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q071" data-tags="X-TRAIL ICE,Outlander,30-40,年齡">
-    <div class="qa-head"><span class="qa-num">Q071</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q097" data-tags="X-TRAIL ICE,Outlander,30-40,年齡">
+    <div class="qa-head"><span class="qa-num">Q097</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【30–40 歲客戶】「我們這年紀家庭用車、比較理性，Outlander 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">30–40 歲 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Outlander">＿＿＿</span>。</div>
@@ -827,8 +1092,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q072" data-tags="X-TRAIL ICE,Outlander,40-50,年齡">
-    <div class="qa-head"><span class="qa-num">Q072</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q098" data-tags="X-TRAIL ICE,Outlander,40-50,年齡">
+    <div class="qa-head"><span class="qa-num">Q098</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【40–50 歲客戶】「我們這年紀重視舒適與安全，Outlander 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">40–50 歲 常重視 <span class="blank" data-answer="舒適與安全">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Outlander">＿＿＿</span>。</div>
@@ -837,8 +1102,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q073" data-tags="X-TRAIL ICE,Outlander,50+,年齡">
-    <div class="qa-head"><span class="qa-num">Q073</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
+  <article class="qa" data-id="Q099" data-tags="X-TRAIL ICE,Outlander,50+,年齡">
+    <div class="qa-head"><span class="qa-num">Q099</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Outlander</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【50 歲以上客戶】「我們這年紀重視可靠與好上手，Outlander 跟 X-TRAIL ICE 怎麼選？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">50 歲以上 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Outlander">＿＿＿</span>。</div>
@@ -847,8 +1112,48 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q110" data-tags="X-TRAIL ICE,RAV4,動態模擬,油耗">
-    <div class="qa-head"><span class="qa-num">Q110</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
+  <article class="qa" data-id="Q100" data-tags="X-TRAIL ICE,Sportage,20-30,年齡">
+    <div class="qa-head"><span class="qa-num">Q100</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-dim">20-30</span><span class="tag tag-dim">年齡</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">【20–30 歲客戶】「我們這年紀首購、預算緊，Sportage 跟 X-TRAIL ICE 怎麼選？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">20–30 歲 常重視 <span class="blank" data-answer="總價與月供">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Sportage">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">20–30 歲 常重視總價與月供。<br/>試乘＋油耗試算依您的年里程；不攻擊 Sportage。</div>
+      
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q101" data-tags="X-TRAIL ICE,Sportage,30-40,年齡">
+    <div class="qa-head"><span class="qa-num">Q101</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-dim">30-40</span><span class="tag tag-dim">年齡</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">【30–40 歲客戶】「我們這年紀家庭用車、比較理性，Sportage 跟 X-TRAIL ICE 怎麼選？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">30–40 歲 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Sportage">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">30–40 歲 常重視空間與試算。<br/>試乘＋油耗試算依您的年里程；不攻擊 Sportage。</div>
+      
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q102" data-tags="X-TRAIL ICE,Sportage,40-50,年齡">
+    <div class="qa-head"><span class="qa-num">Q102</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-dim">40-50</span><span class="tag tag-dim">年齡</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">【40–50 歲客戶】「我們這年紀重視舒適與安全，Sportage 跟 X-TRAIL ICE 怎麼選？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">40–50 歲 常重視 <span class="blank" data-answer="舒適與安全">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Sportage">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">40–50 歲 常重視舒適與安全。<br/>試乘＋油耗試算依您的年里程；不攻擊 Sportage。</div>
+      
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q103" data-tags="X-TRAIL ICE,Sportage,50+,年齡">
+    <div class="qa-head"><span class="qa-num">Q103</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">Sportage</span><span class="tag tag-dim">50+</span><span class="tag tag-dim">年齡</span></div>
+    <div class="qa-body">
+      <p class="label label-q">客戶問</p><div class="block-q">【50 歲以上客戶】「我們這年紀重視可靠與好上手，Sportage 跟 X-TRAIL ICE 怎麼選？」</div>
+      <p class="label label-a">挖空版回答</p><div class="block-a-blank">50 歲以上 常重視 <span class="blank" data-answer="空間與試算">＿＿＿</span>。<br/><span class="blank" data-answer="試乘">＿＿＿</span>＋<span class="blank" data-answer="油耗試算">＿＿＿</span> 依您的 <span class="blank" data-answer="年里程">＿＿＿</span>；<span class="blank" data-answer="不攻擊 Sportage">＿＿＿</span>。</div>
+      <p class="label label-full">完整詳解</p><div class="block-a-full">50 歲以上 常重視空間與試算。<br/>試乘＋油耗試算依您的年里程；不攻擊 Sportage。</div>
+      
+    </div>
+    <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
+  </article>
+  <article class="qa" data-id="Q140" data-tags="X-TRAIL ICE,RAV4,動態模擬,油耗">
+    <div class="qa-head"><span class="qa-num">Q140</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 RAV4 比，我最在意油耗，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接油耗疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -857,8 +1162,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q111" data-tags="X-TRAIL ICE,RAV4,動態模擬,油耗">
-    <div class="qa-head"><span class="qa-num">Q111</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
+  <article class="qa" data-id="Q141" data-tags="X-TRAIL ICE,RAV4,動態模擬,油耗">
+    <div class="qa-head"><span class="qa-num">Q141</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 RAV4，你們 X-TRAIL ICE 的油耗有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接油耗疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -867,8 +1172,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q112" data-tags="X-TRAIL ICE,RAV4,動態模擬,油耗">
-    <div class="qa-head"><span class="qa-num">Q112</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
+  <article class="qa" data-id="Q142" data-tags="X-TRAIL ICE,RAV4,動態模擬,油耗">
+    <div class="qa-head"><span class="qa-num">Q142</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，油耗這塊你們贏 RAV4 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接油耗疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -877,8 +1182,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q113" data-tags="X-TRAIL ICE,RAV4,動態模擬,空間">
-    <div class="qa-head"><span class="qa-num">Q113</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
+  <article class="qa" data-id="Q143" data-tags="X-TRAIL ICE,RAV4,動態模擬,空間">
+    <div class="qa-head"><span class="qa-num">Q143</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 RAV4 比，我最在意空間，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接空間疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -887,8 +1192,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q114" data-tags="X-TRAIL ICE,RAV4,動態模擬,空間">
-    <div class="qa-head"><span class="qa-num">Q114</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
+  <article class="qa" data-id="Q144" data-tags="X-TRAIL ICE,RAV4,動態模擬,空間">
+    <div class="qa-head"><span class="qa-num">Q144</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 RAV4，你們 X-TRAIL ICE 的空間有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接空間疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -897,8 +1202,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q115" data-tags="X-TRAIL ICE,RAV4,動態模擬,空間">
-    <div class="qa-head"><span class="qa-num">Q115</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
+  <article class="qa" data-id="Q145" data-tags="X-TRAIL ICE,RAV4,動態模擬,空間">
+    <div class="qa-head"><span class="qa-num">Q145</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，空間這塊你們贏 RAV4 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接空間疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -907,8 +1212,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q116" data-tags="X-TRAIL ICE,RAV4,動態模擬,配備">
-    <div class="qa-head"><span class="qa-num">Q116</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">配備</span></div>
+  <article class="qa" data-id="Q146" data-tags="X-TRAIL ICE,RAV4,動態模擬,配備">
+    <div class="qa-head"><span class="qa-num">Q146</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">配備</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 RAV4 比，我最在意配備，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接配備疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -917,8 +1222,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q117" data-tags="X-TRAIL ICE,RAV4,動態模擬,配備">
-    <div class="qa-head"><span class="qa-num">Q117</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">配備</span></div>
+  <article class="qa" data-id="Q147" data-tags="X-TRAIL ICE,RAV4,動態模擬,配備">
+    <div class="qa-head"><span class="qa-num">Q147</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">配備</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 RAV4，你們 X-TRAIL ICE 的配備有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接配備疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -927,8 +1232,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q118" data-tags="X-TRAIL ICE,RAV4,動態模擬,配備">
-    <div class="qa-head"><span class="qa-num">Q118</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">配備</span></div>
+  <article class="qa" data-id="Q148" data-tags="X-TRAIL ICE,RAV4,動態模擬,配備">
+    <div class="qa-head"><span class="qa-num">Q148</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">配備</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，配備這塊你們贏 RAV4 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接配備疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -937,8 +1242,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q119" data-tags="X-TRAIL ICE,RAV4,動態模擬,價格">
-    <div class="qa-head"><span class="qa-num">Q119</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">價格</span></div>
+  <article class="qa" data-id="Q149" data-tags="X-TRAIL ICE,RAV4,動態模擬,價格">
+    <div class="qa-head"><span class="qa-num">Q149</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">價格</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 RAV4 比，我最在意價格，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接價格疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -947,8 +1252,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q120" data-tags="X-TRAIL ICE,RAV4,動態模擬,價格">
-    <div class="qa-head"><span class="qa-num">Q120</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">價格</span></div>
+  <article class="qa" data-id="Q150" data-tags="X-TRAIL ICE,RAV4,動態模擬,價格">
+    <div class="qa-head"><span class="qa-num">Q150</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">價格</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 RAV4，你們 X-TRAIL ICE 的價格有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接價格疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -957,8 +1262,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q121" data-tags="X-TRAIL ICE,RAV4,動態模擬,價格">
-    <div class="qa-head"><span class="qa-num">Q121</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">價格</span></div>
+  <article class="qa" data-id="Q151" data-tags="X-TRAIL ICE,RAV4,動態模擬,價格">
+    <div class="qa-head"><span class="qa-num">Q151</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">價格</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，價格這塊你們贏 RAV4 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接價格疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -967,8 +1272,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q122" data-tags="X-TRAIL ICE,RAV4,動態模擬,安全">
-    <div class="qa-head"><span class="qa-num">Q122</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">安全</span></div>
+  <article class="qa" data-id="Q152" data-tags="X-TRAIL ICE,RAV4,動態模擬,安全">
+    <div class="qa-head"><span class="qa-num">Q152</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">安全</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 RAV4 比，我最在意安全，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接安全疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -977,8 +1282,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q123" data-tags="X-TRAIL ICE,RAV4,動態模擬,安全">
-    <div class="qa-head"><span class="qa-num">Q123</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">安全</span></div>
+  <article class="qa" data-id="Q153" data-tags="X-TRAIL ICE,RAV4,動態模擬,安全">
+    <div class="qa-head"><span class="qa-num">Q153</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">安全</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 RAV4，你們 X-TRAIL ICE 的安全有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接安全疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -987,8 +1292,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q124" data-tags="X-TRAIL ICE,RAV4,動態模擬,安全">
-    <div class="qa-head"><span class="qa-num">Q124</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">安全</span></div>
+  <article class="qa" data-id="Q154" data-tags="X-TRAIL ICE,RAV4,動態模擬,安全">
+    <div class="qa-head"><span class="qa-num">Q154</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">安全</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，安全這塊你們贏 RAV4 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接安全疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -997,8 +1302,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q125" data-tags="X-TRAIL ICE,RAV4,動態模擬,促銷">
-    <div class="qa-head"><span class="qa-num">Q125</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">促銷</span></div>
+  <article class="qa" data-id="Q155" data-tags="X-TRAIL ICE,RAV4,動態模擬,促銷">
+    <div class="qa-head"><span class="qa-num">Q155</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">促銷</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 RAV4 比，我最在意促銷，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接促銷疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1007,8 +1312,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q126" data-tags="X-TRAIL ICE,RAV4,動態模擬,促銷">
-    <div class="qa-head"><span class="qa-num">Q126</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">促銷</span></div>
+  <article class="qa" data-id="Q156" data-tags="X-TRAIL ICE,RAV4,動態模擬,促銷">
+    <div class="qa-head"><span class="qa-num">Q156</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">促銷</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 RAV4，你們 X-TRAIL ICE 的促銷有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接促銷疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1017,8 +1322,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q127" data-tags="X-TRAIL ICE,RAV4,動態模擬,促銷">
-    <div class="qa-head"><span class="qa-num">Q127</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">促銷</span></div>
+  <article class="qa" data-id="Q157" data-tags="X-TRAIL ICE,RAV4,動態模擬,促銷">
+    <div class="qa-head"><span class="qa-num">Q157</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">RAV4</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">促銷</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，促銷這塊你們贏 RAV4 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接促銷疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1027,8 +1332,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q128" data-tags="X-TRAIL ICE,CR-V,動態模擬,油耗">
-    <div class="qa-head"><span class="qa-num">Q128</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
+  <article class="qa" data-id="Q158" data-tags="X-TRAIL ICE,CR-V,動態模擬,油耗">
+    <div class="qa-head"><span class="qa-num">Q158</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 CR-V 比，我最在意油耗，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接油耗疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1037,8 +1342,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q129" data-tags="X-TRAIL ICE,CR-V,動態模擬,油耗">
-    <div class="qa-head"><span class="qa-num">Q129</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
+  <article class="qa" data-id="Q159" data-tags="X-TRAIL ICE,CR-V,動態模擬,油耗">
+    <div class="qa-head"><span class="qa-num">Q159</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 CR-V，你們 X-TRAIL ICE 的油耗有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接油耗疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1047,8 +1352,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q130" data-tags="X-TRAIL ICE,CR-V,動態模擬,油耗">
-    <div class="qa-head"><span class="qa-num">Q130</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
+  <article class="qa" data-id="Q160" data-tags="X-TRAIL ICE,CR-V,動態模擬,油耗">
+    <div class="qa-head"><span class="qa-num">Q160</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">油耗</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，油耗這塊你們贏 CR-V 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接油耗疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1057,8 +1362,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q131" data-tags="X-TRAIL ICE,CR-V,動態模擬,空間">
-    <div class="qa-head"><span class="qa-num">Q131</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
+  <article class="qa" data-id="Q161" data-tags="X-TRAIL ICE,CR-V,動態模擬,空間">
+    <div class="qa-head"><span class="qa-num">Q161</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「X-TRAIL ICE 跟 CR-V 比，我最在意空間，你先講重點。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接空間疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1067,8 +1372,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q132" data-tags="X-TRAIL ICE,CR-V,動態模擬,空間">
-    <div class="qa-head"><span class="qa-num">Q132</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
+  <article class="qa" data-id="Q162" data-tags="X-TRAIL ICE,CR-V,動態模擬,空間">
+    <div class="qa-head"><span class="qa-num">Q162</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「朋友推薦 CR-V，你們 X-TRAIL ICE 的空間有比較好嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接空間疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1077,8 +1382,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q133" data-tags="X-TRAIL ICE,CR-V,動態模擬,空間">
-    <div class="qa-head"><span class="qa-num">Q133</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
+  <article class="qa" data-id="Q163" data-tags="X-TRAIL ICE,CR-V,動態模擬,空間">
+    <div class="qa-head"><span class="qa-num">Q163</span><span class="tag tag-dim">X-TRAIL ICE</span><span class="tag tag-dim">CR-V</span><span class="tag tag-dim">動態模擬</span><span class="tag tag-dim">空間</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我功課做一半了，空間這塊你們贏 CR-V 在哪？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承接空間疑慮 → <span class="blank" data-answer="WLTC或方案基準">＿＿＿</span> → <span class="blank" data-answer="ProPILOT L2 輔助">＿＿＿</span> → <span class="blank" data-answer="試乘/試算">＿＿＿</span>。</div>
@@ -1088,8 +1393,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
 <h2 id="kicks">第五章　KICKS vs HR-V <span class="count">(11 題)</span></h2><p class="meta">價格／促銷／都會用車</p>
-  <article class="qa" data-id="Q074" data-tags="KICKS,HR-V,R1 開場">
-    <div class="qa-head"><span class="qa-num">Q074</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R1 開場</span></div>
+  <article class="qa" data-id="Q104" data-tags="KICKS,HR-V,R1 開場">
+    <div class="qa-head"><span class="qa-num">Q104</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R1 開場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「HR-V 現在促銷很大，KICKS 有什麼划算？不然我去別家。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">了解您看到 HR-V 促銷；<span class="blank" data-answer="預算與時間點">＿＿＿</span> 重要。<br/>KICKS 依 <span class="blank" data-answer="總部當月方案">＿＿＿</span> <span class="blank" data-answer="透明說明">＿＿＿</span>；都會 crossover，省油、好停車。<br/><span class="blank" data-answer="試算月供">＿＿＿</span>＋<span class="blank" data-answer="今日試乘">＿＿＿</span>？</div>
@@ -1098,8 +1403,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q075" data-tags="KICKS,HR-V,R2 優惠">
-    <div class="qa-head"><span class="qa-num">Q075</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R2 優惠</span></div>
+  <article class="qa" data-id="Q105" data-tags="KICKS,HR-V,R2 優惠">
+    <div class="qa-head"><span class="qa-num">Q105</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R2 優惠</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「優惠是現在有嗎？還是要下訂才有？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">方案為 <span class="blank" data-answer="本月總部公告">＿＿＿</span>；下訂以 <span class="blank" data-answer="當時公告">＿＿＿</span> 為準。<br/>先 <span class="blank" data-answer="試算月供">＿＿＿</span> 再 <span class="blank" data-answer="試乘">＿＿＿</span>。</div>
@@ -1108,8 +1413,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q076" data-tags="KICKS,HR-V,R3 月供">
-    <div class="qa-head"><span class="qa-num">Q076</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R3 月供</span></div>
+  <article class="qa" data-id="Q106" data-tags="KICKS,HR-V,R3 月供">
+    <div class="qa-head"><span class="qa-num">Q106</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R3 月供</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「月供能不能再低？我預算真的緊。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">看 <span class="blank" data-answer="頭期">＿＿＿</span>與 <span class="blank" data-answer="期數">＿＿＿</span>；月供 <span class="blank" data-answer="當場試算">＿＿＿</span>；可看 <span class="blank" data-answer="原廠金融">＿＿＿</span>。</div>
@@ -1118,8 +1423,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q077" data-tags="KICKS,HR-V,R4 離場">
-    <div class="qa-head"><span class="qa-num">Q077</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R4 離場</span></div>
+  <article class="qa" data-id="Q107" data-tags="KICKS,HR-V,R4 離場">
+    <div class="qa-head"><span class="qa-num">Q107</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R4 離場</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「今天沒明確方案我就不等了。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">承諾 <span class="blank" data-answer="方案內容">＿＿＿</span>＋<span class="blank" data-answer="月供試算">＿＿＿</span>＋<span class="blank" data-answer="試乘時段">＿＿＿</span>；<span class="blank" data-answer="保留名額">＿＿＿</span>。</div>
@@ -1128,8 +1433,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q078" data-tags="KICKS,HR-V,R5 都會">
-    <div class="qa-head"><span class="qa-num">Q078</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R5 都會</span></div>
+  <article class="qa" data-id="Q108" data-tags="KICKS,HR-V,R5 都會">
+    <div class="qa-head"><span class="qa-num">Q108</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R5 都會</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我都在市區開，KICKS 跟 HR-V 哪台比較好停、比較省？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">KICKS <span class="blank" data-answer="都會 crossover">＿＿＿</span>、<span class="blank" data-answer="好停車">＿＿＿</span>；油耗用 <span class="blank" data-answer="WLTC">＿＿＿</span> 同基準試算。<br/><span class="blank" data-answer="試乘市區路況">＿＿＿</span> 最準。</div>
@@ -1138,8 +1443,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q079" data-tags="KICKS,HR-V,R6 保養">
-    <div class="qa-head"><span class="qa-num">Q079</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R6 保養</span></div>
+  <article class="qa" data-id="Q109" data-tags="KICKS,HR-V,R6 保養">
+    <div class="qa-head"><span class="qa-num">Q109</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-scenario">R6 保養</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「HR-V 保養聽說也不貴，你們養車成本呢？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">總價看 <span class="blank" data-answer="車價+保養+油耗+保險">＿＿＿</span>；<span class="blank" data-answer="當月保養方案">＿＿＿</span> 依公告說明。<br/><span class="blank" data-answer="試算總持有成本">＿＿＿</span> 給您帶回。</div>
@@ -1148,8 +1453,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q080" data-tags="KICKS,HR-V,P-01,人設">
-    <div class="qa-head"><span class="qa-num">Q080</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設</span></div>
+  <article class="qa" data-id="Q110" data-tags="KICKS,HR-V,P-01,人設">
+    <div class="qa-head"><span class="qa-num">Q110</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【理性分析型】「HR-V 跟 KICKS，數據、WLTC、試算公式，你怎麼建議？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 理性分析型：<span class="blank" data-answer="數據">＿＿＿</span> 優先；<span class="blank" data-answer="透明方案">＿＿＿</span>＋<span class="blank" data-answer="試算">＿＿＿</span>＋<span class="blank" data-answer="試乘">＿＿＿</span>。</div>
@@ -1158,8 +1463,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q081" data-tags="KICKS,HR-V,P-02,人設">
-    <div class="qa-head"><span class="qa-num">Q081</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設</span></div>
+  <article class="qa" data-id="Q111" data-tags="KICKS,HR-V,P-02,人設">
+    <div class="qa-head"><span class="qa-num">Q111</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【情感品牌型】「HR-V 跟 KICKS，駕駛感受、服務、試乘體感，你怎麼建議？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 情感品牌型：<span class="blank" data-answer="駕駛感受">＿＿＿</span> 優先；<span class="blank" data-answer="透明方案">＿＿＿</span>＋<span class="blank" data-answer="試算">＿＿＿</span>＋<span class="blank" data-answer="試乘">＿＿＿</span>。</div>
@@ -1168,8 +1473,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q082" data-tags="KICKS,HR-V,P-03,人設">
-    <div class="qa-head"><span class="qa-num">Q082</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設</span></div>
+  <article class="qa" data-id="Q112" data-tags="KICKS,HR-V,P-03,人設">
+    <div class="qa-head"><span class="qa-num">Q112</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【預算敏感型】「HR-V 跟 KICKS，總價、月供、年油費、促銷，你怎麼建議？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 預算敏感型：<span class="blank" data-answer="總價">＿＿＿</span> 優先；<span class="blank" data-answer="透明方案">＿＿＿</span>＋<span class="blank" data-answer="試算">＿＿＿</span>＋<span class="blank" data-answer="試乘">＿＿＿</span>。</div>
@@ -1178,8 +1483,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q083" data-tags="KICKS,HR-V,P-04,人設">
-    <div class="qa-head"><span class="qa-num">Q083</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設</span></div>
+  <article class="qa" data-id="Q113" data-tags="KICKS,HR-V,P-04,人設">
+    <div class="qa-head"><span class="qa-num">Q113</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【猶豫從眾型】「HR-V 跟 KICKS，小步驟、家人商量、二訪，你怎麼建議？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 猶豫從眾型：<span class="blank" data-answer="小步驟">＿＿＿</span> 優先；<span class="blank" data-answer="透明方案">＿＿＿</span>＋<span class="blank" data-answer="試算">＿＿＿</span>＋<span class="blank" data-answer="試乘">＿＿＿</span>。</div>
@@ -1188,8 +1493,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q084" data-tags="KICKS,HR-V,P-05,人設">
-    <div class="qa-head"><span class="qa-num">Q084</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設</span></div>
+  <article class="qa" data-id="Q114" data-tags="KICKS,HR-V,P-05,人設">
+    <div class="qa-head"><span class="qa-num">Q114</span><span class="tag tag-dim">KICKS</span><span class="tag tag-dim">HR-V</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【深度研究型】「HR-V 跟 KICKS，論壇質疑、測試條件、來源查核，你怎麼建議？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 深度研究型：<span class="blank" data-answer="論壇質疑">＿＿＿</span> 優先；<span class="blank" data-answer="透明方案">＿＿＿</span>＋<span class="blank" data-answer="試算">＿＿＿</span>＋<span class="blank" data-answer="試乘">＿＿＿</span>。</div>
@@ -1199,8 +1504,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
 <h2 id="persona">第六章　人設專章 P-01～P-05 <span class="count">(15 題)</span></h2><p class="meta">各人設典型追問與高分回應重心</p>
-  <article class="qa" data-id="Q085" data-tags="P-01,人設專章">
-    <div class="qa-head"><span class="qa-num">Q085</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q115" data-tags="P-01,人設專章">
+    <div class="qa-head"><span class="qa-num">Q115</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【理性分析型】「測試條件、等級、數據來源一次講完。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 理性分析型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="數據">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1209,8 +1514,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q086" data-tags="P-01,人設專章">
-    <div class="qa-head"><span class="qa-num">Q086</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q116" data-tags="P-01,人設專章">
+    <div class="qa-head"><span class="qa-num">Q116</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【理性分析型】「用 15,000 公里當例子，當場算給我看。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 理性分析型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="數據">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1219,8 +1524,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q087" data-tags="P-01,人設專章">
-    <div class="qa-head"><span class="qa-num">Q087</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q117" data-tags="P-01,人設專章">
+    <div class="qa-head"><span class="qa-num">Q117</span><span class="tag tag-persona">P-01</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【理性分析型】「你剛說的數字跟官網哪個等級？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 理性分析型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="數據">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1229,8 +1534,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q088" data-tags="P-02,人設專章">
-    <div class="qa-head"><span class="qa-num">Q088</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q118" data-tags="P-02,人設專章">
+    <div class="qa-head"><span class="qa-num">Q118</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【情感品牌型】「數字太枯燥，我想知道開起來爽不爽。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 情感品牌型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="駕駛感受">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1239,8 +1544,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q089" data-tags="P-02,人設專章">
-    <div class="qa-head"><span class="qa-num">Q089</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q119" data-tags="P-02,人設專章">
+    <div class="qa-head"><span class="qa-num">Q119</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【情感品牌型】「品牌信任感你們怎麼建立？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 情感品牌型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="駕駛感受">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1249,8 +1554,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q090" data-tags="P-02,人設專章">
-    <div class="qa-head"><span class="qa-num">Q090</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q120" data-tags="P-02,人設專章">
+    <div class="qa-head"><span class="qa-num">Q120</span><span class="tag tag-persona">P-02</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【情感品牌型】「服務好不好比規格重要。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 情感品牌型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="駕駛感受">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1259,8 +1564,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q091" data-tags="P-03,人設專章">
-    <div class="qa-head"><span class="qa-num">Q091</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q121" data-tags="P-03,人設專章">
+    <div class="qa-head"><span class="qa-num">Q121</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【預算敏感型】「別講配備，總價、月供、一年花多少一次講完。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 預算敏感型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="總價">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1269,8 +1574,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q092" data-tags="P-03,人設專章">
-    <div class="qa-head"><span class="qa-num">Q092</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q122" data-tags="P-03,人設專章">
+    <div class="qa-head"><span class="qa-num">Q122</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【預算敏感型】「優惠能不能再低？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 預算敏感型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="總價">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1279,8 +1584,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q093" data-tags="P-03,人設專章">
-    <div class="qa-head"><span class="qa-num">Q093</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q123" data-tags="P-03,人設專章">
+    <div class="qa-head"><span class="qa-num">Q123</span><span class="tag tag-persona">P-03</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【預算敏感型】「跟競品比，我一年多花多少？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 預算敏感型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="總價">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1289,8 +1594,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q094" data-tags="P-04,人設專章">
-    <div class="qa-head"><span class="qa-num">Q094</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q124" data-tags="P-04,人設專章">
+    <div class="qa-head"><span class="qa-num">Q124</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【猶豫從眾型】「聽起來不錯，但要跟家人商量。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 猶豫從眾型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="小步驟">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1299,8 +1604,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q095" data-tags="P-04,人設專章">
-    <div class="qa-head"><span class="qa-num">Q095</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q125" data-tags="P-04,人設專章">
+    <div class="qa-head"><span class="qa-num">Q125</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【猶豫從眾型】「你們能不能給我帶回去的資料？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 猶豫從眾型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="小步驟">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1309,8 +1614,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q096" data-tags="P-04,人設專章">
-    <div class="qa-head"><span class="qa-num">Q096</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q126" data-tags="P-04,人設專章">
+    <div class="qa-head"><span class="qa-num">Q126</span><span class="tag tag-persona">P-04</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【猶豫從眾型】「我比較慢決定，不要逼我。」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 猶豫從眾型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="小步驟">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1319,8 +1624,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q097" data-tags="P-05,人設專章">
-    <div class="qa-head"><span class="qa-num">Q097</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q127" data-tags="P-05,人設專章">
+    <div class="qa-head"><span class="qa-num">Q127</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【深度研究型】「論壇說你們油耗灌水，怎麼證明？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 深度研究型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="論壇質疑">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1329,8 +1634,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q098" data-tags="P-05,人設專章">
-    <div class="qa-head"><span class="qa-num">Q098</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q128" data-tags="P-05,人設專章">
+    <div class="qa-head"><span class="qa-num">Q128</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【深度研究型】「網路評價說競品比較好，你怎麼看？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 深度研究型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="論壇質疑">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1339,8 +1644,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q099" data-tags="P-05,人設專章">
-    <div class="qa-head"><span class="qa-num">Q099</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設專章</span></div>
+  <article class="qa" data-id="Q129" data-tags="P-05,人設專章">
+    <div class="qa-head"><span class="qa-num">Q129</span><span class="tag tag-persona">P-05</span><span class="tag tag-dim">人設專章</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">【深度研究型】「官方數字我不信，有第三方嗎？」</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">針對 深度研究型：<span class="blank" data-answer="先承接">＿＿＿</span> → <span class="blank" data-answer="論壇質疑">＿＿＿</span> → <span class="blank" data-answer="試乘或試算">＿＿＿</span> 具體下一步。</div>
@@ -1350,8 +1655,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
 <h2 id="extra">第七章　地雷題與補充 <span class="count">(5 題)</span></h2><p class="meta">禁止說法反向練習</p>
-  <article class="qa" data-id="Q100" data-tags="地雷,禁止說法">
-    <div class="qa-head"><span class="qa-num">Q100</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
+  <article class="qa" data-id="Q130" data-tags="地雷,禁止說法">
+    <div class="qa-head"><span class="qa-num">Q130</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「RAV4 品質就是比較爛對吧？選我們就對了。」（業代若這樣說，客戶會…）</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">【錯誤】<span class="blank" data-answer="攻擊競品">＿＿＿</span>。正確：<span class="blank" data-answer="比基準與條件">＿＿＿</span>，不比人身。</div>
@@ -1360,8 +1665,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q101" data-tags="地雷,禁止說法">
-    <div class="qa-head"><span class="qa-num">Q101</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
+  <article class="qa" data-id="Q131" data-tags="地雷,禁止說法">
+    <div class="qa-head"><span class="qa-num">Q131</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我保證一定比 RAV4 省油。」（業代若這樣說…）</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">【錯誤】<span class="blank" data-answer="保證一定贏">＿＿＿</span>。正確：<span class="blank" data-answer="WLTC 基準">＿＿＿</span>＋<span class="blank" data-answer="試算">＿＿＿</span>，不保證實際。</div>
@@ -1370,8 +1675,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q102" data-tags="地雷,禁止說法">
-    <div class="qa-head"><span class="qa-num">Q102</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
+  <article class="qa" data-id="Q132" data-tags="地雷,禁止說法">
+    <div class="qa-head"><span class="qa-num">Q132</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「我私下再送您兩萬，別跟別人說。」（業代若這樣說…）</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">【錯誤】<span class="blank" data-answer="未公布折扣">＿＿＿</span>。正確：<span class="blank" data-answer="總部當月方案">＿＿＿</span> 透明說明。</div>
@@ -1380,8 +1685,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q103" data-tags="地雷,禁止說法">
-    <div class="qa-head"><span class="qa-num">Q103</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
+  <article class="qa" data-id="Q133" data-tags="地雷,禁止說法">
+    <div class="qa-head"><span class="qa-num">Q133</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「你怎麼會去看那台車？」（業代若這樣說…）</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">【錯誤】<span class="blank" data-answer="貶低客戶選擇">＿＿＿</span>。正確：<span class="blank" data-answer="認可比較動機">＿＿＿</span>。</div>
@@ -1390,8 +1695,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
     </div>
     <div class="qa-actions"><button type="button" class="btn toggle-full">顯示詳解</button></div>
   </article>
-  <article class="qa" data-id="Q104" data-tags="地雷,禁止說法">
-    <div class="qa-head"><span class="qa-num">Q104</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
+  <article class="qa" data-id="Q134" data-tags="地雷,禁止說法">
+    <div class="qa-head"><span class="qa-num">Q134</span><span class="tag tag-dim">地雷</span><span class="tag tag-dim">禁止說法</span></div>
     <div class="qa-body">
       <p class="label label-q">客戶問</p><div class="block-q">「大概一年差一萬啦，差不多啦。」（沒有試算…）</div>
       <p class="label label-a">挖空版回答</p><div class="block-a-blank">【錯誤】<span class="blank" data-answer="憑空數字">＿＿＿</span>。正確：<span class="blank" data-answer="年里程×油價÷油耗">＿＿＿</span> 當場算。</div>

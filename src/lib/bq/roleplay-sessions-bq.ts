@@ -1,10 +1,17 @@
 import { getBigQueryClient, getBigQueryScriptDrillsConfig } from "@/lib/bq/script-drills-insert";
 import type { RoleplayDrillDifficulty, RoleplaySessionConfig } from "@/lib/roleplay/scenario-contract";
 import type { RoleplayHistoryItem } from "@/lib/roleplay/roleplay-types-api";
+import { inferCorrectionCategory, normalizeCorrectionPoint } from "@/lib/roleplay/engine/correction-builder";
 import { archiveFinishedSession } from "@/lib/roleplay/engine/session-store";
+import { coalesceAdjacentAgentTurns } from "@/lib/roleplay/engine/turn-coalesce";
 import { ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
 import { ROLEPLAY_DIFFICULTIES } from "@/lib/roleplay/catalog";
-import type { RoleplayChatTurn, RoleplaySession, RoleplayScoreResult } from "@/lib/roleplay/session-types";
+import type {
+  RoleplayChatTurn,
+  RoleplayCorrectionPoint,
+  RoleplaySession,
+  RoleplayScoreResult,
+} from "@/lib/roleplay/session-types";
 
 export type RoleplaySessionStatus = "STARTED" | "COMPLETED";
 
@@ -40,6 +47,7 @@ export type RoleplayCompletedDetail = RoleplaySessionRecord & {
   scoreClosing: number | null;
   summary: string;
   improvementTips: string[];
+  correctionPoints: RoleplayCorrectionPoint[];
   unusedStrategies: string[];
   /** 情境佐證事實（來自 report_json 或 demo 補齊） */
   scenarioFacts?: { label: string; value: string }[];
@@ -110,7 +118,7 @@ function sessionDimensions(session: RoleplaySession): {
 }
 
 export function formatRoleplayTranscript(turns: RoleplayChatTurn[]): string {
-  return turns
+  return coalesceAdjacentAgentTurns(turns)
     .map((t) => {
       const who = t.role === "customer" ? "客戶" : "業代";
       return `[${t.at}] ${who}：${t.content}`;
@@ -126,6 +134,13 @@ function buildReportJson(
     summary: result.summary,
     dimensions: result.dimensions,
     improvementTips: result.improvementTips,
+    correctionPoints: (result.correctionPoints ?? []).map((p) => ({
+      issue: p.issue,
+      category: p.category,
+      customerAsk: p.customerAsk,
+      whatYouSaid: p.whatYouSaid,
+      correctGuide: p.correctGuide,
+    })),
     unusedStrategies: result.unusedStrategies,
     gradeLabel: result.gradeLabel,
     advice: result.advice,
@@ -152,6 +167,13 @@ function scoreColumnMap(result: RoleplayScoreResult): Record<string, number | nu
 function parseReportJson(raw: string | null | undefined): {
   summary: string;
   improvementTips: string[];
+  correctionPoints: {
+    issue: string;
+    category?: string;
+    customerAsk?: string;
+    whatYouSaid?: string;
+    correctGuide: string;
+  }[];
   unusedStrategies: string[];
   scenarioFacts: { label: string; value: string }[];
   dimensions: { dimensionId: string; label: string; score: number; comment: string }[];
@@ -160,6 +182,7 @@ function parseReportJson(raw: string | null | undefined): {
     return {
       summary: "",
       improvementTips: [],
+      correctionPoints: [],
       unusedStrategies: [],
       scenarioFacts: [],
       dimensions: [],
@@ -169,13 +192,37 @@ function parseReportJson(raw: string | null | undefined): {
     const j = JSON.parse(raw) as {
       summary?: string;
       improvementTips?: string[];
+      correctionPoints?: {
+        issue?: string;
+        category?: string;
+        customerAsk?: string;
+        whatYouSaid?: string;
+        correctGuide?: string;
+      }[];
       unusedStrategies?: string[];
       scenarioFacts?: { label?: string; value?: string }[];
       dimensions?: { dimensionId?: string; label?: string; score?: number; comment?: string }[];
     };
+    const correctionPoints = Array.isArray(j.correctionPoints)
+      ? j.correctionPoints
+          .map((c) =>
+            normalizeCorrectionPoint({
+              issue: String(c.issue ?? "").trim(),
+              category:
+                c.category === "fact" || c.category === "strategy"
+                  ? c.category
+                  : inferCorrectionCategory(String(c.issue ?? "")),
+              customerAsk: String(c.customerAsk ?? "").trim() || undefined,
+              whatYouSaid: String(c.whatYouSaid ?? "").trim() || undefined,
+              correctGuide: String(c.correctGuide ?? "").trim(),
+            }),
+          )
+          .filter((c) => c.issue && c.correctGuide)
+      : [];
     return {
       summary: String(j.summary ?? "").trim(),
       improvementTips: Array.isArray(j.improvementTips) ? j.improvementTips.map(String) : [],
+      correctionPoints,
       unusedStrategies: Array.isArray(j.unusedStrategies) ? j.unusedStrategies.map(String) : [],
       scenarioFacts: Array.isArray(j.scenarioFacts)
         ? j.scenarioFacts
@@ -196,6 +243,7 @@ function parseReportJson(raw: string | null | undefined): {
     return {
       summary: "",
       improvementTips: [],
+      correctionPoints: [],
       unusedStrategies: [],
       scenarioFacts: [],
       dimensions: [],
@@ -247,7 +295,11 @@ function rowToCompletedDetail(r: Record<string, unknown>): RoleplayCompletedDeta
     scoreClosing: r.scoreClosing != null ? Number(r.scoreClosing) : null,
     summary: report.summary,
     improvementTips: report.improvementTips,
-    unusedStrategies: report.unusedStrategies,
+    correctionPoints: report.correctionPoints,
+    unusedStrategies:
+      report.unusedStrategies.length > 0
+        ? report.unusedStrategies
+        : report.correctionPoints.map((c) => c.issue),
     scenarioFacts: report.scenarioFacts,
     factCheckComment:
       report.dimensions.find((d) => d.dimensionId === "factCheck")?.comment ?? "",
@@ -300,6 +352,7 @@ export function completedDetailToHistoryItem(d: RoleplayCompletedDetail): Rolepl
     summary: completed ? d.summary : "",
     dimensions: completed ? dimensionsFromDetail(d) : [],
     improvementTips: completed ? d.improvementTips : [],
+    correctionPoints: completed ? d.correctionPoints : [],
     unusedStrategies: completed ? d.unusedStrategies : [],
   };
 }

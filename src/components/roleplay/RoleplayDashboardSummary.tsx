@@ -105,10 +105,10 @@ export function RoleplayDashboardSummary({
           }
         />
         <SummaryRow label="進步趨勢" line={briefing.trendLine} />
-        <SummaryRow label="建議" line={briefing.adviceLine} />
-        {(briefing.knowledgeLines?.length ?? 0) > 0 ? (
-          <div className="border-b border-emerald-50 py-2.5 last:border-0">
-            <p className="text-xs font-semibold text-emerald-900">記憶重點</p>
+        <SummaryRow label="建議" line={briefing.adviceLine?.trim() || "無"} />
+        <div className="border-b border-emerald-50 py-2.5 last:border-0">
+          <p className="text-xs font-semibold text-emerald-900">記憶重點</p>
+          {(briefing.knowledgeLines?.length ?? 0) > 0 ? (
             <ul className="mt-1 space-y-1">
               {briefing.knowledgeLines!.map((line) => (
                 <li
@@ -120,8 +120,10 @@ export function RoleplayDashboardSummary({
                 </li>
               ))}
             </ul>
-          </div>
-        ) : null}
+          ) : (
+            <p className="mt-0.5 text-sm text-emerald-800">無</p>
+          )}
+        </div>
       </div>
     </section>
   );

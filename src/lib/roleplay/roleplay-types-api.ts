@@ -1,5 +1,5 @@
 import type { RoleplayDrillDifficulty } from "@/lib/roleplay/scenario-contract";
-import type { RoleplayDimensionScore } from "@/lib/roleplay/session-types";
+import type { RoleplayCorrectionPoint, RoleplayDimensionScore } from "@/lib/roleplay/session-types";
 
 export type RoleplayDimensionAverages = {
   empathy: number | null;
@@ -34,6 +34,7 @@ export type RoleplayHistoryItem = {
   summary: string;
   dimensions: RoleplayDimensionScore[];
   improvementTips: string[];
+  correctionPoints: RoleplayCorrectionPoint[];
   unusedStrategies: string[];
 };
 
@@ -78,4 +79,8 @@ export type RoleplayDashboardStats = {
   }[];
   /** 供小結 LLM 使用的待記憶知識點原文（首頁不直接顯示） */
   knowledgeReminders?: string[];
+  /** 近五場「資訊對錯」彙整的記憶重點（規則產出） */
+  factMemoryLines?: string[];
+  /** 近五場「銷售策略」彙整的建議；無則「無」 */
+  strategyAdviceFromCorrections?: string;
 };

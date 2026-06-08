@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { RoleplayCorrectionsPanel } from "@/components/roleplay/RoleplayCorrectionsPanel";
 import { RoleplayRadarChart } from "@/components/roleplay/RoleplayRadarChart";
 import type { RoleplayHistoryItem } from "@/lib/roleplay/roleplay-types-api";
 
@@ -121,27 +122,9 @@ export function RoleplayHistoryList({ items }: { items: RoleplayHistoryItem[] })
                         </div>
                       ) : null}
 
-                      {item.improvementTips.length > 0 ? (
-                        <div className="mt-3">
-                          <p className="text-xs font-semibold text-amber-950">改善方向</p>
-                          <ul className="mt-1 list-disc space-y-1 pl-4 text-sm text-amber-900">
-                            {item.improvementTips.map((t, i) => (
-                              <li key={i}>{t}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      ) : null}
-
-                      {item.unusedStrategies.length > 0 ? (
-                        <div className="mt-3">
-                          <p className="text-xs font-semibold text-emerald-950">
-                            可再運用的策略
-                          </p>
-                          <ul className="mt-1 list-disc space-y-1 pl-4 text-sm text-emerald-800">
-                            {item.unusedStrategies.map((t, i) => (
-                              <li key={i}>{t}</li>
-                            ))}
-                          </ul>
+                      {item.correctionPoints?.length > 0 ? (
+                        <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50/40 p-3">
+                          <RoleplayCorrectionsPanel points={item.correctionPoints} compact />
                         </div>
                       ) : null}
                     </>

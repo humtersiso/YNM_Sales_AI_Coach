@@ -36,6 +36,9 @@ function PracticeContent() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  /** 本場對話已結束（最後一則業代回覆已送出），等待使用者按結束評分 */
+  const [sessionEnded, setSessionEnded] = useState(false);
   // 業代先發模式：等業代打招呼後才顯示 AI 客戶第一句
   const [waitingForAgent, setWaitingForAgent] = useState(false);
 
@@ -88,7 +91,7 @@ function PracticeContent() {
             router.replace(`/roleplay/result?sessionId=${encodeURIComponent(urlSessionId)}`);
             return;
           }
-          if (data.status === "active" && data.messages?.length) {
+          if (data.status === "active") {
             applyBootstrap(data);
             sessionStorage.removeItem(`roleplay-boot-${urlSessionId}`);
             setReady(true);
@@ -139,9 +142,10 @@ function PracticeContent() {
   async function send(e: React.FormEvent) {
     e.preventDefault();
     const text = input.trim();
-    if (!text || busy || !sessionId || turn >= maxTurns) return;
+    if (!text || busy || !sessionId || sessionEnded || turn >= maxTurns) return;
     setInput("");
     setError("");
+    setNotice("");
     const agentId = newId();
     const isFirstAgentTurn = waitingForAgent;
 
@@ -177,7 +181,8 @@ function PracticeContent() {
         ),
       );
       if (data.shouldFinish) {
-        setError(`已完成 ${maxTurns} 輪，請點「結束評分」`);
+        setSessionEnded(true);
+        setNotice(`您已完成本場 ${maxTurns} 輪回覆，請點「結束評分」查看修正點與建議。`);
       }
     } catch {
       setError("連線失敗");
@@ -238,8 +243,10 @@ function PracticeContent() {
       onSend={(e) => void send(e)}
       onFinish={() => void finish()}
       busy={busy}
-      canFinish={turn >= 1 && !waitingForAgent}
+      canFinish={(turn >= 1 && !waitingForAgent) || sessionEnded}
       error={error}
+      notice={notice}
+      sessionEnded={sessionEnded}
       waitingForAgent={waitingForAgent}
     />
   );

@@ -1,3 +1,4 @@
+import { RoleplayCorrectionsPanel } from "@/components/roleplay/RoleplayCorrectionsPanel";
 import { RoleplayRadarChart } from "@/components/roleplay/RoleplayRadarChart";
 import type { RoleplayScoreResult } from "@/lib/roleplay/session-types";
 
@@ -48,14 +49,9 @@ export function RoleplayScoreCard({
 
       <RoleplayRadarChart dimensions={scoreResult.dimensions} />
 
-      {scoreResult.improvementTips.length > 0 ? (
-        <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-4">
-          <p className="text-sm font-semibold text-orange-950">最需改進</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-orange-900">
-            {scoreResult.improvementTips.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
+      {(scoreResult.correctionPoints?.length ?? 0) > 0 ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+          <RoleplayCorrectionsPanel points={scoreResult.correctionPoints ?? []} />
         </div>
       ) : null}
 
@@ -75,17 +71,6 @@ export function RoleplayScoreCard({
           ))}
         </ul>
       </div>
-
-      {scoreResult.unusedStrategies.length > 0 ? (
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-          <p className="text-sm font-semibold text-zinc-800">未充分使用的策略</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-zinc-600">
-            {scoreResult.unusedStrategies.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
     </div>
   );
 }

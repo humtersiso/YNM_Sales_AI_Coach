@@ -15,7 +15,7 @@ export async function GET(
   }
 
   const { id } = await context.params;
-  const bootstrap = getRoleplayPracticeBootstrap(id, user.userId);
+  const bootstrap = await getRoleplayPracticeBootstrap(id, user.userId);
   if (!bootstrap) {
     return NextResponse.json({ error: "找不到場次或已過期" }, { status: 404 });
   }

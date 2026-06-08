@@ -5,10 +5,14 @@ import {
 } from "@/lib/roleplay/engine/customer-agent";
 import {
   composeScenarioFromConfig,
+  enrichDemoScenarioWithRag,
   parseSessionConfig,
   randomRoleplayConfig,
 } from "@/lib/roleplay/engine/scenario-composer";
-import { scoreRoleplaySession } from "@/lib/roleplay/engine/scoring-agent";
+import {
+  enrichScoreResult,
+  scoreRoleplaySession,
+} from "@/lib/roleplay/engine/scoring-agent";
 import {
   createSessionId,
   getSession,
@@ -31,6 +35,8 @@ import {
 } from "@/lib/roleplay/stats-service";
 import { refreshAgentDashboardBriefing } from "@/lib/roleplay/agent-dashboard-briefing-service";
 import { isRoleplayAdminTestUser } from "@/lib/roleplay/roleplay-admin";
+import { RoleplayRagCoverageError } from "@/lib/roleplay/rag-context";
+import type { RoleplayRagCoverage } from "@/lib/roleplay/rag-context";
 
 export class RoleplaySessionError extends Error {
   constructor(
@@ -41,10 +47,21 @@ export class RoleplaySessionError extends Error {
   }
 }
 
+function buildCoachMaterials(scenario: RoleplaySession["scenario"], ragCoverage?: RoleplayRagCoverage) {
+  return {
+    facts: scenario.sectionC.facts,
+    keyPoints: scenario.sectionD.keyPoints,
+    forbidden: scenario.sectionD.forbidden,
+    sourceTitles: ragCoverage?.sourceTitles ?? [],
+    strategyIds: ragCoverage?.strategyIds ?? [],
+  };
+}
+
 async function createSessionFromScenario(input: {
   scenario: RoleplaySession["scenario"];
   config?: RoleplaySessionConfig;
   user: SessionUser;
+  ragCoverage?: RoleplayRagCoverage;
 }): Promise<{
   sessionId: string;
   customerMessage: string;
@@ -52,14 +69,15 @@ async function createSessionFromScenario(input: {
   turn: number;
   scenarioTitle: string;
   config: RoleplaySessionConfig | null;
-  /** 業代先發模式：前端不立即顯示客戶開場，等業代打招呼後才顯示 */
   agentSpeaksFirst: boolean;
+  coachMaterials: ReturnType<typeof buildCoachMaterials>;
+  ragCoverage?: RoleplayRagCoverage;
 }> {
   const personaId = input.config?.personaId ?? input.scenario.sectionE.personaId;
   const persona = resolvePersona(personaId);
   const isDemo = input.scenario.scenarioId.startsWith("KB-T33");
   const opening = await generateCustomerOpening(input.scenario, persona, {
-    useLlm: isDemo,
+    useLlm: false,
   });
   const now = new Date().toISOString();
 
@@ -79,6 +97,7 @@ async function createSessionFromScenario(input: {
     status: "active",
     startedAt: now,
     followUpIndex: 0,
+    ragCoverage: input.ragCoverage,
   };
 
   saveSession(session);
@@ -98,6 +117,8 @@ async function createSessionFromScenario(input: {
     scenarioTitle: session.scenario.sectionA.title,
     config: input.config ?? null,
     agentSpeaksFirst: true,
+    coachMaterials: buildCoachMaterials(input.scenario, input.ragCoverage),
+    ragCoverage: input.ragCoverage,
   };
 }
 
@@ -107,14 +128,19 @@ export async function startRoleplaySession(input: {
   personaId?: string;
   user: SessionUser;
 }) {
-  const scenario = getRoleplayScenario(input.scenarioId);
+  let scenario = getRoleplayScenario(input.scenarioId);
   if (!scenario) throw new RoleplaySessionError("找不到情境", 404);
 
   if (input.personaId) {
-    scenario.sectionE.personaId = input.personaId;
+    scenario = { ...scenario, sectionE: { ...scenario.sectionE, personaId: input.personaId } };
   }
 
-  return createSessionFromScenario({ scenario, user: input.user });
+  const enriched = await enrichDemoScenarioWithRag(scenario);
+  return createSessionFromScenario({
+    scenario: enriched.scenario,
+    user: input.user,
+    ragCoverage: enriched.ragCoverage ?? undefined,
+  });
 }
 
 /** 動態情境：用戶設定或隨機 */
@@ -136,8 +162,15 @@ export async function startRoleplaySessionWithConfig(input: {
     );
   }
 
-  const scenario = await composeScenarioFromConfig(config);
-  return createSessionFromScenario({ scenario, config, user: input.user });
+  try {
+    const { scenario, ragCoverage } = await composeScenarioFromConfig(config);
+    return createSessionFromScenario({ scenario, config, user: input.user, ragCoverage });
+  } catch (e) {
+    if (e instanceof RoleplayRagCoverageError) {
+      throw new RoleplaySessionError(e.message, 400);
+    }
+    throw e;
+  }
 }
 
 export async function submitRoleplayTurn(input: {
@@ -166,7 +199,6 @@ export async function submitRoleplayTurn(input: {
   session.turns.push({ role: "agent", content: text, at: now });
   session.agentTurnCount += 1;
 
-  // 業代先發：第一輪 /turn 回傳已生成的客戶開場，不重複呼叫 LLM
   const opening = session.turns[0];
   if (
     session.agentTurnCount === 1 &&
@@ -219,10 +251,14 @@ export async function finishRoleplaySession(sessionId: string): Promise<{
     throw new RoleplaySessionError("請至少回覆一輪再結束評分", 400);
   }
 
-  let scoreResult = await scoreRoleplaySession({
-    scenario: session.scenario,
-    turns: session.turns,
-  });
+  let scoreResult = await enrichScoreResult(
+    session.scenario,
+    session.turns,
+    await scoreRoleplaySession({
+      scenario: session.scenario,
+      turns: session.turns,
+    }),
+  );
 
   scoreResult = await attachScoreHistory(session.userId, scoreResult, session.sessionId);
 
@@ -265,7 +301,7 @@ export function getRoleplaySessionForUser(
 }
 
 /** 演練頁還原進行中場次（避免 sessionStorage 被 Strict Mode 清掉） */
-export function getRoleplayPracticeBootstrap(sessionId: string, userId: string) {
+export async function getRoleplayPracticeBootstrap(sessionId: string, userId: string) {
   const session = getRoleplaySessionForUser(sessionId, userId);
   if (!session) return null;
 
@@ -284,7 +320,11 @@ export function getRoleplayPracticeBootstrap(sessionId: string, userId: string) 
       role: t.role as "customer" | "agent",
       content: t.content,
     })),
-    scoreResult: session.scoreResult ?? null,
+    scoreResult: session.scoreResult
+      ? await enrichScoreResult(session.scenario, session.turns, session.scoreResult)
+      : null,
+    coachMaterials: buildCoachMaterials(session.scenario, session.ragCoverage),
+    ragCoverage: session.ragCoverage ?? null,
   };
 }
 

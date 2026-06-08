@@ -28,6 +28,7 @@ export const ROLEPLAY_COMPETITORS_XTRAIL = [
   "Honda CR-V",
   "Hyundai Tucson L",
   "Mitsubishi Outlander",
+  "KIA Sportage",
 ] as const;
 
 export function getRoleplayConfigOptions() {

@@ -79,6 +79,10 @@ async function main() {
     throw new Error("開局回應缺少 sessionId 或 customerMessage");
   }
   console.log(`✓ 開局 session=${start.sessionId}`);
+  if (!start.coachMaterials?.facts || start.coachMaterials.facts.length < 2) {
+    throw new Error(`RAG gate：需至少 2 條佐證，實際 ${start.coachMaterials?.facts?.length ?? 0}`);
+  }
+  console.log(`✓ RAG 佐證 ${start.coachMaterials.facts.length} 條`);
 
   const { res: getRes, data: boot } = await api(
     cookie,

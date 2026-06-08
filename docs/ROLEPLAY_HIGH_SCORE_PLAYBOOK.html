@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>對練助手 · 高分教戰手則（RAG 優先版）</title>
+<style>
+:root{--bg:#f8faf9;--card:#fff;--border:#d1e7dd;--text:#064e3b;--muted:#3d6b5c;--accent:#0d9488;--accent-light:#ecfdf5;--warn:#b45309;--warn-bg:#fffbeb}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:15px;width:100%;min-height:100vh}
+.wrap{width:100%;max-width:100%;margin:0;padding:1rem clamp(1rem,2.5vw,2rem) 3rem}
+header{margin-bottom:1rem}
+h1{font-size:clamp(1.25rem,2.5vw,1.55rem);margin:0 0 .35rem;line-height:1.35}
+.meta{color:var(--muted);font-size:.88rem;margin:.25rem 0}
+.meta a{color:var(--accent)}
+.toolbar{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0;position:sticky;top:0;z-index:20;background:var(--bg);padding:.65rem 0;border-bottom:1px solid var(--border);width:100%}
+.btn{border:1px solid var(--border);background:var(--card);padding:.4rem .85rem;border-radius:8px;font-size:.85rem;cursor:pointer;font-family:inherit;text-decoration:none;color:var(--text);display:inline-block}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.filter-bar{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem;width:100%}
+.filter-btn{font-size:.75rem;padding:.22rem .55rem;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-family:inherit}
+.filter-btn.active{background:#d1fae5;border-color:#10b981}
+.layout{display:grid;grid-template-columns:minmax(200px,280px) minmax(0,1fr);gap:clamp(.75rem,2vw,1.5rem);align-items:start;width:100%}
+@media(max-width:800px){.layout{grid-template-columns:1fr}}
+.toc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem;position:sticky;top:4.5rem;max-height:calc(100vh - 5.5rem);overflow:auto;font-size:.82rem;width:100%}
+.toc h2{font-size:.95rem;margin:0 0 .5rem;color:var(--accent)}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li{margin:.25rem 0}
+.toc li.toc-sub{padding-left:.85rem}
+.toc a{color:var(--muted);text-decoration:none}
+.toc a:hover{color:var(--accent)}
+.content{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:clamp(1rem,2vw,1.5rem) clamp(1rem,2.5vw,2rem) 2rem;width:100%;min-width:0}
+.content h2{font-size:1.15rem;margin:2rem 0 .75rem;padding:.45rem .65rem;background:linear-gradient(90deg,#d1fae5,transparent);border-left:4px solid var(--accent);scroll-margin-top:5rem}
+.content h2:first-child{margin-top:0}
+.content h3{font-size:1rem;margin:1.5rem 0 .5rem;color:#047857;scroll-margin-top:5rem}
+.content blockquote{margin:.75rem 0;padding:.65rem 1rem;border-left:4px solid var(--accent);background:var(--accent-light);border-radius:0 8px 8px 0;color:#065f46}
+.content pre{background:#1e293b;color:#e2e8f0;padding:.85rem 1rem;border-radius:8px;overflow:auto;font-size:.85rem;line-height:1.5}
+.content code{font-family:Consolas,monospace;font-size:.88em;background:#ecfdf5;padding:.1rem .35rem;border-radius:4px}
+.content pre code{background:none;padding:0;color:inherit}
+.content table{width:100%;border-collapse:collapse;font-size:.88rem;margin:.75rem 0 1rem}
+.content th,.content td{border:1px solid var(--border);padding:.45rem .55rem;text-align:left;vertical-align:top}
+.content th{background:var(--accent-light);font-weight:600}
+.content ul,.content ol{padding-left:1.35rem;margin:.5rem 0 1rem}
+.content li{margin:.25rem 0}
+.content hr{border:none;border-top:1px dashed var(--border);margin:1.5rem 0}
+.content p{margin:.65rem 0}
+.content strong{color:#065f46}
+.content .section-hidden{display:none}
+.highlight-warn{background:var(--warn-bg);border:1px solid #fcd34d;border-radius:8px;padding:.65rem .85rem;margin:.75rem 0;font-size:.9rem}
+footer{margin-top:1.5rem;font-size:.8rem;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>對練助手 · 高分教戰手則（RAG 優先版）</h1>
+<p class="meta">產生日期：2026-06-08 · 來源 <code>docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.md</code></p>
+<p class="meta">相關：<a href="ROLEPLAY_RAG_QA_DRILL.html">RAG QA 詳解</a> · <a href="ROLEPLAY_RAG_COVERAGE_AUDIT.html">RAG 覆蓋率稽核</a></p>
+</header>
+<div class="toolbar">
+<button type="button" class="btn btn-primary" id="scrollTop">回到頂部</button>
+<a class="btn" href="/sales" target="_blank" rel="noopener">開啟銷售助手</a>
+<a class="btn" href="/roleplay/setup" target="_blank" rel="noopener">對練設定</a>
+</div>
+<div class="filter-bar" id="filterBar">
+<button type="button" class="filter-btn active" data-filter="all">全部</button>
+<button type="button" class="filter-btn" data-filter="RAV4">RAV4</button>
+<button type="button" class="filter-btn" data-filter="CR-V">CR-V</button>
+<button type="button" class="filter-btn" data-filter="Tucson">Tucson</button>
+<button type="button" class="filter-btn" data-filter="Outlander">Outlander</button>
+<button type="button" class="filter-btn" data-filter="Sportage">Sportage</button>
+<button type="button" class="filter-btn" data-filter="人設">人設</button>
+<button type="button" class="filter-btn" data-filter="地雷">地雷</button>
+</div>
+<div class="layout">
+<nav class="toc" aria-label="目錄">
+<h2>目錄</h2>
+<ul><li class=""><a href="#一-建議學習流程">一、建議學習流程</a></li>
+<li class=""><a href="#二-評分怎麼算">二、評分怎麼算</a></li>
+<li class=""><a href="#三-五維拿分公式">三、五維拿分公式</a></li>
+<li class=" toc-sub"><a href="#1-同理承接-empathy">1. 同理承接（empathy）</a></li>
+<li class=" toc-sub"><a href="#2-論點完整度-structure">2. 論點完整度（structure）</a></li>
+<li class=" toc-sub"><a href="#3-事實引用正確-factcheck">3. 事實引用正確（factCheck）</a></li>
+<li class=" toc-sub"><a href="#4-策略使用-strategy">4. 策略使用（strategy）</a></li>
+<li class=" toc-sub"><a href="#5-推進成交-advance">5. 推進成交（advance）</a></li>
+<li class=""><a href="#四-五輪對話節奏-預設-5-輪">四、五輪對話節奏（預設 5 輪）</a></li>
+<li class=""><a href="#五-依人設調整-p-01-p-05">五、依人設調整（P-01～P-05）</a></li>
+<li class=""><a href="#六-禁止說法-地雷">六、禁止說法（地雷）</a></li>
+<li class=""><a href="#七-開練前-60-秒檢查清單">七、開練前 60 秒檢查清單</a></li>
+<li class=""><a href="#八-完賽後自我檢核">八、完賽後自我檢核</a></li>
+<li class=""><a href="#九-分數目標">九、分數目標</a></li>
+<li class=""><a href="#十-依競品預習-rag-實測摘要">十、依競品預習（RAG 實測摘要）</a></li>
+<li class=" toc-sub"><a href="#toyota-rav4-來源-rav4-x-trail-vs-rav4改款_20260327-pdf">Toyota RAV4（來源：`RAV4 X-TRAIL VS RAV4改款_20260327.pdf`）</a></li>
+<li class=" toc-sub"><a href="#honda-cr-v-rag-常混雜-sportage-對戰語料">Honda CR-V（RAG 常混雜 Sportage 對戰語料）</a></li>
+<li class=" toc-sub"><a href="#hyundai-tucson-l-來源-tucson-l-小改款對應話術_20250410_v4-pdf-等">Hyundai Tucson L（來源：`TUCSON L 小改款對應話術_20250410_V4.pdf` 等）</a></li>
+<li class=" toc-sub"><a href="#mitsubishi-outlander-rag-專章較少-常命中-sportage-territory-語料">Mitsubishi Outlander（RAG 專章較少，常命中 Sportage／Territory 語料）</a></li>
+<li class=" toc-sub"><a href="#kia-sportage-來源-sportage-x-trail-對戰-sportage-對戰話術策略_260508-pdf">KIA Sportage（來源：`SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略_260508.pdf`）</a></li>
+<li class=" toc-sub"><a href="#競品預習速查">競品預習速查</a></li>
+<li class=""><a href="#附錄-系統行為-rag-優先">附錄：系統行為（RAG 優先）</a></li></ul>
+</nav>
+<main class="content" id="mainContent"><blockquote>
+<p>對練的<strong>事實、追問、評分</strong>皆來自當次 <strong>Vertex RAG 檢索</strong>（與銷售助手同一批訓練素材）。<br>語料庫沒有的議題，客戶不會問、評分也不會要求。</p>
+</blockquote>
+<hr>
+<h2 id="一-建議學習流程">一、建議學習流程</h2>
+<pre><code>銷售助手查 RAG 預習 → 設定車型／競品／人設 → 對練（閉卷，畫面不顯示佐證）→ 五維評分
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步驟</th>
+<th>做什麼</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. 銷售助手</td>
+<td>查詢本場競品相關知識（油耗、配備、對戰話術等）</td>
+</tr>
+<tr>
+<td>2. 情境設定</td>
+<td>選車型、競品、人設、難度；RAG 不足時無法開局</td>
+</tr>
+<tr>
+<td>3. 演練中</td>
+<td>像真實展間對話回應客戶；<strong>畫面不顯示佐證</strong>，評分在背後依知識庫對照</td>
+</tr>
+<tr>
+<td>4. 完賽</td>
+<td>對照五維圖與「未使用策略」再練</td>
+</tr>
+</tbody></table>
+<p>覆蓋率稽核：<code>npm run audit:roleplay-rag</code> → 報告見 <code>docs/ROLEPLAY_RAG_COVERAGE_AUDIT.html</code><br>HTML 版攻略：<code>npm run docs:roleplay-playbook</code> → <code>docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.html</code><br>本文件競品章節依 <code>npm run dump:roleplay-rag</code>（<code>data/roleplay-rag-playbook-snapshot.json</code>）實測更新。</p>
+<hr>
+<h2 id="二-評分怎麼算">二、評分怎麼算</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>總分</td>
+<td>五維各 0～20，加總 0～100</td>
+</tr>
+<tr>
+<td>等級</td>
+<td>S ≥90、A 80–89、B 70–79、C 60–69、D &lt;60</td>
+</tr>
+<tr>
+<td>事實依據</td>
+<td><strong>僅</strong>本場 <code>sectionC</code> RAG 佐證</td>
+</tr>
+<tr>
+<td>factCheck</td>
+<td>客戶問到且業代與佐證矛盾才重扣；未問的不扣</td>
+</tr>
+<tr>
+<td>常見扣分</td>
+<td>空泛話術、未用策略、沒有試乘／試算邀約</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="三-五維拿分公式">三、五維拿分公式</h2>
+<h3 id="1-同理承接-empathy">1. 同理承接（empathy）</h3>
+<p>先接住客戶情緒與動機，再進入說明。</p>
+<blockquote>
+<p>「我理解您會擔心 ___，這也是比 ___ 時常先問的。」</p>
+</blockquote>
+<h3 id="2-論點完整度-structure">2. 論點完整度（structure）</h3>
+<p>每輪建議四段式（2～4 句內）：</p>
+<pre><code>承接疑慮 → 本場 RAG 事實／基準 → 本品差異 → 試乘或試算邀約
+</code></pre>
+<h3 id="3-事實引用正確-factcheck">3. 事實引用正確（factCheck）</h3>
+<ul>
+<li>數字、條件須與<strong>銷售助手／知識庫</strong>一致（完賽評語會指出落差）</li>
+<li>不確定優惠：「依本月總部方案為準」</li>
+<li><strong>勿</strong>引用佐證沒有的引擎、保養金額、競品數字</li>
+</ul>
+<h3 id="4-策略使用-strategy">4. 策略使用（strategy）</h3>
+<p>依本場「回應重點」（來自 RAG snippet）落地，每 1～2 輪至少用一條。</p>
+<h3 id="5-推進成交-advance">5. 推進成交（advance）</h3>
+<p>給具體下一步：試乘時段、油耗試算表、二訪、保留名額。</p>
+<hr>
+<h2 id="四-五輪對話節奏-預設-5-輪">四、五輪對話節奏（預設 5 輪）</h2>
+<table>
+<thead>
+<tr>
+<th>輪次</th>
+<th>業代目標</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R1</td>
+<td>同理 + 確認關注重點（對齊 RAG 第一條佐證）</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>引用佐證事實 + 基準／試算</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>本品差異（不攻擊競品）</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>補強客戶仍猶豫的維度</td>
+</tr>
+<tr>
+<td>R5</td>
+<td><strong>明確下一步</strong>（試乘／試算／二訪）</td>
+</tr>
+</tbody></table>
+<p>3 輪練習：承接 → 事實試算 → 試乘邀約。</p>
+<hr>
+<h2 id="五-依人設調整-p-01-p-05">五、依人設調整（P-01～P-05）</h2>
+<table>
+<thead>
+<tr>
+<th>人設</th>
+<th>高分打法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P-01 理性分析</td>
+<td>基準、公式、試算；少形容詞</td>
+</tr>
+<tr>
+<td>P-02 情感品牌</td>
+<td>試乘體感、服務；數字簡短</td>
+</tr>
+<tr>
+<td>P-03 預算敏感</td>
+<td>方案透明 + 總持有成本試算</td>
+</tr>
+<tr>
+<td>P-04 猶豫從眾</td>
+<td>小步驟決策（先試算、先試乘）</td>
+</tr>
+<tr>
+<td>P-05 深度研究</td>
+<td>說明來源與測試條件；不瞎掰；<strong>每輪結尾給可驗證下一步</strong>（試駕路線、試算表、TNCAP 簡報）</td>
+</tr>
+</tbody></table>
+<p><strong>P-05 × Tucson L 實測提醒</strong>：factCheck 常達標，但 empathy／advance 易偏低（總分可能卡在 60 以下）。  </p>
+<ul>
+<li>同理：先承認「網路比較表很多、數字各說各話」，再說「我們用同一套試算表跟您對一次」。  </li>
+<li>推進：不要只丟規格，要給<strong>具體時間</strong>（「週六 10 點試 30 分鐘市區＋快速道路，順便帶保養試算表」）。</li>
+</ul>
+<hr>
+<h2 id="六-禁止說法-地雷">六、禁止說法（地雷）</h2>
+<ul>
+<li>攻擊競品品質</li>
+<li>保證一定比競品省油</li>
+<li>未查證的數字或論壇謠言</li>
+<li>承諾未公布折扣</li>
+<li>貶低客戶選擇</li>
+</ul>
+<hr>
+<h2 id="七-開練前-60-秒檢查清單">七、開練前 60 秒檢查清單</h2>
+<ul>
+<li><input disabled="" type="checkbox"> 已在銷售助手預習本場競品</li>
+<li><input disabled="" type="checkbox"> 知道客戶人設與難度</li>
+<li><input disabled="" type="checkbox"> 心裡記住銷售助手查過的重點（練習畫面不會顯示答案）</li>
+<li><input disabled="" type="checkbox"> 準備一個試算或試乘的具體說法</li>
+</ul>
+<hr>
+<h2 id="八-完賽後自我檢核">八、完賽後自我檢核</h2>
+<table>
+<thead>
+<tr>
+<th>維度</th>
+<th>自問</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>同理</td>
+<td>第一輪有先認同疑慮嗎？</td>
+</tr>
+<tr>
+<td>完整</td>
+<td>每輪有承接→事實→價值→引導嗎？</td>
+</tr>
+<tr>
+<td>事實</td>
+<td>數字能否對上<strong>本場</strong>佐證？</td>
+</tr>
+<tr>
+<td>策略</td>
+<td>「未使用策略」是否為空？</td>
+</tr>
+<tr>
+<td>成交</td>
+<td>最後一輪有具體下一步嗎？</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="九-分數目標">九、分數目標</h2>
+<table>
+<thead>
+<tr>
+<th>等級</th>
+<th>總分</th>
+<th>意義</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S</td>
+<td>90+</td>
+<td>可作示範</td>
+</tr>
+<tr>
+<td>A</td>
+<td>80+</td>
+<td>穩定上線</td>
+</tr>
+<tr>
+<td>B</td>
+<td>70+</td>
+<td>對照佐證再練</td>
+</tr>
+<tr>
+<td>C 以下</td>
+<td>&lt;70</td>
+<td>降難度練結構</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="十-依競品預習-rag-實測摘要">十、依競品預習（RAG 實測摘要）</h2>
+<blockquote>
+<p>以下為 <strong>2026-06 本機開局實測</strong> 常命中主題；實際對練以當次 RAG 為準。<br>預習請在 <strong>銷售助手</strong> 用「X-TRAIL vs {競品}」查詢，對練畫面<strong>不會</strong>顯示答案。</p>
+</blockquote>
+<h3 id="toyota-rav4-來源-rav4-x-trail-vs-rav4改款_20260327-pdf">Toyota RAV4（來源：`RAV4 X-TRAIL VS RAV4改款_20260327.pdf`）</h3>
+<p><strong>客戶常問</strong>：論壇說 RAV4 油耗比較漂亮，十年用車成本怎麼算都不對。</p>
+<table>
+<thead>
+<tr>
+<th>主題</th>
+<th>可引用方向（須與銷售助手一致）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>十年十萬公里總成本</td>
+<td>旗艦對旗艦：X-TRAIL 約 <strong>141.6 萬</strong> vs RAV4 約 <strong>171.1 萬</strong>，差約 <strong>29.5 萬</strong>；領航對尊爵+ 差約 <strong>31.4 萬</strong></td>
+</tr>
+<tr>
+<td>油耗誤區</td>
+<td>RAV4 旗艦 WLTC <strong>24 km/L</strong>、X-TRAIL 旗艦 <strong>16 km/L</strong>，但車價／折扣／稅金／油電電池保固後，<strong>總持有成本仍偏向 X-TRAIL</strong></td>
+</tr>
+<tr>
+<td>內裝／空間</td>
+<td>冷氣：<strong>旋鈕</strong> vs RAV4 <strong>按鍵</strong>（盲操）；玻璃：<strong>雙層隔音</strong> vs <strong>單層</strong>（時速 50 約差 <strong>3 分貝</strong>）；行李 <strong>647 L</strong> vs <strong>514 L</strong>；後座 <strong>4/2/4 ＋滑椅</strong> vs <strong>6/4</strong></td>
+</tr>
+<tr>
+<td>配備／促案</td>
+<td>同級比 HUD、主機尺寸、購車金等（見對戰 PDF 配備表）；優惠以<strong>當月總部方案</strong>為準</td>
+</tr>
+</tbody></table>
+<p><strong>高分話術骨架</strong>：</p>
+<blockquote>
+<p>「您算十年成本很專業。RAV4 帳面油耗確實漂亮，但我們用同一張試算表把車價、折扣、稅、油資跟電池保固加總，很多客戶會發現 X-TRAIL 反而省將近三十萬。週末我帶您試乘，順便對照這張表，您看數字比較踏實。」</p>
+</blockquote>
+<hr>
+<h3 id="honda-cr-v-rag-常混雜-sportage-對戰語料">Honda CR-V（RAG 常混雜 Sportage 對戰語料）</h3>
+<p><strong>客戶常問</strong>：國產價能不能有進口質感？實際開起來、保養差在哪？</p>
+<table>
+<thead>
+<tr>
+<th>主題</th>
+<th>可引用方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>定位</td>
+<td>X-TRAIL ICE：<strong>進口質感＋國產車價</strong>；e-POWER 線：<strong>獨家電驅</strong></td>
+</tr>
+<tr>
+<td>引擎／NVH</td>
+<td><strong>1.5T VC-TURBO</strong> 可變壓縮比；<strong>雙前座隔音玻璃</strong>、NVH 強化</td>
+</tr>
+<tr>
+<td>保養（若 RAG 命中 Sportage 段落）</td>
+<td>X-TRAIL 回廠保養約 <strong>2～5 千</strong>；部分韓系競品約 <strong>1～2 萬</strong>、零件約 <strong>1.5 倍</strong>——<strong>僅在客戶問到保養／零件時</strong>再帶，勿硬扯 CR-V</td>
+</tr>
+<tr>
+<td>試駕引導</td>
+<td>數據僅供參考 → 邀請試駕，用<strong>實際動力／油耗體感</strong>說服</td>
+</tr>
+</tbody></table>
+<p><strong>高分話術骨架</strong>：</p>
+<blockquote>
+<p>「CR-V 口碑好，您會比到保養跟質感很合理。X-TRAIL 這代把隔音玻璃、配備拉到這個價位帶，建議您先試 20 分鐘，感受 NVH 跟加速，再跟 CR-V 您心裡的分數對照。」</p>
+</blockquote>
+<hr>
+<h3 id="hyundai-tucson-l-來源-tucson-l-小改款對應話術_20250410_v4-pdf-等">Hyundai Tucson L（來源：`TUCSON L 小改款對應話術_20250410_V4.pdf` 等）</h3>
+<p><strong>客戶常問</strong>：跟 Tucson L 比，動力跟後續養護差多少？</p>
+<table>
+<thead>
+<tr>
+<th>主題</th>
+<th>可引用方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>車系／售價</td>
+<td>小改款編成與各級距售價（例：X-TRAIL 旗艦 <strong>122.9 萬</strong> vs Tucson L 油電 GLTH-B <strong>123.9 萬</strong>、汽油 GLT-B <strong>112.9 萬</strong>）</td>
+</tr>
+<tr>
+<td>動力</td>
+<td>X-TRAIL：<strong>1.5T VC-TURBO＋輕油電</strong>；Tucson L 油電：<strong>1.6T＋HEV</strong>、汽油 <strong>1.6T</strong></td>
+</tr>
+<tr>
+<td>安全</td>
+<td><strong>TNCAP</strong>：X-TRAIL 成人保護 <strong>96%／5 星</strong>；Tucson L 成人 <strong>72%／4 星</strong>（客戶問安全時再引，附「以官方公布為準」）</td>
+</tr>
+<tr>
+<td>油電／積碳（若 RAG 帶出 Sportage 段落）</td>
+<td>傳統 HEV 引擎／馬達切換、<strong>Tucson L 舊款油電引擎品情</strong>——只在客戶問<strong>油電可靠性</strong>時使用</td>
+</tr>
+</tbody></table>
+<p><strong>P-05 加強</strong>：除 fact 外，每 2 輪要有一次<strong>可執行邀約</strong>（試算表＋試駕時段），避免只答規格。</p>
+<p><strong>高分話術骨架</strong>：</p>
+<blockquote>
+<p>「Tucson L 小改款您有研究。動力型式不同，與其看錶面數字，不如週六我準備<strong>同一段路</strong>試 ICE 跟 e-POWER，再附<strong>五年保養試算</strong>，您帶著比較表回去跟家人討論。」</p>
+</blockquote>
+<hr>
+<h3 id="mitsubishi-outlander-rag-專章較少-常命中-sportage-territory-語料">Mitsubishi Outlander（RAG 專章較少，常命中 Sportage／Territory 語料）</h3>
+<p><strong>客戶常問</strong>：跟 Sportage 比，X-TRAIL 技術穩定性如何？（開場可能帶韓系油電積碳話題）</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>對齊客戶問題</td>
+<td>客戶提 Sportage／HEV 積碳 → 用 RAG 中 <strong>HEV 舊世代、引擎積碳、保養費</strong> 段落回應，再拉回 <strong>X-TRAIL ICE／e-POWER</strong> 差異</td>
+</tr>
+<tr>
+<td>本品賣點</td>
+<td>VC-TURBO、e-POWER 平順、<strong>雙層隔音</strong>、<strong>RR-AEB／PFCW</strong>（RAG 有命中時）</td>
+</tr>
+<tr>
+<td>預習建議</td>
+<td>銷售助手查「X-TRAIL vs Outlander」＋「X-TRAIL ICE 穩定性」；若開局佐證偏 Sportage，<strong>以客戶實際追問為準</strong>作答</td>
+</tr>
+</tbody></table>
+<p><strong>高分話術骨架</strong>：</p>
+<blockquote>
+<p>「論壇對韓系油電的討論我懂。X-TRAIL 這次 ICE 走 VC-TURBO 輕油電，跟傳統 HEV 路線不同；與其看文章，不如試乘時我們看儀表與實際油耗，您再判斷穩定性。」</p>
+</blockquote>
+<hr>
+<h3 id="kia-sportage-來源-sportage-x-trail-對戰-sportage-對戰話術策略_260508-pdf">KIA Sportage（來源：`SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略_260508.pdf`）</h3>
+<p><strong>客戶常問</strong>：外型好看，但油電是舊款？保養會不會很貴？</p>
+<table>
+<thead>
+<tr>
+<th>主題</th>
+<th>可引用方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>產品世代</td>
+<td>台灣上市車型為國外上市 <strong>兩年以上</strong> 的舊產品（韓國 2024、歐洲 2025/6）</td>
+</tr>
+<tr>
+<td>油電引擎</td>
+<td>沿用 <strong>Tucson L 油電混合舊款引擎</strong>；品情：<strong>引擎積碳、儀表亮燈</strong>；HEV 切換頓挫、零件損耗</td>
+</tr>
+<tr>
+<td>保養／零件</td>
+<td>回廠保養約 <strong>1～2 萬</strong> vs X-TRAIL <strong>2～5 千</strong>；零件費用約 <strong>1.5 倍</strong></td>
+</tr>
+<tr>
+<td>本品對比</td>
+<td><strong>e-POWER</strong> 馬達直驅較平順；<strong>e-4ORCE</strong> 四驅；2023 年起標配 <strong>雙層隔音</strong>；中高規 <strong>RR-AEB、PFCW</strong></td>
+</tr>
+<tr>
+<td>油錢</td>
+<td>10 年 10 萬公里，Sportage 油電省油約 <strong>4 萬</strong>——需搭配<strong>頂規價差</strong>一併說明，避免只講單面</td>
+</tr>
+</tbody></table>
+<p><strong>高分話術骨架</strong>：</p>
+<blockquote>
+<p>「Sportage 設計確實搶眼。若您在意長期養車，我們用原廠保養表算五年，再試 e-POWER 的加速跟靜音；很多客戶比完發現，省下的油錢未必抵過保養跟配備級距差。」</p>
+</blockquote>
+<hr>
+<h3 id="競品預習速查">競品預習速查</h3>
+<table>
+<thead>
+<tr>
+<th>競品</th>
+<th>銷售助手建議查詢</th>
+<th>主要 PDF（實測）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RAV4</td>
+<td>X-TRAIL vs RAV4 十年成本</td>
+<td>RAV4 改款對戰</td>
+</tr>
+<tr>
+<td>CR-V</td>
+<td>X-TRAIL ICE 質感 保養</td>
+<td>T33 Q&amp;A、Sportage 對戰（混雜）</td>
+</tr>
+<tr>
+<td>Tucson L</td>
+<td>X-TRAIL vs Tucson L 動力 TNCAP</td>
+<td>Tucson L 小改款話術</td>
+</tr>
+<tr>
+<td>Outlander</td>
+<td>X-TRAIL 穩定性 VC-TURBO</td>
+<td>T33 Q&amp;A、Sportage 對戰</td>
+</tr>
+<tr>
+<td>Sportage</td>
+<td>Sportage 保養 油電 積碳</td>
+<td>Sportage 對戰話術</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="附錄-系統行為-rag-優先">附錄：系統行為（RAG 優先）</h2>
+<ul>
+<li>開局時 <code>fetchRoleplayRagContext</code> 檢索三類語料庫；有效佐證 &lt; 2 則<strong>拒絕開局</strong></li>
+<li>客戶追問僅能討論本場佐證與 followUps</li>
+<li>評分 LLM 與 fallback 皆以本場 sectionC 為 factCheck 依據</li>
+<li>QA 詳解：<code>npm run docs:roleplay-qa-drill</code>（RAG 自動產題）</li>
+</ul>
+<p><em>對應：<code>rag-context.ts</code>、<code>opening-generator.ts</code>、<code>customer-agent.ts</code>、<code>scoring-agent.ts</code></em></p>
+</main>
+</div>
+<footer>對練事實與評分依當次 Vertex RAG；請先在銷售助手預習，演練畫面不顯示佐證。</footer>
+</div>
+<script>
+(function(){
+  const content = document.getElementById("mainContent");
+  const headings = content.querySelectorAll("h2, h3");
+  const tocLinks = document.querySelectorAll(".toc a");
+  const slugUsed = {};
+  headings.forEach((h) => {
+    let id = (h.textContent || "").trim().replace(/[^\w\u4e00-\u9fff]+/g, "-").replace(/^-|-$/g, "").toLowerCase().slice(0, 64);
+    slugUsed[id] = (slugUsed[id] || 0) + 1;
+    if (slugUsed[id] > 1) id = id + "-" + slugUsed[id];
+    h.id = id;
+  });
+  tocLinks.forEach((a) => {
+    const t = a.textContent.trim();
+    const target = [...headings].find((h) => h.textContent.trim() === t);
+    if (target && target.id) a.href = "#" + target.id;
+  });
+  document.getElementById("scrollTop").onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const filters = document.querySelectorAll(".filter-btn");
+  filters.forEach((btn) => {
+    btn.onclick = () => {
+      filters.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const f = btn.dataset.filter;
+      headings.forEach((h) => {
+        if (h.tagName !== "H2") return;
+        const section = h;
+        let el = section.nextElementSibling;
+        const block = [section];
+        while (el && el.tagName !== "H2") { block.push(el); el = el.nextElementSibling; }
+        const text = block.map((n) => n.textContent || "").join(" ");
+        const show = f === "all" || text.includes(f) || (f === "人設" && text.includes("P-0")) || (f === "地雷" && text.includes("禁止"));
+        block.forEach((n) => n.classList.toggle("section-hidden", !show));
+      });
+    };
+  });
+})();
+</script>
+</body>
+</html>

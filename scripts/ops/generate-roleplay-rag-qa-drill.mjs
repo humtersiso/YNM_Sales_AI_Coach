@@ -99,7 +99,26 @@ const XTRAIL_COMPETITORS = [
       { label: "油耗", value: "五人綜合約 14.3 km/L（WLTC）" },
     ],
   },
+  {
+    slug: "sportage",
+    competitor: "KIA Sportage",
+    short: "Sportage",
+    issue: "產品週期／油電切換／零件",
+    hook: "Sportage 配備很新，韓系保養會不會比較麻煩？",
+    facts: [
+      { label: "對戰重點", value: "比長期持有成本與產品週期，不人身攻擊" },
+      { label: "X-TRAIL 訴求", value: "ProPILOT、空間舒適、國產保修能量" },
+    ],
+  },
 ];
+
+const VC_TURBO_MAINT = {
+  engine: "1.5T VC-TURBO",
+  reliability: "成熟量產技術、原廠保固與保修據點",
+  maint8w: "約 3.2 萬元（8 萬公里累計定保，教材參考）",
+  tucsonMaint: "Tucson L 約 4.1 萬元（同里程教材參考）",
+  forumMyth: "論壇「一年 2～5 千」常未載明里程與工項",
+};
 
 let qaCounter = 0;
 /** @type {QA[]} */
@@ -231,6 +250,10 @@ function generateXtrailCompetitorChapter(comp) {
     outlander: [
       `「我們常六、七人出遊，五人車夠嗎？」`,
       `「Outlander 也有安全配備，差在哪？」`,
+    ],
+    sportage: [
+      `「Sportage 配備很敢給，你們 ProPILOT 有比較厲害嗎？」`,
+      `「韓系零件會不會比較難等、保養比較貴？」`,
     ],
   };
   for (const q of extraByComp[comp.slug] ?? []) {
@@ -479,8 +502,81 @@ function generateDynamicScenarioSims() {
   }
 }
 
+// ─── VC-TURBO／妥善率／回廠費用／SPORTAGE 專章（對練高頻）───
+function generateVcTurboMaintenanceChapter() {
+  const P = XTRAIL.product;
+  const M = VC_TURBO_MAINT;
+
+  addQa({
+    tags: [P, "VC-TURBO", "妥善率", "P-05"],
+    q: `「${P} 的 ${M.engine} 妥善率怎樣？新技術會不會常壞？」`,
+    blank: `先 ${B("同理")} 對新技術的疑慮。<br/>${M.engine} 為 ${B("可變壓縮比")}、${B("全球量產成熟")} 動力，非短期實驗機。<br/>強調 ${B(M.reliability)}；${B("不承諾零故障")}。<br/>邀請 ${B("試乘")}＋提供 ${B("保固／保養手冊")} 對照。`,
+    full: `先同理對新技術的疑慮。<br/>${M.engine} 為可變壓縮比、全球量產成熟動力，非短期實驗機。<br/>強調${M.reliability}；不承諾零故障。<br/>邀請試乘＋提供保固／保養手冊對照。`,
+    score: "factCheck + 同理",
+  });
+
+  addQa({
+    tags: [P, "保養", "回廠費用", "P-03"],
+    q: `「論壇說 ${P} 回廠保養一年只要兩三千，真的嗎？」`,
+    blank: `${B("不未查證即認同")} 論壇金額。<br/>${M.forumMyth}；應依 ${B("官方保養表")}＋${B("當次工項報價")}。<br/>教材參考：8 萬公里累計定保約 ${B(M.maint8w)}（低於 Tucson L 約 ${B(M.tucsonMaint)}）。<br/>邀請 ${B("當場列保養項目")} 或 ${B("試算表")}。`,
+    full: `不未查證即認同論壇金額。<br/>${M.forumMyth}；應依官方保養表＋當次工項報價。<br/>教材參考：8 萬公里累計定保約 ${M.maint8w}（低於 Tucson L 約 ${M.tucsonMaint}）。<br/>邀請當場列保養項目或試算表。`,
+    score: "factCheck",
+  });
+
+  addQa({
+    tags: [P, "保養", "累計定保", "P-01"],
+    q: `「不要跟我說大概，保養費跟 CR-V、Tucson 比差多少？」`,
+    blank: `比較要看 ${B("同里程累計定保")}，非單次網路謠言。<br/>${P} 8 萬公里教材約 ${B(M.maint8w)}；請客戶提供競品 ${B("同等級")} 保養表 ${B("並排對照")}。<br/>${B("不攻擊競品")}，用 ${B("工項透明")} 建立信任。`,
+    full: `比較要看同里程累計定保，非單次網路謠言。<br/>${P} 8 萬公里教材約 ${M.maint8w}；請客戶提供競品同等等級保養表並排對照。<br/>不攻擊競品，用工項透明建立信任。`,
+    score: "factCheck + 策略",
+  });
+
+  addQa({
+    tags: [P, "SPORTAGE", "零件", "對戰"],
+    q: `「我也在看 Sportage，零件跟保養會不會比你們省事？」`,
+    blank: `承接比較動機；${P} 強調 ${B("國產保修據點")} 與 ${B("零件取得")}。<br/>Sportage 對戰看 ${B("產品週期")}、${B("長期持有成本")}，不人身攻擊。<br/>若客戶在意油電切換零件，引導看 ${B("累計定保")} 而非論壇單篇。<br/>${B("試乘")}＋${B("保養試算")}。`,
+    full: `承接比較動機；${P} 強調國產保修據點與零件取得。<br/>Sportage 對戰看產品週期、長期持有成本，不人身攻擊。<br/>若客戶在意油電切換零件，引導看累計定保而非論壇單篇。<br/>試乘＋保養試算。`,
+    score: "策略 + factCheck",
+  });
+
+  for (const p of PERSONAS) {
+    const qs = {
+      "P-01": `「${M.engine} 妥善率有官方數據嗎？跟自然進氣比呢？」`,
+      "P-02": `「VC-TURBO 開起來會不會有頓挫？保養會不會很麻煩？」`,
+      "P-03": `「論壇說一年保養 2～5 千，你們實際回廠要多少？」`,
+      "P-04": `「引擎這麼新，我怕家人反對，有什麼資料可以帶回去？」`,
+      "P-05": `「Ptt 說 VC-TURBO 妥善率有問題，你們怎麼回？」`,
+    };
+    addQa({
+      tags: [P, "VC-TURBO", "保養", p.id, "人設專章"],
+      q: qs[p.id],
+      blank: `${p.focus}：${B("承接")}→${B(M.reliability)}→${B("保養表報價")}→${B("不認同論壇未載明工項")}→${B("試乘/試算")}。`,
+      full: `${p.focus}：承接→${M.reliability}→保養表報價→不認同論壇未載明工項→試乘/試算。`,
+      score: `人設 ${p.id}`,
+    });
+  }
+
+  for (const d of DIFFICULTIES) {
+    addQa({
+      tags: [P, "VC-TURBO", d.label, "挑戰"],
+      q: `【${d.label}】「你們 ${M.engine} 就是實驗品，妥善率差對吧？」`,
+      blank: `${d.label}客戶：${B("不防禦不攻擊")}；說明 ${B("量產成熟")}＋${B("保固")}；${B(M.maint8w)} 累計定保參考；${B("邀請查保養手冊")}。`,
+      full: `${d.label}客戶：不防禦不攻擊；說明量產成熟＋保固；${M.maint8w} 累計定保參考；邀請查保養手冊。`,
+    });
+  }
+
+  addQa({
+    tags: [P, "地雷", "論壇 2-5千"],
+    q: `「對啊，論壇都說一年 2～5 千，你就說是這個價格吧。」（業代若順口認同…）`,
+    blank: `【錯誤】${B("未查證即認同")} 論壇金額。<br/>正確：${B("依工項報價")}；${M.forumMyth}；給 ${B("累計定保參考")}。`,
+    full: `【錯誤】未查證即認同論壇金額。正確：依工項報價；${M.forumMyth}；給累計定保參考。`,
+    score: "factCheck 扣分",
+  });
+}
+
 // ─── 執行產生 ───
 addGuideQas();
+generateVcTurboMaintenanceChapter();
 for (const comp of XTRAIL_COMPETITORS) generateXtrailCompetitorChapter(comp);
 generatePersonaCompetitorVariants();
 generateAgeVariants();
@@ -498,10 +594,13 @@ chapterMap.set("xtrail", []);
 chapterMap.set("kicks", []);
 chapterMap.set("persona", []);
 chapterMap.set("extra", []);
+chapterMap.set("maint", []);
 
 for (const qa of ALL_QAS) {
   if (qa.tags.includes("攻略") || qa.tags.includes("輪數")) {
     chapterMap.get("guide").push(qa);
+  } else if (qa.tags.includes("VC-TURBO") || qa.tags.includes("保養") || qa.tags.includes("SPORTAGE")) {
+    chapterMap.get("maint").push(qa);
   } else if (qa.tags.includes(KICKS.product)) {
     chapterMap.get("kicks").push(qa);
   } else if (qa.tags.some((t) => t.startsWith("P-")) && qa.tags.includes("人設專章")) {
@@ -608,6 +707,9 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
 <button type="button" class="filter-btn" data-filter="CR-V">CR-V</button>
 <button type="button" class="filter-btn" data-filter="Tucson L">Tucson</button>
 <button type="button" class="filter-btn" data-filter="Outlander">Outlander</button>
+<button type="button" class="filter-btn" data-filter="Sportage">Sportage</button>
+<button type="button" class="filter-btn" data-filter="VC-TURBO">VC-TURBO</button>
+<button type="button" class="filter-btn" data-filter="保養">保養費</button>
 <button type="button" class="filter-btn" data-filter="KICKS">KICKS</button>
 <button type="button" class="filter-btn" data-filter="P-01">P-01</button>
 <button type="button" class="filter-btn" data-filter="P-03">P-03</button>
@@ -616,6 +718,7 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
 </div>
 <nav class="toc card"><strong>目錄</strong><ol>
 <li><a href="#guide">攻略與輪數（${chapterMap.get("guide").length}）</a></li>
+<li><a href="#maint">VC-TURBO／保養／Sportage（${chapterMap.get("maint").length}）</a></li>
 <li><a href="#xtrail">X-TRAIL 情境模擬（${chapterMap.get("xtrail").length}）</a></li>
 <li><a href="#kicks">KICKS 情境模擬（${chapterMap.get("kicks").length}）</a></li>
 <li><a href="#persona">人設專章（${chapterMap.get("persona").length}）</a></li>
@@ -624,7 +727,8 @@ h1{font-size:1.55rem;margin:0 0 .35rem}h2{font-size:1.12rem;margin:2rem 0 .6rem;
 <div class="card" id="matrix"><h3 style="margin-top:0">情境組合矩陣</h3>
 <table class="matrix-table"><thead><tr><th>車型</th><th>競品</th><th>議題</th><th>人設</th><th>題數</th></tr></thead><tbody>${matrixRows}</tbody></table></div>
 ${renderChapter("guide", "第〇章　攻略、難度與輪數", "開練前必讀", chapterMap.get("guide"))}
-${renderChapter("xtrail", "第一～四章　X-TRAIL ICE 情境模擬", "含 RAV4／CR-V／Tucson L／Outlander · 標準六輪＋人設＋年齡＋動態組合", chapterMap.get("xtrail"))}
+${renderChapter("maint", "第〇章之二　VC-TURBO／妥善率／回廠費用／SPORTAGE", "對練高頻追問 · 論壇 2～5 千澄清 · 累計定保參考", chapterMap.get("maint"))}
+${renderChapter("xtrail", "第一～五章　X-TRAIL ICE 情境模擬", "含 RAV4／CR-V／Tucson L／Outlander／Sportage · 標準六輪＋人設＋年齡＋動態組合", chapterMap.get("xtrail"))}
 ${renderChapter("kicks", "第五章　KICKS vs HR-V", "價格／促銷／都會用車", chapterMap.get("kicks"))}
 ${renderChapter("persona", "第六章　人設專章 P-01～P-05", "各人設典型追問與高分回應重心", chapterMap.get("persona"))}
 ${renderChapter("extra", "第七章　地雷題與補充", "禁止說法反向練習", chapterMap.get("extra"))}
@@ -649,6 +753,7 @@ fs.writeFileSync(outPath, html, "utf8");
 console.log(`Wrote ${outPath}`);
 console.log(`Total QAs: ${ALL_QAS.length}`);
 console.log(`  guide: ${chapterMap.get("guide").length}`);
+console.log(`  maint: ${chapterMap.get("maint").length}`);
 console.log(`  xtrail: ${chapterMap.get("xtrail").length}`);
 console.log(`  kicks: ${chapterMap.get("kicks").length}`);
 console.log(`  persona: ${chapterMap.get("persona").length}`);

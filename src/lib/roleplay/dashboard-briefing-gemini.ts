@@ -28,6 +28,8 @@ export type BriefingGeminiPayload = {
   byDifficulty: RoleplayDashboardStats["byDifficulty"];
   practiceSuggestions: RoleplayDashboardStats["suggestions"];
   knowledgeReminders: string[];
+  factMemoryLines: string[];
+  strategyAdviceFromCorrections: string;
 };
 
 export type BriefingActivityDelta = {
@@ -66,6 +68,8 @@ export function buildBriefingPayload(
     byDifficulty: stats.byDifficulty,
     practiceSuggestions: stats.suggestions.slice(0, 2),
     knowledgeReminders: stats.knowledgeReminders ?? [],
+    factMemoryLines: stats.factMemoryLines ?? [],
+    strategyAdviceFromCorrections: stats.strategyAdviceFromCorrections ?? "無",
   };
 }
 
@@ -77,10 +81,9 @@ function trimLine(s: unknown, fallback: string, max = 48): string {
 
 function parseKnowledgeLines(raw: unknown, fallback: string[]): string[] {
   if (!Array.isArray(raw)) return fallback.slice(0, 3);
-  const lines = raw
-    .map((x) => trimLine(x, "", 120))
-    .filter(Boolean);
-  return lines.length > 0 ? lines.slice(0, 3) : fallback.slice(0, 3);
+  const lines = raw.map((x) => trimLine(x, "", 120)).filter(Boolean);
+  if (lines.length > 0) return lines.slice(0, 3);
+  return fallback.length > 0 ? fallback.slice(0, 3) : [];
 }
 
 function parseBriefingJsonResponse(
@@ -118,16 +121,23 @@ export async function generateFullDashboardBriefing(
   const ruleFallback = buildRuleDashboardBriefing({ ...stats, briefing: null });
   const withAbandoned = appendAbandonedReminder(ruleFallback, payload.abandonedSessions);
 
-  const knowledgeNote =
-    payload.knowledgeReminders.length > 0
-      ? `\n【待記憶知識點】（來自近場對練弱項或佐證資料，請改寫成 2～3 條 knowledgeLines）\n${payload.knowledgeReminders.map((x) => `- ${x}`).join("\n")}\n`
-      : "\n若事實引用（factCheck）為弱項，knowledgeLines 仍須列出 2 條具體數字／試算方式供記憶。\n";
+  const factNote =
+    payload.factMemoryLines.length > 0
+      ? `\n【近五場資訊對錯｜記憶重點素材】（請改寫進 knowledgeLines，保留阿拉伯數字，像考試必背）\n${payload.factMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
+      : "\n【近五場資訊對錯】無待加強紀錄 → knowledgeLines 請回傳空陣列 []。\n";
 
-  const prompt = `你是汽車銷售對練教練。依下列戰績 JSON 產出「首頁小結」四行，每行不超過 36 字、繁體中文、口語精簡、不加編號。
+  const strategyNote =
+    payload.strategyAdviceFromCorrections !== "無"
+      ? `\n【近五場銷售策略待加強】（請濃縮進 adviceLine，≤36字）\n- ${payload.strategyAdviceFromCorrections}\n`
+      : "\n【近五場銷售策略】無待加強 → adviceLine 請填「無」。\n";
+
+  const prompt = `你是汽車銷售對練教練。依下列戰績 JSON 產出「首頁小結」，繁體中文、口語精簡。
 ${BRIEFING_LLM_NUMERAL_RULE}
-欄位：strengthLine（呼應最強維度）、weaknessLine（待加強）、trendLine（近 5 場分數走勢）、adviceLine（具體下一步，可含建議練習組合；勿塞入長串數字，數字放 knowledgeLines）。
-knowledgeLines：2～3 條「記憶重點」，每條≤80字、須完整句子、勿用省略號截斷，須含具體數字或試算方式；優先呼應待記憶知識點與 factCheck 弱項。
-${abandonedPromptNote(payload.abandonedSessions)}${knowledgeNote}
+資料範圍：僅近 ${payload.last5Scores.length} 場完賽。
+欄位：strengthLine（最強維度，≤36字）、weaknessLine（待加強維度，≤36字）、trendLine（近場分數走勢，≤36字）。
+adviceLine：僅總結「銷售策略」待加強（如邀約試乘、提供試算表）；素材見下方；無則填「無」，勿硬編。
+knowledgeLines：僅總結「資訊對錯」待加強（須牢記的數字，像考試）；每條≤80字、含阿拉伯數字；無則回傳 []，勿硬編。
+${abandonedPromptNote(payload.abandonedSessions)}${factNote}${strategyNote}
 僅回傳 JSON：{"strengthLine":"","weaknessLine":"","trendLine":"","adviceLine":"","knowledgeLines":["",""]}
 
 戰績：
@@ -154,15 +164,22 @@ export async function mergeDashboardBriefing(
   const ruleFallback = buildRuleDashboardBriefing({ ...stats, briefing: null });
   const withAbandoned = appendAbandonedReminder(ruleFallback, payload.abandonedSessions);
 
-  const knowledgeNote =
-    payload.knowledgeReminders.length > 0
-      ? `\n【待記憶知識點】\n${payload.knowledgeReminders.map((x) => `- ${x}`).join("\n")}\n`
-      : "";
+  const factNote =
+    payload.factMemoryLines.length > 0
+      ? `\n【近五場資訊對錯｜記憶重點】\n${payload.factMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
+      : "\n【資訊對錯】無 → knowledgeLines 為 []。\n";
 
-  const prompt = `你是汽車銷售對練教練。請在「先前首頁小結」基礎上，融入最新演練變化，產出更新版四行小結（每行≤36字、繁體中文）。
+  const strategyNote =
+    payload.strategyAdviceFromCorrections !== "無"
+      ? `\n【近五場銷售策略】\n- ${payload.strategyAdviceFromCorrections}\n`
+      : "\n【銷售策略】無 → adviceLine 為「無」。\n";
+
+  const prompt = `你是汽車銷售對練教練。請在「先前首頁小結」基礎上，融入最新演練，產出更新版小結（繁體中文）。
 ${BRIEFING_LLM_NUMERAL_RULE}
-knowledgeLines：2～3 條具體數字／事實記憶點（每條≤80字、完整句子、阿拉伯數字），優先保留仍易忘的知識點並加入本場新弱項。
-${abandonedPromptNote(payload.abandonedSessions)}${knowledgeNote}
+資料範圍：近 ${payload.last5Scores.length} 場完賽。
+adviceLine：僅銷售策略總結，≤36字；無則「無」。
+knowledgeLines：僅資訊對錯數字記憶，每條≤80字；無則 []。
+${abandonedPromptNote(payload.abandonedSessions)}${factNote}${strategyNote}
 
 【先前小結】
 ${JSON.stringify(previous)}

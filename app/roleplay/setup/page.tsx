@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { PortalLayout } from "@/components/mobile/PortalLayout";
@@ -24,6 +25,13 @@ type SessionResult = {
   turn: number;
   scenarioTitle?: string;
   agentSpeaksFirst?: boolean;
+  coachMaterials?: {
+    facts: { label: string; value: string }[];
+    keyPoints: string[];
+    forbidden: string[];
+    sourceTitles?: string[];
+    strategyIds?: string[];
+  };
 };
 
 /** 人設確認彈窗 */
@@ -137,7 +145,16 @@ function PersonaConfirmModal({
             </div>
           ) : null}
 
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? (
+            <div className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <p>{error}</p>
+              {error.includes("銷售助手") ? (
+                <Link href="/sales" className="mt-1 inline-block font-medium text-teal-700 underline">
+                  前往銷售助手預習
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {/* Footer */}
@@ -262,7 +279,11 @@ function SetupForm() {
         }),
       });
       const data = (await res.json()) as SessionResult & { error?: string };
-      if (!res.ok) return null;
+      if (!res.ok) {
+        const msg = data.error?.trim();
+        if (msg) throw new Error(msg);
+        return null;
+      }
       if (!data.sessionId || !data.customerMessage?.trim()) return null;
       return data;
     } catch {
@@ -284,8 +305,9 @@ function SetupForm() {
     p.then((result) => {
       if (!result) setModalError("情境建立失敗，請關閉後重試");
       setModalPending(false);
-    }).catch(() => {
-      setModalError("連線失敗，請關閉後重試");
+    }).catch((e: unknown) => {
+      const msg = e instanceof Error ? e.message : "連線失敗，請關閉後重試";
+      setModalError(msg);
       setModalPending(false);
     });
   }
@@ -304,6 +326,7 @@ function SetupForm() {
         turn: data.turn,
         scenarioTitle: data.scenarioTitle,
         agentSpeaksFirst: data.agentSpeaksFirst ?? true,
+        coachMaterials: data.coachMaterials,
       }),
     );
     router.push(`/roleplay/practice?sessionId=${encodeURIComponent(data.sessionId)}`);
@@ -323,8 +346,14 @@ function SetupForm() {
     <>
       <div className="space-y-4">
         <div className="rounded-2xl border border-teal-100 bg-teal-50/50 p-4 text-sm leading-relaxed text-emerald-900">
-          <p>AI 將扮演客戶，依你設定的車型與難度進行多輪對話。</p>
-          <p className="mt-2">完賽後取得五維評分（各 20 分）與改善建議；事實與話術由銷售知識庫 RAG 注入。</p>
+          <p>AI 將扮演客戶，依你設定的車型與競品進行多輪對話。</p>
+          <p className="mt-2">
+            建議先至{" "}
+            <Link href="/sales" className="font-medium text-teal-700 underline">
+              銷售助手
+            </Link>{" "}
+            查詢本場競品相關知識，再開始對練。演練中 AI 會模擬真實客戶提問；評分在背後依知識庫對照，練習畫面不顯示答案。
+          </p>
           <button
             type="button"
             onClick={() => setRagOpen(true)}

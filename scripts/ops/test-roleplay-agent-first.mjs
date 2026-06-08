@@ -82,6 +82,11 @@ async function main() {
   }
   console.log(`✓ 開局 session=${start.sessionId} agentSpeaksFirst=true`);
 
+  if (!start.coachMaterials?.facts?.length || start.coachMaterials.facts.length < 2) {
+    throw new Error(`coachMaterials 應含至少 2 條 RAG 佐證，實際 ${start.coachMaterials?.facts?.length ?? 0}`);
+  }
+  console.log(`✓ coachMaterials RAG 佐證 ${start.coachMaterials.facts.length} 條`);
+
   const { res: getRes, data: boot } = await api(
     cookie,
     "GET",
@@ -120,6 +125,9 @@ async function main() {
     `/api/roleplay/sessions/${encodeURIComponent(start.sessionId)}`,
   );
   if (!boot2Res.ok) throw new Error(`GET bootstrap2 ${boot2Res.status}`);
+  if (!boot2.coachMaterials?.facts?.length) {
+    throw new Error("bootstrap 應含 coachMaterials.facts");
+  }
   if (boot2.agentSpeaksFirst) {
     throw new Error("第一輪後 bootstrap 不應再 agentSpeaksFirst");
   }

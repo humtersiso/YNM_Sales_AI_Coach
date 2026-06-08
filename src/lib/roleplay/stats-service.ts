@@ -12,6 +12,11 @@ import {
   appendAbandonedReminder,
   buildRuleDashboardBriefing,
 } from "@/lib/roleplay/dashboard-briefing";
+import {
+  buildFactMemoryLinesFromCorrections,
+  buildStrategyAdviceFromCorrections,
+  takeRecentCompletedSessions,
+} from "@/lib/roleplay/briefing-correction-summary";
 import { buildKnowledgeRemindersFromSessions } from "@/lib/roleplay/briefing-knowledge-reminders";
 import { dashboardStatsFingerprint } from "@/lib/roleplay/dashboard-briefing-cache";
 import type { RoleplayDrillDifficulty } from "@/lib/roleplay/scenario-contract";
@@ -20,6 +25,7 @@ import type {
   RoleplayDashboardStats,
   RoleplayHistoryItem,
 } from "@/lib/roleplay/roleplay-types-api";
+import { rebuildCorrectionsFromTranscript } from "@/lib/roleplay/engine/correction-builder";
 import { listArchivedSessionsForUser } from "@/lib/roleplay/engine/session-store";
 import { ROLEPLAY_COMPETITORS_XTRAIL, ROLEPLAY_DIFFICULTIES } from "@/lib/roleplay/catalog";
 import { ROLEPLAY_PERSONA_IDS, ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
@@ -60,6 +66,7 @@ async function loadCompletedDetails(userId: string, limit = 50): Promise<Rolepla
     scoreClosing: null,
     summary: "",
     improvementTips: [],
+    correctionPoints: [],
     unusedStrategies: [],
     reportJson: null,
   }));
@@ -92,6 +99,7 @@ function sessionToCompletedDetail(session: RoleplaySession): RoleplayCompletedDe
     scoreClosing: find("advance"),
     summary: session.scoreResult.summary,
     improvementTips: session.scoreResult.improvementTips,
+    correctionPoints: session.scoreResult.correctionPoints ?? [],
     unusedStrategies: session.scoreResult.unusedStrategies,
     scenarioFacts: session.scenario.sectionC.facts.map((f) => ({
       label: f.label,
@@ -187,9 +195,9 @@ export function buildDashboardStatsCore(
   completed: RoleplayCompletedDetail[],
   startedSessions: number,
 ): Omit<RoleplayDashboardStats, "briefing" | "briefingStale"> {
-  const trendSource = [...completed]
-    .sort((a, b) => String(a.finishedAt).localeCompare(String(b.finishedAt)))
-    .slice(-5);
+  const recent5 = takeRecentCompletedSessions(completed);
+  const trendSource = [...recent5]
+    .sort((a, b) => String(a.finishedAt).localeCompare(String(b.finishedAt)));
 
   const byDifficulty = ROLEPLAY_DIFFICULTIES.map((d) => {
     const subset = completed.filter((r) => normalizeDifficulty(r.difficulty) === d.id);
@@ -205,8 +213,10 @@ export function buildDashboardStatsCore(
       ? Math.round(completed.reduce((s, r) => s + r.score, 0) / completed.length)
       : 0;
 
-  const dimensionAverages = buildDimensionAverages(completed.slice(0, 10));
+  const dimensionAverages = buildDimensionAverages(recent5);
   const completedSessions = completed.length;
+  const factMemoryLines = buildFactMemoryLinesFromCorrections(completed);
+  const strategyAdviceFromCorrections = buildStrategyAdviceFromCorrections(completed);
 
   return {
     startedSessions,
@@ -225,7 +235,9 @@ export function buildDashboardStatsCore(
       score: r.score,
     })),
     suggestions: buildSuggestionsFromDetails(completed),
-    knowledgeReminders: buildKnowledgeRemindersFromSessions(completed),
+    knowledgeReminders: buildKnowledgeRemindersFromSessions(recent5),
+    factMemoryLines,
+    strategyAdviceFromCorrections,
   };
 }
 
@@ -341,7 +353,31 @@ export async function getAgentStats(userId: string) {
 
 export async function getAgentHistory(userId: string, limit = 20): Promise<RoleplayHistoryItem[]> {
   const details = await listUserSessionsForHistory(userId, limit);
-  return details.map(completedDetailToHistoryItem);
+  const items = await Promise.all(
+    details.map(async (d) => {
+      const item = completedDetailToHistoryItem(d);
+      if (
+        item.status === "COMPLETED" &&
+        item.correctionPoints.length === 0 &&
+        d.transcript?.trim()
+      ) {
+        try {
+          item.correctionPoints = await rebuildCorrectionsFromTranscript({
+            transcript: d.transcript,
+            competitor: d.competitor,
+            targetModel: d.targetModel,
+            difficulty: String(d.difficulty),
+            ageRange: d.ageRange,
+            facts: d.scenarioFacts,
+          });
+        } catch (e) {
+          console.warn("[roleplay] rebuild corrections from transcript failed", d.sessionId, e);
+        }
+      }
+      return item;
+    }),
+  );
+  return items;
 }
 
 export async function attachScoreHistory(
