@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readSession } from "@/lib/auth/session";
 import { resolveDisplayName } from "@/lib/analytics/roleplay-usage-analytics";
-import {
-  completedDetailToHistoryItem,
-  getAdminRoleplaySessionById,
-  parseRoleplayTranscriptLines,
-} from "@/lib/bq/roleplay-sessions-bq";
+import { getAdminRoleplaySessionById } from "@/lib/bq/roleplay-sessions-bq";
+import { buildRoleplaySessionDetail } from "@/lib/roleplay/roleplay-session-detail";
 import { listUsers } from "@/lib/bq/users";
 
 export async function GET(
@@ -26,26 +23,15 @@ export async function GET(
   const users = await listUsers({ status: "active" });
   const userMap = new Map(users.map((u) => [u.userId, u]));
   const displayName = resolveDisplayName(detail.userId, detail.username, userMap);
-  const historyItem =
-    detail.status === "COMPLETED" ? completedDetailToHistoryItem(detail) : null;
-  const transcriptLines = parseRoleplayTranscriptLines(detail.transcript);
+  const view = await buildRoleplaySessionDetail(detail, { displayName });
 
   return NextResponse.json({
-    sessionId: detail.sessionId,
+    ...view,
     userId: detail.userId,
-    displayName,
     username: detail.username,
     branch: detail.branch || "—",
-    status: detail.status,
-    targetModel: detail.targetModel,
-    competitor: detail.competitor,
     personaId: detail.personaId,
     difficulty: String(detail.difficulty),
-    score: detail.status === "COMPLETED" ? detail.score : null,
-    grade: detail.grade,
-    startedAt: detail.startedAt,
     finishedAt: detail.status === "COMPLETED" ? detail.finishedAt : null,
-    historyItem,
-    transcriptLines,
   });
 }

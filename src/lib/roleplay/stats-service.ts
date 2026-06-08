@@ -1,5 +1,4 @@
 import {
-  completedDetailToHistoryItem,
   countUserRoleplaySessions,
   listCompletedSessionsDetail,
   listRoleplaySessionsByUser,
@@ -25,7 +24,7 @@ import type {
   RoleplayDashboardStats,
   RoleplayHistoryItem,
 } from "@/lib/roleplay/roleplay-types-api";
-import { rebuildCorrectionsFromTranscript } from "@/lib/roleplay/engine/correction-builder";
+import { historyItemFromCompletedDetail } from "@/lib/roleplay/roleplay-session-detail";
 import { listArchivedSessionsForUser } from "@/lib/roleplay/engine/session-store";
 import { ROLEPLAY_COMPETITORS_XTRAIL, ROLEPLAY_DIFFICULTIES } from "@/lib/roleplay/catalog";
 import { ROLEPLAY_PERSONA_IDS, ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
@@ -353,31 +352,7 @@ export async function getAgentStats(userId: string) {
 
 export async function getAgentHistory(userId: string, limit = 20): Promise<RoleplayHistoryItem[]> {
   const details = await listUserSessionsForHistory(userId, limit);
-  const items = await Promise.all(
-    details.map(async (d) => {
-      const item = completedDetailToHistoryItem(d);
-      if (
-        item.status === "COMPLETED" &&
-        item.correctionPoints.length === 0 &&
-        d.transcript?.trim()
-      ) {
-        try {
-          item.correctionPoints = await rebuildCorrectionsFromTranscript({
-            transcript: d.transcript,
-            competitor: d.competitor,
-            targetModel: d.targetModel,
-            difficulty: String(d.difficulty),
-            ageRange: d.ageRange,
-            facts: d.scenarioFacts,
-          });
-        } catch (e) {
-          console.warn("[roleplay] rebuild corrections from transcript failed", d.sessionId, e);
-        }
-      }
-      return item;
-    }),
-  );
-  return items;
+  return Promise.all(details.map((d) => historyItemFromCompletedDetail(d)));
 }
 
 export async function attachScoreHistory(

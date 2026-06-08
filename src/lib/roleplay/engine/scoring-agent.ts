@@ -16,6 +16,10 @@ import type {
   RoleplayScoreResult,
 } from "@/lib/roleplay/session-types";
 import { clampScore, scoreToGrade } from "@/lib/roleplay/engine/grade-mapper";
+import {
+  applyObjectiveScoreCap,
+  isLowQualityAgentReply,
+} from "@/lib/roleplay/engine/score-quality-guard";
 import { coalesceAdjacentAgentTurns } from "@/lib/roleplay/engine/turn-coalesce";
 
 const DIMENSION_MAX = 20;
@@ -73,13 +77,13 @@ async function applyCorrections(
   },
 ): Promise<RoleplayScoreResult> {
   const correctionPoints = await buildSessionCorrections(scenario, turns);
-
-  return {
+  const base = {
     ...partial,
     correctionPoints,
     improvementTips: [],
     unusedStrategies: toLegacyUnused(correctionPoints),
   };
+  return applyObjectiveScoreCap(scenario, turns, base);
 }
 
 /** 舊場次重新產出修正點（依對話紀錄） */
@@ -121,18 +125,24 @@ async function heuristicScore(
   scenario: RoleplayScenario,
   turns: RoleplayChatTurn[],
 ): Promise<RoleplayScoreResult> {
-  const agentTexts = turns.filter((t) => t.role === "agent").map((t) => t.content);
+  const agentTexts = coalesceAdjacentAgentTurns(turns)
+    .filter((t) => t.role === "agent")
+    .map((t) => t.content);
   const joined = agentTexts.join("\n");
   const factRelevant = customerAskedFactTopic(turns);
   const gapCount = detectCorrectionCandidates(scenario, turns).length;
+  const lowQualityCount = agentTexts.filter((t) => isLowQualityAgentReply(t)).length;
+  const lowQualityRatio = agentTexts.length ? lowQualityCount / agentTexts.length : 1;
 
-  let base = 12;
-  if (agentTexts.length >= 3) base += 2;
+  let base = 8;
+  if (agentTexts.length >= 3) base += 1;
   if (hasEmpathyCue(joined)) base += 2;
   if (!factRelevant || hasSessionFactCue(joined, scenario)) base += 2;
   if (hasAdvanceCue(joined)) base += 2;
-  if (gapCount >= 3) base -= 3;
-  else if (gapCount >= 1) base -= 1;
+  if (gapCount >= 3) base -= 5;
+  else if (gapCount >= 1) base -= 2;
+  if (lowQualityRatio >= 0.5) base -= 6;
+  else if (lowQualityRatio >= 0.3) base -= 3;
 
   const dimensions = ROLEPLAY_GLOBAL_CONFIG.rubricDimensions.map((d) => {
     let dimBase = base;

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RoleplayCorrectionsPanel } from "@/components/roleplay/RoleplayCorrectionsPanel";
-import { RoleplayRadarChart } from "@/components/roleplay/RoleplayRadarChart";
+import { AppIcon } from "@/components/icons/AppIcon";
+import { RoleplaySessionDetailModal } from "@/components/roleplay/RoleplaySessionDetailModal";
 import type { RoleplayHistoryItem } from "@/lib/roleplay/roleplay-types-api";
+import type { RoleplaySessionDetailView } from "@/lib/roleplay/roleplay-session-detail";
 
 function formatDateTime(iso: string | null | undefined): string {
   if (!iso?.trim()) return "—";
@@ -33,7 +34,40 @@ function buildSetupHref(item: RoleplayHistoryItem): string {
 }
 
 export function RoleplayHistoryList({ items }: { items: RoleplayHistoryItem[] }) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [modalItem, setModalItem] = useState<RoleplayHistoryItem | null>(null);
+  const [modalDetail, setModalDetail] = useState<RoleplaySessionDetailView | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function openModal(item: RoleplayHistoryItem) {
+    setModalItem(item);
+    setModalDetail(null);
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `/api/roleplay/me/sessions/${encodeURIComponent(item.sessionId)}`,
+        { cache: "no-store" },
+      );
+      const data = (await res.json().catch(() => ({}))) as RoleplaySessionDetailView & {
+        error?: string;
+      };
+      if (!res.ok) {
+        setError(data.error ?? "載入失敗");
+        return;
+      }
+      setModalDetail(data);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function closeModal() {
+    setModalItem(null);
+    setModalDetail(null);
+    setError("");
+    setLoading(false);
+  }
 
   if (items.length === 0) {
     return (
@@ -44,104 +78,75 @@ export function RoleplayHistoryList({ items }: { items: RoleplayHistoryItem[] })
   }
 
   return (
-    <ul className="space-y-3">
-      {items.map((item) => {
-        const open = expandedId === item.sessionId;
-        const completed = item.status === "COMPLETED";
-        return (
-          <li
-            key={item.sessionId}
-            className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm"
-          >
-            <button
-              type="button"
-              className="flex w-full flex-col gap-1 p-4 text-left"
-              onClick={() => setExpandedId(open ? null : item.sessionId)}
-              aria-expanded={open}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-xs tabular-nums text-emerald-600">
-                  {completed
-                    ? formatDateTime(item.completedAt)
-                    : formatDateTime(item.startedAt)}
-                </p>
-                <span
-                  className={`shrink-0 rounded-lg px-2 py-0.5 text-sm font-semibold tabular-nums ${
-                    completed
-                      ? "bg-teal-50 text-teal-900"
-                      : "bg-amber-50 text-amber-900"
-                  }`}
-                >
-                  {completed ? `${item.score} 分 · ${item.grade}` : "未完成"}
-                </span>
-              </div>
-              <p className="text-sm font-medium text-emerald-950">
-                {item.targetModel} vs {item.competitor}
-              </p>
-              <p className="text-xs text-emerald-700">
-                {item.customerTypeName} · {item.difficultyLabel}
-              </p>
-            </button>
-
-            <div
-              className={`grid transition-[grid-template-rows] duration-200 ease-out ${
-                open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-              }`}
-            >
-              <div className="overflow-hidden">
-                <div className="border-t border-emerald-50 px-4 pb-4 pt-2">
-                  {!completed ? (
-                    <p className="text-sm text-amber-800">
-                      此場次已開局但未完成評分；可重新以相似設定開始新演練。
+    <>
+      <ul className="space-y-3">
+        {items.map((item) => {
+          const completed = item.status === "COMPLETED";
+          return (
+            <li key={item.sessionId}>
+              <button
+                type="button"
+                className="flex w-full items-center gap-2 rounded-2xl border border-emerald-100 bg-white p-4 text-left shadow-sm active:bg-emerald-50/50"
+                onClick={() => void openModal(item)}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-xs tabular-nums text-emerald-600">
+                      {completed
+                        ? formatDateTime(item.completedAt)
+                        : formatDateTime(item.startedAt)}
                     </p>
-                  ) : (
-                    <>
-                      {item.summary || item.dimensions.length > 0 ? (
-                        <div className="flex w-full items-start gap-3">
-                          {item.summary ? (
-                            <div className="w-[40%] min-w-0 shrink-0">
-                              <p className="text-sm font-semibold text-emerald-950">評語</p>
-                              <p className="mt-2 text-sm leading-relaxed text-emerald-800">
-                                {item.summary}
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="w-[40%] shrink-0" />
-                          )}
-                          {item.dimensions.length > 0 ? (
-                            <div className="flex w-[60%] min-w-0 justify-center [&_svg]:mx-auto [&_svg]:h-[200px] [&_svg]:w-[200px] [&_svg]:max-w-[200px]">
-                              <RoleplayRadarChart
-                                variant="default"
-                                dimensions={item.dimensions}
-                                embedded
-                                showScores
-                                chartSizePx={200}
-                              />
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : null}
-
-                      {item.correctionPoints?.length > 0 ? (
-                        <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50/40 p-3">
-                          <RoleplayCorrectionsPanel points={item.correctionPoints} compact />
-                        </div>
-                      ) : null}
-                    </>
-                  )}
-
-                  <Link
-                    href={buildSetupHref(item)}
-                    className="mt-4 block text-center text-sm font-medium text-teal-700 underline"
-                  >
-                    用相似設定再練
-                  </Link>
+                    <span
+                      className={`shrink-0 rounded-lg px-2 py-0.5 text-sm font-semibold tabular-nums ${
+                        completed
+                          ? "bg-teal-50 text-teal-900"
+                          : "bg-amber-50 text-amber-900"
+                      }`}
+                    >
+                      {completed ? `${item.score} 分 · ${item.grade}` : "未完成"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm font-medium text-emerald-950">
+                    {item.targetModel} vs {item.competitor}
+                  </p>
+                  <p className="text-xs text-emerald-700">
+                    {item.customerTypeName} · {item.difficultyLabel}
+                  </p>
                 </div>
-              </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+                <AppIcon name="chevron-right" size={18} className="shrink-0 text-emerald-600" />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <RoleplaySessionDetailModal
+        open={modalItem != null}
+        loading={loading}
+        detail={modalDetail}
+        whenLabel={
+          modalItem
+            ? formatDateTime(
+                modalItem.status === "COMPLETED"
+                  ? modalItem.completedAt
+                  : modalItem.startedAt,
+              )
+            : undefined
+        }
+        error={error}
+        onClose={closeModal}
+        footer={
+          modalItem ? (
+            <Link
+              href={buildSetupHref(modalItem)}
+              className="block text-center text-sm font-medium text-teal-700 underline"
+              onClick={closeModal}
+            >
+              用相似設定再練
+            </Link>
+          ) : null
+        }
+      />
+    </>
   );
 }
