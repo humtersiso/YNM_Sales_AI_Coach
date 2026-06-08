@@ -167,13 +167,7 @@ function scoreColumnMap(result: RoleplayScoreResult): Record<string, number | nu
 function parseReportJson(raw: string | null | undefined): {
   summary: string;
   improvementTips: string[];
-  correctionPoints: {
-    issue: string;
-    category?: string;
-    customerAsk?: string;
-    whatYouSaid?: string;
-    correctGuide: string;
-  }[];
+  correctionPoints: RoleplayCorrectionPoint[];
   unusedStrategies: string[];
   scenarioFacts: { label: string; value: string }[];
   dimensions: { dimensionId: string; label: string; score: number; comment: string }[];

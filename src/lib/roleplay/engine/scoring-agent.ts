@@ -176,6 +176,8 @@ async function heuristicScore(
     advice,
     summary: buildHeuristicSummary(joined, []),
     dimensions,
+    previousScore: null,
+    scoreDelta: null,
   });
 }
 
@@ -268,6 +270,8 @@ ${formatHistory(turns)}
       summary: String(parsed.summary ?? "").trim() || "已完成評分。",
       dimensions,
       correctionPoints: parseCorrectionPoints(parsed.correctionPoints),
+      previousScore: null,
+      scoreDelta: null,
     });
 
     return {

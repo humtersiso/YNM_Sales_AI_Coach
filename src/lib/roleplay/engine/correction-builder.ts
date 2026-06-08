@@ -1,5 +1,6 @@
 import { geminiGenerateText } from "@/lib/gemini/gemini-client";
 import type { RoleplayScenario } from "@/lib/roleplay/scenario-contract";
+import type { RoleplayAgeRange, RoleplayDifficulty } from "@/lib/roleplay/scenario-contract";
 import {
   buildConcreteCorrectGuide,
   hasConcreteNumbers,
@@ -525,6 +526,7 @@ export async function rebuildCorrectionsFromTranscript(input: {
   if (turns.length < 2) return [];
 
   const scenario = {
+    scenarioId: "rebuild-from-transcript",
     sectionA: {
       title: "對練情境",
       coreIssue: "購車與持有成本",
@@ -539,12 +541,15 @@ export async function rebuildCorrectionsFromTranscript(input: {
           ? input.facts
           : [{ label: "教材", value: "請依本場競品比較資料回應客戶。" }],
     },
-    sectionD: { closingActions: ["邀請試乘", "提供試算表"] },
+    sectionD: { keyPoints: [], forbidden: [], closingActions: ["邀請試乘", "提供試算表"] },
     sectionE: {
-      difficulty: input.difficulty,
-      ageRange: input.ageRange,
+      difficulty: input.difficulty as RoleplayDifficulty,
+      maxTurns: 5,
+      personaId: "P-01",
+      ageRange: input.ageRange as RoleplayAgeRange,
     },
-  } as RoleplayScenario;
+    sectionF: { criteria: [] },
+  } satisfies RoleplayScenario;
 
   return buildSessionCorrections(scenario, turns);
 }
