@@ -277,15 +277,14 @@ export async function finishRoleplaySession(sessionId: string): Promise<{
     );
   }
 
-  try {
-    await refreshAgentDashboardBriefing(
-      session.userId,
-      { trigger: "gate2", sessionId: session.sessionId },
-      session,
-    );
-  } catch (e) {
+  // 首頁小結更新改背景執行，避免使用者等第二次 Gemini
+  void refreshAgentDashboardBriefing(
+    session.userId,
+    { trigger: "gate2", sessionId: session.sessionId },
+    session,
+  ).catch((e) => {
     console.warn("[roleplay] dashboard briefing refresh (gate2) failed", e);
-  }
+  });
 
   return { sessionId, scoreResult };
 }

@@ -19,6 +19,7 @@ export function RoleplayPracticeChat({
   onSend,
   onFinish,
   busy,
+  scoring = false,
   canFinish,
   error,
   notice = "",
@@ -33,6 +34,7 @@ export function RoleplayPracticeChat({
   onSend: (e: React.FormEvent) => void;
   onFinish: () => void;
   busy: boolean;
+  scoring?: boolean;
   canFinish: boolean;
   error: string;
   notice?: string;
@@ -124,11 +126,11 @@ export function RoleplayPracticeChat({
           </button>
           <button
             type="button"
-            disabled={busy || !canFinish}
+            disabled={busy || scoring || !canFinish}
             onClick={onFinish}
             className="rounded-xl border border-teal-300 bg-teal-50 px-4 py-2.5 text-sm font-medium text-teal-900 disabled:opacity-50"
           >
-            結束評分
+            {scoring ? "評分中…" : "結束評分"}
           </button>
         </div>
       </form>

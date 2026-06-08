@@ -7,6 +7,7 @@ import {
   RoleplayPracticeChat,
   type RoleplayUiMessage,
 } from "@/components/roleplay/RoleplayPracticeChat";
+import { RoleplayScoringOverlay } from "@/components/roleplay/RoleplayScoringOverlay";
 
 function newId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -35,6 +36,7 @@ function PracticeContent() {
   const [maxTurns, setMaxTurns] = useState(5);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [scoring, setScoring] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   /** 本場對話已結束（最後一則業代回覆已送出），等待使用者按結束評分 */
@@ -193,7 +195,8 @@ function PracticeContent() {
   }
 
   async function finish() {
-    if (!sessionId || busy) return;
+    if (!sessionId || busy || scoring) return;
+    setScoring(true);
     setBusy(true);
     setError("");
     try {
@@ -204,11 +207,13 @@ function PracticeContent() {
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
         setError(data.error ?? "評分失敗");
+        setScoring(false);
         return;
       }
       router.push(`/roleplay/result?sessionId=${encodeURIComponent(sessionId)}`);
     } catch {
       setError("連線失敗");
+      setScoring(false);
     } finally {
       setBusy(false);
     }
@@ -234,21 +239,25 @@ function PracticeContent() {
   }
 
   return (
-    <RoleplayPracticeChat
-      messages={messages}
-      turn={turn}
-      maxTurns={maxTurns}
-      input={input}
-      onInputChange={setInput}
-      onSend={(e) => void send(e)}
-      onFinish={() => void finish()}
-      busy={busy}
-      canFinish={(turn >= 1 && !waitingForAgent) || sessionEnded}
-      error={error}
-      notice={notice}
-      sessionEnded={sessionEnded}
-      waitingForAgent={waitingForAgent}
-    />
+    <>
+      <RoleplayScoringOverlay active={scoring} />
+      <RoleplayPracticeChat
+        messages={messages}
+        turn={turn}
+        maxTurns={maxTurns}
+        input={input}
+        onInputChange={setInput}
+        onSend={(e) => void send(e)}
+        onFinish={() => void finish()}
+        busy={busy}
+        scoring={scoring}
+        canFinish={(turn >= 1 && !waitingForAgent) || sessionEnded}
+        error={error}
+        notice={notice}
+        sessionEnded={sessionEnded}
+        waitingForAgent={waitingForAgent}
+      />
+    </>
   );
 }
 
