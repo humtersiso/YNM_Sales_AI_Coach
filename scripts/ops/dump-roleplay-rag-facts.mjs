@@ -22,12 +22,13 @@ for (const name of [".env.local", ".env"]) {
 const base = (process.argv[2] ?? "http://localhost:3000").replace(/\/$/, "");
 const user = process.env.SEED_ADMIN_USERNAME ?? "admin";
 const pass = process.env.SEED_ADMIN_PASSWORD ?? "";
-const comps = [
-  "Toyota RAV4",
-  "Honda CR-V",
-  "Hyundai Tucson L",
-  "Mitsubishi Outlander",
-  "KIA Sportage",
+const configs = [
+  { productLine: "xtrail-ice", competitor: "Toyota RAV4" },
+  { productLine: "xtrail-ice", competitor: "Honda CR-V" },
+  { productLine: "xtrail-ice", competitor: "Hyundai Tucson L" },
+  { productLine: "xtrail-ice", competitor: "Mitsubishi Outlander" },
+  { productLine: "xtrail-ice", competitor: "KIA Sportage" },
+  { productLine: "kicks", competitor: "Honda HR-V" },
 ];
 
 const login = await fetch(`${base}/api/auth/login`, {
@@ -38,14 +39,14 @@ const login = await fetch(`${base}/api/auth/login`, {
 const cookie = (login.headers.getSetCookie?.() ?? []).map((c) => c.split(";")[0]).join("; ");
 const out = [];
 
-for (const competitor of comps) {
+for (const { productLine, competitor } of configs) {
   const r = await fetch(`${base}/api/roleplay/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Cookie: cookie },
     body: JSON.stringify({
       mode: "custom",
       config: {
-        productLine: "xtrail-ice",
+        productLine,
         personaId: "P-01",
         ageRange: "30-40",
         competitor,
@@ -56,7 +57,8 @@ for (const competitor of comps) {
   });
   const d = await r.json();
   out.push({
-    competitor,
+    productLine,
+    competitor: productLine === "kicks" ? "KICKS vs HR-V" : competitor,
     ok: r.ok,
     opening: d.customerMessage ?? "",
     facts: (d.coachMaterials?.facts ?? []).slice(0, 8),

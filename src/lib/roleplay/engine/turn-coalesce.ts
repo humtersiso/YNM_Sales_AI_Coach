@@ -1,8 +1,8 @@
 import type { RoleplayChatTurn } from "@/lib/roleplay/session-types";
 
 /**
- * 業代先發時 turns 可能為 [客戶開場, 業代招呼, 業代正文, 客戶…]。
- * 評分／待加強須將連續業代訊息合併成一句，才能對齊「客戶問 → 業代答」。
+ * 連續多則業代訊息合併成一句，評分／待加強才能對齊「客戶問 → 業代答」。
+ * （舊場次可能仍為 [客戶, 業代, 業代…] 順序，新場次為業代先發 [業代, 客戶, …]）
  */
 export function coalesceAdjacentAgentTurns(turns: RoleplayChatTurn[]): RoleplayChatTurn[] {
   const out: RoleplayChatTurn[] = [];

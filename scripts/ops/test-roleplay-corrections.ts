@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { composeScenarioFromConfig } from "../../src/lib/roleplay/engine/scenario-composer";
 import { detectCorrectionCandidates } from "../../src/lib/roleplay/engine/correction-builder";
 import { buildSessionCorrections } from "../../src/lib/roleplay/engine/correction-builder";
+import type { RoleplayScenario } from "../../src/lib/roleplay/scenario-contract";
 import type { RoleplayChatTurn } from "../../src/lib/roleplay/session-types";
 
 const webRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -30,12 +31,19 @@ loadEnv();
 
 const ts = (i: number) => new Date(Date.now() + i * 1000).toISOString();
 
-const TESTS: {
+type TestCase = {
   name: string;
+  competitor?: string;
+  mockFacts?: { label: string; value: string }[];
   turns: RoleplayChatTurn[];
   forbidIssues?: RegExp;
+  expectIssues?: RegExp[];
+  forbidGuide?: RegExp;
+  expectGuide?: RegExp;
   expectMax: number;
-}[] = [
+};
+
+const TESTS: TestCase[] = [
   {
     name: "① 弱回覆（大螢幕、路上跑）",
     expectMax: 4,
@@ -113,7 +121,6 @@ const TESTS: {
   {
     name: "④ 不清楚／試乘才給表／快點約試乘（應抓多項）",
     expectMax: 3,
-    forbidIssues: undefined,
     turns: [
       {
         role: "customer",
@@ -148,21 +155,115 @@ const TESTS: {
       { role: "agent", content: "快點約試乘拉", at: ts(7) },
     ],
   },
+  {
+    name: "⑤ veronica 類型：CR-V 場次比錯 RAV4 + LINE 延後",
+    competitor: "Honda CR-V",
+    mockFacts: [
+      {
+        label: "Sportage 對戰（混雜）",
+        value:
+          "SPORTAGE 零件維修費用約是 X-TRAIL 的 1.5 倍，回廠保養每次約 1～2 萬元。",
+      },
+      {
+        label: "CR-V 比較",
+        value:
+          "X-TRAIL ICE 回廠定保約 2～5 千元，CR-V 定保約 8 千元；十年 10 萬公里試算，車價稅金油資加總可比 CR-V 省約 15 萬。",
+      },
+      {
+        label: "油耗",
+        value: "WLTC 綜合油耗 X-TRAIL 旗艦約 16 km/L，十年油資試算約 12 萬元。",
+      },
+    ],
+    expectMax: 5,
+    expectIssues: [/本場競品不符|比較 CR-V/, /LINE|延後/],
+    forbidGuide: /SPORTAGE|Sportage/i,
+    expectGuide: /CR-V|cr-v/i,
+    turns: [
+      {
+        role: "customer",
+        content: "我在看 X-TRAIL ICE 跟 Honda CR-V，想比十年持有成本。",
+        at: ts(0),
+      },
+      {
+        role: "agent",
+        content:
+          "您好！以十年 10 萬公里試算，把 RAV4 的車價、折扣、稅金、油資跟電池保固加總，跟 X-TRAIL 大概差 30 萬。",
+        at: ts(1),
+      },
+      {
+        role: "customer",
+        content:
+          "你講的稅金跟電池這些數據確實有參考價值，但我剛剛問的是 Honda CR-V，怎麼你整篇都在講 RAV4？我想聽的是跟 CR-V 的比較，畢竟這台才是我的首選對手，能幫我針對這兩台實際算一下嗎？",
+        at: ts(2),
+      },
+      {
+        role: "agent",
+        content: "好的，CR-V 也是熱門車款，我們 X-TRAIL 配備很齊全。",
+        at: ts(3),
+      },
+      {
+        role: "customer",
+        content:
+          "這數據聽起來確實很漂亮，不過這 30 萬的差距是怎麼算出來的？另外，CR-V 的保養週期跟你們差很多嗎？我還是希望能看到詳細一點的試算表，不然只聽口頭說我心裡不太踏實。",
+        at: ts(4),
+      },
+      {
+        role: "agent",
+        content: "您方便加個LINE嗎? 這部分我內部確認找詳細的資料另外回給您好嗎？",
+        at: ts(5),
+      },
+    ],
+  },
 ];
 
-async function main() {
+function mockScenario(
+  competitor: string,
+  facts: { label: string; value: string }[],
+): RoleplayScenario {
+  return {
+    scenarioId: "test-mock",
+    sectionA: {
+      title: "對練情境",
+      coreIssue: "購車與持有成本",
+      competitor,
+      productDisplayName: "X-TRAIL ICE",
+      productLine: "xtrail-ice",
+    },
+    sectionB: { openingLine: "", followUps: [] },
+    sectionC: { facts },
+    sectionD: { keyPoints: [], forbidden: [], closingActions: ["邀請試乘", "提供試算表"] },
+    sectionE: {
+      difficulty: "advanced",
+      maxTurns: 5,
+      personaId: "P-01",
+      ageRange: "30-40",
+    },
+    sectionF: { criteria: [] },
+  };
+}
+
+async function resolveScenario(test: TestCase): Promise<RoleplayScenario> {
+  const competitor = test.competitor ?? "Toyota RAV4";
+  if (test.mockFacts) {
+    return mockScenario(competitor, test.mockFacts);
+  }
   const { scenario } = await composeScenarioFromConfig({
     productLine: "xtrail-ice",
     personaId: "P-01",
     ageRange: "30-40",
-    competitor: "Toyota RAV4",
+    competitor,
     maxTurns: 5,
     difficulty: "advanced",
   });
+  return scenario;
+}
 
+async function main() {
   let passed = 0;
   for (const test of TESTS) {
     console.log(`\n${test.name}`);
+    const scenario = await resolveScenario(test);
+
     const candidates = detectCorrectionCandidates(scenario, test.turns);
     console.log(`  候選（規則）: ${candidates.length}`);
     for (const c of candidates) {
@@ -178,11 +279,23 @@ async function main() {
 
     const forbidOk = !test.forbidIssues || !points.some((p) => test.forbidIssues!.test(p.issue));
     const countOk = points.length <= test.expectMax;
-    if (countOk && forbidOk) {
+    const issuesOk =
+      !test.expectIssues ||
+      test.expectIssues.every((re) =>
+        [...candidates, ...points].some((p) => re.test(p.issue)),
+      );
+    const guideForbidOk =
+      !test.forbidGuide || !points.some((p) => test.forbidGuide!.test(p.correctGuide));
+    const guideExpectOk =
+      !test.expectGuide || points.some((p) => test.expectGuide!.test(p.correctGuide));
+
+    if (countOk && forbidOk && issuesOk && guideForbidOk && guideExpectOk) {
       console.log("  ✓ 通過");
       passed += 1;
     } else {
-      console.log(`  ✗ 未通過 (count=${countOk} forbid=${forbidOk})`);
+      console.log(
+        `  ✗ 未通過 (count=${countOk} forbid=${forbidOk} issues=${issuesOk} guideForbid=${guideForbidOk} guideExpect=${guideExpectOk})`,
+      );
     }
   }
 

@@ -65,9 +65,11 @@ export function buildRuleDashboardBriefing(
   const trendLine = ruleTrendLine(stats.scoreTrend);
   const abandoned = Math.max(0, stats.startedSessions - stats.completedSessions);
   const knowledgeLines =
-    (stats.factMemoryLines?.length ?? 0) > 0
-      ? stats.factMemoryLines!.slice(0, 3)
-      : ruleKnowledgeLines(stats.knowledgeReminders ?? []);
+    (stats.correctionMemoryLines?.length ?? 0) > 0
+      ? stats.correctionMemoryLines!
+      : (stats.factMemoryLines?.length ?? 0) > 0
+        ? stats.factMemoryLines!.slice(0, 3)
+        : ruleKnowledgeLines(stats.knowledgeReminders ?? []);
   const adviceLine =
     stats.strategyAdviceFromCorrections?.trim() ||
     (stats.completedSessions > 0 ? "無" : ruleAdviceLine(stats, strongLabels, weakLabels, trendLine));

@@ -112,7 +112,7 @@ footer{margin-top:1.5rem;font-size:.8rem;color:var(--muted);text-align:center}
 <header>
 <h1>對練助手 · 高分教戰手則（RAG 優先版）</h1>
 <p class="meta">產生日期：${generatedAt} · 來源 <code>docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.md</code></p>
-<p class="meta">相關：<a href="ROLEPLAY_RAG_QA_DRILL.html">RAG QA 詳解</a> · <a href="ROLEPLAY_RAG_COVERAGE_AUDIT.html">RAG 覆蓋率稽核</a></p>
+<p class="meta">相關：<a href="ROLEPLAY_HIGH_SCORE_QA_GUIDE.html">競品高分問答集（120 題）</a> · <a href="ROLEPLAY_RAG_QA_DRILL.html">RAG QA 詳解</a> · <a href="ROLEPLAY_RAG_COVERAGE_AUDIT.html">RAG 覆蓋率稽核</a></p>
 </header>
 <div class="toolbar">
 <button type="button" class="btn btn-primary" id="scrollTop">回到頂部</button>

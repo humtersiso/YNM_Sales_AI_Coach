@@ -104,7 +104,7 @@ export default function UnifiedLoginPage() {
   }
 
   return (
-    <main className="portal-shell flex min-h-screen items-center justify-center bg-emerald-50 px-4">
+    <main className="portal-shell flex min-h-screen items-center justify-center bg-background px-4">
       <form onSubmit={submit} className="portal-shell w-full max-w-sm rounded-xl border border-emerald-200 bg-white p-6 shadow-sm">
         <h1 className="mb-4 text-xl font-semibold text-emerald-900">平台登入</h1>
         {existingSession ? (

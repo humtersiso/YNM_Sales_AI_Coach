@@ -1,3 +1,4 @@
+import { isValidCorrectionMemoryLine } from "@/lib/roleplay/briefing-correction-summary";
 import type { RoleplayDashboardBriefing, RoleplayDashboardStats } from "@/lib/roleplay/roleplay-types-api";
 import { normalizeBriefingLines } from "@/lib/roleplay/briefing-numeral-format";
 
@@ -36,7 +37,10 @@ export function parseBriefingJson(raw: string | null | undefined): RoleplayDashb
     const adviceLine = String(j.adviceLine ?? "").trim();
     if (!strengthLine || !weaknessLine || !trendLine || !adviceLine) return null;
     const knowledgeLines = Array.isArray(j.knowledgeLines)
-      ? j.knowledgeLines.map((x) => String(x ?? "").trim()).filter(Boolean)
+      ? j.knowledgeLines
+          .map((x) => String(x ?? "").trim())
+          .filter(Boolean)
+          .filter((line) => isValidCorrectionMemoryLine(line))
       : [];
     return normalizeBriefingLines({
       strengthLine,

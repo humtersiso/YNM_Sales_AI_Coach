@@ -114,10 +114,13 @@ async function main() {
   if (!turn1.customerMessage?.trim()) {
     throw new Error("第一輪應回傳客戶開場訊息");
   }
-  if (turn1.customerMessage !== start.customerMessage) {
-    throw new Error("第一輪客戶訊息應為預先生成的開場台詞");
+  if (turn1.customerMessage === start.customerMessage) {
+    throw new Error("第一輪客戶訊息應依業代招呼改寫，不應與開局預存台詞完全相同");
   }
-  console.log(`✓ 第一輪 /turn：業代打招呼 → 客戶開場（${turn1.customerMessage.slice(0, 20)}…）`);
+  if (!/您好|你好|嗨|謝謝|想|比較|了解|油耗|問題/.test(turn1.customerMessage)) {
+    throw new Error(`第一輪客戶訊息應接住業代招呼並帶出意向：${turn1.customerMessage.slice(0, 40)}`);
+  }
+  console.log(`✓ 第一輪 /turn：業代打招呼 → 客戶對應首句（${turn1.customerMessage.slice(0, 24)}…）`);
 
   const { res: boot2Res, data: boot2 } = await api(
     cookie,
@@ -133,10 +136,17 @@ async function main() {
   }
   if (boot2.turn !== 1) throw new Error(`bootstrap2 turn 應為 1，實際 ${boot2.turn}`);
   const agentMsgs = boot2.messages?.filter((m) => m.role === "agent") ?? [];
+  const customerMsgs = boot2.messages?.filter((m) => m.role === "customer") ?? [];
   if (agentMsgs.length !== 1 || agentMsgs[0].content !== greeting) {
     throw new Error("後端應已記錄業代打招呼訊息");
   }
-  console.log(`✓ bootstrap 更新：turn=1，業代訊息已寫入`);
+  if (customerMsgs.length !== 1) {
+    throw new Error("第一輪後應有一則客戶訊息");
+  }
+  if (boot2.messages?.[0]?.role !== "agent") {
+    throw new Error("對話紀錄應以業代先發，不可客戶早於業代");
+  }
+  console.log(`✓ bootstrap 更新：turn=1，順序為業代→客戶`);
 
   // 第二輪正常對話
   const { res: turn2Res, data: turn2 } = await api(
@@ -148,8 +158,8 @@ async function main() {
   if (!turn2Res.ok) throw new Error(`第二輪 turn 失敗 ${turn2Res.status}: ${turn2.error}`);
   if (turn2.turn !== 2) throw new Error(`第二輪 turn 應為 2，實際 ${turn2.turn}`);
   if (!turn2.customerMessage?.trim()) throw new Error("第二輪應有客戶回覆");
-  if (turn2.customerMessage === start.customerMessage) {
-    throw new Error("第二輪客戶訊息不應重複開場台詞");
+  if (turn2.customerMessage === turn1.customerMessage) {
+    throw new Error("第二輪客戶訊息不應重複第一輪");
   }
   console.log(`✓ 第二輪 /turn：正常 LLM 客戶回覆`);
 

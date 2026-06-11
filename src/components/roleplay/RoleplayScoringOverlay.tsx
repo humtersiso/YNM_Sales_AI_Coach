@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 
 const STEPS = [
-  { title: "讀取對話紀錄", hint: "整理本場客戶與業代往返" },
+  { title: "讀取對話紀錄", hint: "整理開場、各輪對話與收尾致謝" },
   { title: "AI 五維度評分", hint: "同理、論點、事實、策略、推進成交" },
-  { title: "整理本場待加強", hint: "依教材產出建議說法與數字" },
+  { title: "審查待加強說法", hint: "對照教材產出建議話術" },
   { title: "儲存場次紀錄", hint: "寫入成績與歷史（首頁小結背景更新）" },
 ] as const;
+
+const STEP_MS = 2800;
 
 export function RoleplayScoringOverlay({ active }: { active: boolean }) {
   const [stepIndex, setStepIndex] = useState(0);
@@ -17,15 +19,18 @@ export function RoleplayScoringOverlay({ active }: { active: boolean }) {
       setStepIndex(0);
       return;
     }
+
     const timer = window.setInterval(() => {
-      setStepIndex((i) => (i + 1) % STEPS.length);
-    }, 2800);
+      setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
+    }, STEP_MS);
+
     return () => window.clearInterval(timer);
   }, [active]);
 
   if (!active) return null;
 
   const step = STEPS[stepIndex]!;
+  const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
   return (
     <div
@@ -47,15 +52,21 @@ export function RoleplayScoringOverlay({ active }: { active: boolean }) {
             <p id="roleplay-scoring-title" className="text-base font-semibold text-emerald-950">
               正在計算評分…
             </p>
-            <p className="text-xs text-emerald-700">通常需 10～20 秒，請稍候勿關閉</p>
+            <p className="text-xs text-emerald-700">通常 10～20 秒，請稍候</p>
           </div>
         </div>
 
         <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-emerald-100">
-          <div className="h-full w-full animate-pulse rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500" />
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 transition-all duration-700 ease-out"
+            style={{ width: `${progress}%` }}
+          />
         </div>
 
-        <div className="mt-5 rounded-xl border border-teal-100 bg-teal-50/60 px-3 py-3">
+        <div
+          key={step.title}
+          className="mt-5 rounded-xl border border-teal-100 bg-teal-50/60 px-3 py-3 transition-all duration-500"
+        >
           <p className="text-sm font-medium text-teal-900">{step.title}</p>
           <p className="mt-1 text-xs leading-relaxed text-teal-800">{step.hint}</p>
         </div>
@@ -69,11 +80,11 @@ export function RoleplayScoringOverlay({ active }: { active: boolean }) {
               }`}
             >
               <span
-                className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] ${
+                className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] transition-all ${
                   i < stepIndex
                     ? "bg-emerald-600 text-white"
                     : i === stepIndex
-                      ? "border-2 border-emerald-500 bg-white text-emerald-700"
+                      ? "border-2 border-emerald-500 bg-white text-emerald-700 ring-2 ring-emerald-200/80"
                       : "border border-emerald-200 bg-white"
                 }`}
               >

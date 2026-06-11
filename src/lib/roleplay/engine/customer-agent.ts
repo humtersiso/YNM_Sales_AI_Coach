@@ -6,6 +6,8 @@ import {
   difficultyBehaviorPrompt,
   normalizeDrillDifficulty,
 } from "@/lib/roleplay/engine/difficulty-behavior";
+import { isAgentStrategyDeferReply } from "@/lib/roleplay/engine/correction-builder";
+import { normalizeCompetitorToken } from "@/lib/roleplay/engine/correction-guide";
 import { loadRoleplaySkill } from "@/lib/roleplay/skills/load-skill";
 import type { RoleplayChatTurn } from "@/lib/roleplay/session-types";
 
@@ -55,16 +57,47 @@ function cleanCustomerLine(text: string, fallback: string): string {
   return sanitizeCustomerUtterance(text) || fallback;
 }
 
+type DrillDifficulty = ReturnType<typeof normalizeDrillDifficulty>;
+
 /** 業代消極、敷衍或未正面回應時，客戶應先表達感受而非直接跳題 */
 function isPassiveAgentReply(text: string): boolean {
   const t = text.trim();
+  if (isAgentStrategyDeferReply(t)) return true;
   if (t.length < 12) return true;
   return /不知道|不確定|不太清楚|沒研究|沒辦法|不清楚|不太懂|沒有資料|不太瞭解|隨便|再看看|應該吧|大概吧|差不多吧|問主管|問一下|回去查|晚點再說|這個要問/i.test(
     t,
   );
 }
 
-function passiveAgentPromptBlock(agentMessage: string, diff: ReturnType<typeof normalizeDrillDifficulty>): string {
+function deferAgentScriptedFallback(diff: DrillDifficulty): string {
+  if (diff === "challenge") {
+    return "我今天是來比數字的，不是只想加 LINE。你至少先跟我說個大概範圍吧？";
+  }
+  if (diff === "beginner") {
+    return "加 LINE 可以，但那至少先跟我說個大概範圍？我今天想先比較數字。";
+  }
+  return "那至少先跟我說個大概範圍？我今天是想比數字，不是只想加 LINE。";
+}
+
+function deferAgentPromptBlock(agentMessage: string, diff: DrillDifficulty): string {
+  if (!isAgentStrategyDeferReply(agentMessage)) return "";
+
+  const tone =
+    diff === "challenge"
+      ? "語氣可較直接，明確表示只想加聯絡方式無法接受。"
+      : diff === "beginner"
+        ? "語氣可委婉，但仍要求當場給方向或粗估。"
+        : "語氣像真實買家，帶失望或質疑。";
+
+  return `【業代剛才延後提供資訊（如加 LINE、內部確認、稍後回覆、試乘才給表），未當場回答你的疑慮】
+請先針對「延後」本身反應，禁止只說「了解了、再比較一下」就結束。
+可改寫例如：「那至少先跟我說個大概範圍？」「我今天是想比數字，不是只想加 LINE。」
+${tone}
+須呼應業代剛才的說法（LINE／內部確認等），再要求當場給粗估或說明邏輯。`;
+}
+
+function passiveAgentPromptBlock(agentMessage: string, diff: DrillDifficulty): string {
+  if (isAgentStrategyDeferReply(agentMessage)) return "";
   if (!isPassiveAgentReply(agentMessage)) return "";
 
   const tone =
@@ -122,6 +155,55 @@ export async function generateCustomerOpening(
   return cleanCustomerLine(scripted ?? "", fallback);
 }
 
+function mergeGreetingWithOpening(agentMessage: string, plannedOpening: string): string {
+  const opening = plannedOpening.trim();
+  if (!opening) return "您好，我在考慮這台車，想先了解一下。";
+  if (/^(你好|您好|嗨)/.test(opening)) return opening;
+  if (/你好|您好|歡迎|請問|在看|需要什麼/.test(agentMessage)) {
+    const body = opening.replace(/^(你好|您好)[，,]?\s*/, "");
+    return cleanCustomerLine(`您好，${body}`, opening);
+  }
+  return opening;
+}
+
+/** 業代先打招呼後，客戶第一句（須接住業代開場，再帶出比較／購車意向） */
+export async function generateCustomerFirstReply(input: {
+  scenario: RoleplayScenario;
+  persona: RoleplayPersona;
+  agentMessage: string;
+  plannedOpening: string;
+}): Promise<string> {
+  const { scenario, persona, agentMessage, plannedOpening } = input;
+  const scriptedFallback = mergeGreetingWithOpening(agentMessage, plannedOpening);
+  const system = buildSystemInstruction(scenario, persona);
+
+  const prompt = `${system}
+
+【規則 — 客戶第一句】
+業代剛先開口，你是客戶第一次回應。
+1. 須先簡短接住業代的招呼（呼應對方說的話，不要無視）。
+2. 再自然帶出本場購車／比較意向（改寫成口語，勿照念）。
+3. 本場核心意向（內部參考）：${plannedOpening}
+4. 不可像客戶比業代更早進場、直接丟問題而沒回應業代。
+
+業代：${agentMessage}
+
+請以真實買家身份回覆 1～2 句，口語自然。不要輸出 JSON。`;
+
+  const raw = await geminiGenerateText(prompt, {
+    maxOutputTokens: 220,
+    temperature: 0.72,
+  });
+
+  const text = raw?.trim();
+  if (text && text.length >= 8) {
+    const cleaned = cleanCustomerLine(text, "");
+    if (cleaned) return cleaned;
+  }
+
+  return scriptedFallback;
+}
+
 export async function generateCustomerReply(input: {
   scenario: RoleplayScenario;
   persona: RoleplayPersona;
@@ -144,16 +226,28 @@ export async function generateCustomerReply(input: {
   const isFinalAgentTurn = agentTurnCount >= maxTurns;
   const nearEnd = agentTurnCount >= maxTurns - 1;
   const diff = normalizeDrillDifficulty(scenario.sectionE.difficulty);
+  const deferAgent = isAgentStrategyDeferReply(agentMessage);
   const passiveAgent = isPassiveAgentReply(agentMessage);
   const system = buildSystemInstruction(scenario, persona);
   const scriptedFallback = isFinalAgentTurn
     ? "好的，今天先了解到這裡，我回去跟家人討論一下再聯絡你。"
-    : passiveAgent
-      ? diff === "challenge"
-        ? "你這樣我也不敢買耶，連基本問題都沒辦法回答嗎？"
-        : "你怎麼也不太確定？這樣我很難放心比較，能不能幫我查清楚一點？"
-      : fallbackCustomerReply(scenario, followUpIndex);
+    : deferAgent
+      ? deferAgentScriptedFallback(diff)
+      : passiveAgent
+        ? diff === "challenge"
+          ? "你這樣我也不敢買耶，連基本問題都沒辦法回答嗎？"
+          : "你怎麼也不太確定？這樣我很難放心比較，能不能幫我查清楚一點？"
+        : fallbackCustomerReply(scenario, followUpIndex);
   const hintFollowUp = scenario.sectionB.followUps[followUpIndex];
+  const shortComp = normalizeCompetitorToken(scenario.sectionA.competitor);
+  const competitorGuardrail =
+    turns.some(
+      (t) =>
+        t.role === "customer" &&
+        /怎麼一直|一直拿|我問的是|首選對手|都在講|跳開|避重就輕/i.test(t.content),
+    ) || /RAV4|Sportage|Tucson|Outlander/i.test(agentMessage)
+      ? `【內部提醒 — 客戶已強調要比較 ${shortComp}】客戶下一輪若仍不滿意，可質疑業代是否迴避 ${shortComp} 比較；勿改問其他品牌。`
+      : "";
 
   const prompt = `${system}
 
@@ -169,9 +263,11 @@ ${
       ? "業代下一輪將是最後一次回覆，可簡短補充一點疑慮，但勿連續追殺。"
       : ""
 }
+${deferAgentPromptBlock(agentMessage, diff)}
 ${passiveAgentPromptBlock(agentMessage, diff)}
+${competitorGuardrail}
 ${
-  hintFollowUp && !isFinalAgentTurn && !passiveAgent
+  hintFollowUp && !isFinalAgentTurn && !passiveAgent && !deferAgent
     ? `（內部參考方向，請改寫成自然口語，勿照念）：${hintFollowUp}`
     : ""
 }
@@ -189,5 +285,8 @@ ${
     if (cleaned) return cleaned;
   }
 
-  return cleanCustomerLine(scriptedFallback, "我了解了，不過我還是覺得需要再比較一下。");
+  const ultimateFallback = deferAgent
+    ? deferAgentScriptedFallback(diff)
+    : "我了解了，不過我還是覺得需要再比較一下。";
+  return cleanCustomerLine(scriptedFallback, ultimateFallback);
 }

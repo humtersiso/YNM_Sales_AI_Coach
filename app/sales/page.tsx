@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChatThread, type ChatMessage } from "@/components/mobile/ChatThread";
+import { SakuraHeaderFx } from "@/components/theme/SakuraHeaderFx";
 import type { CitationCard } from "@/lib/gemini/citation-display";
 import type { SessionUser } from "@/lib/auth/session";
 
@@ -236,12 +237,14 @@ export default function SalesChatPage() {
   }
 
   if (!session || !ready) {
-    return <div className="portal-shell min-h-dvh bg-[#f3fbf6]" />;
+    return <div className="portal-shell min-h-dvh bg-background" />;
   }
 
   return (
-    <div className="portal-shell flex min-h-dvh flex-col bg-[#f3fbf6]">
-      <header className="portal-safe-top flex shrink-0 items-center justify-between border-b border-emerald-100/80 bg-[#f3fbf6]/95 px-4 py-3 backdrop-blur">
+    <div className="portal-shell flex min-h-dvh flex-col bg-background">
+      <header className="portal-header-bar portal-safe-top flex shrink-0 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur">
+        <SakuraHeaderFx />
+        <div className="relative z-[3] flex w-full items-center justify-between">
         <div className="min-w-0">
           <h1 className="text-lg font-semibold text-emerald-950">銷售助手</h1>
           <p className="truncate text-sm text-emerald-700">
@@ -261,6 +264,7 @@ export default function SalesChatPage() {
             登出
           </button>
         </div>
+        </div>
       </header>
 
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col overflow-hidden px-3">
@@ -271,7 +275,7 @@ export default function SalesChatPage() {
 
       <form
         onSubmit={send}
-        className="portal-safe-bottom shrink-0 border-t border-emerald-100 bg-white/95 px-3 py-3 backdrop-blur"
+        className="portal-safe-bottom shrink-0 border-t border-border bg-card/95 px-3 py-3 backdrop-blur"
       >
         <div className="mx-auto flex max-w-lg gap-2">
           <input

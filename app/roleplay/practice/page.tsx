@@ -5,9 +5,11 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { PortalLayout } from "@/components/mobile/PortalLayout";
 import {
   RoleplayPracticeChat,
+  deriveRoleplayPracticePhase,
   type RoleplayUiMessage,
 } from "@/components/roleplay/RoleplayPracticeChat";
 import { RoleplayScoringOverlay } from "@/components/roleplay/RoleplayScoringOverlay";
+import type { RoleplayScoreResult } from "@/lib/roleplay/session-types";
 
 function newId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -21,6 +23,10 @@ type PracticeBootstrap = {
   turn: number;
   messages: RoleplayUiMessage[];
   agentSpeaksFirst?: boolean;
+  plannedCustomerOpening?: string;
+  awaitingAgentClosing?: boolean;
+  agentClosingSent?: boolean;
+  readyToScore?: boolean;
 };
 
 function PracticeContent() {
@@ -39,18 +45,29 @@ function PracticeContent() {
   const [scoring, setScoring] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  /** 本場對話已結束（最後一則業代回覆已送出），等待使用者按結束評分 */
+  /** 收尾已送出，可結束評分 */
   const [sessionEnded, setSessionEnded] = useState(false);
-  // 業代先發模式：等業代打招呼後才顯示 AI 客戶第一句
   const [waitingForAgent, setWaitingForAgent] = useState(false);
+  /** 對話輪次已滿，等待業代收尾 */
+  const [awaitingClosing, setAwaitingClosing] = useState(false);
+  const [scenarioTitle, setScenarioTitle] = useState("");
 
   function applyBootstrap(data: PracticeBootstrap) {
     setSessionId(data.sessionId);
     setMaxTurns(data.maxTurns ?? 5);
     setTurn(data.turn ?? 0);
+    setScenarioTitle(data.scenarioTitle?.trim() ?? "");
+
+    const readyToScore = data.readyToScore ?? data.agentClosingSent ?? false;
+    const needsClosing =
+      !readyToScore &&
+      (data.awaitingAgentClosing === true ||
+        (data.turn ?? 0) >= (data.maxTurns ?? 5));
+
+    setAwaitingClosing(needsClosing);
+    setSessionEnded(readyToScore);
 
     if (data.agentSpeaksFirst) {
-      // 業代先發：messages 先留空，等第一輪 /turn 後才顯示客戶開場
       setMessages([]);
       setWaitingForAgent(true);
     } else {
@@ -60,6 +77,42 @@ function PracticeContent() {
           : [{ id: newId(), role: "customer", content: "" }],
       );
       setWaitingForAgent(false);
+    }
+
+    if (needsClosing) {
+      setNotice("本場對話輪次已結束，請向客戶收尾致謝後再結束評分。");
+    } else if (readyToScore) {
+      setNotice("收尾已完成，請點「結束評分」查看修正點與建議。");
+    }
+  }
+
+  function applyTurnResponse(
+    data: {
+      customerMessage?: string;
+      turn?: number;
+      shouldFinish?: boolean;
+      awaitingAgentClosing?: boolean;
+      readyToScore?: boolean;
+    },
+    currentMaxTurns: number,
+  ) {
+    const nextTurn = data.turn ?? turn;
+    setTurn(nextTurn);
+
+    const readyToScore = !!data.readyToScore;
+    const needsClosing =
+      !!data.awaitingAgentClosing ||
+      (nextTurn >= currentMaxTurns && !readyToScore);
+
+    if (needsClosing && !readyToScore) {
+      setAwaitingClosing(true);
+      setSessionEnded(false);
+      setNotice("本場對話輪次已結束，請向客戶收尾致謝後再結束評分。");
+    }
+    if (readyToScore) {
+      setAwaitingClosing(false);
+      setSessionEnded(true);
+      setNotice("收尾已完成，請點「結束評分」查看修正點與建議。");
     }
   }
 
@@ -113,6 +166,7 @@ function PracticeContent() {
             turn?: number;
             scenarioTitle?: string;
             agentSpeaksFirst?: boolean;
+            plannedCustomerOpening?: string;
           };
           applyBootstrap({
             sessionId: urlSessionId,
@@ -120,13 +174,9 @@ function PracticeContent() {
             maxTurns: boot.maxTurns ?? 5,
             turn: boot.turn ?? 0,
             agentSpeaksFirst: boot.agentSpeaksFirst ?? true,
-            messages: [
-              {
-                id: newId(),
-                role: "customer",
-                content: boot.customerMessage ?? "",
-              },
-            ],
+            plannedCustomerOpening: boot.plannedCustomerOpening ?? boot.customerMessage,
+            scenarioTitle: boot.scenarioTitle,
+            messages: [],
           });
           sessionStorage.removeItem(`roleplay-boot-${urlSessionId}`);
           setReady(true);
@@ -141,10 +191,28 @@ function PracticeContent() {
     })();
   }, [router, urlSessionId]);
 
+  useEffect(() => {
+    if (!ready || waitingForAgent || sessionEnded) return;
+    if (turn >= maxTurns && !awaitingClosing) {
+      setAwaitingClosing(true);
+      setNotice("本場對話輪次已結束，請向客戶收尾致謝後再結束評分。");
+    }
+  }, [ready, turn, maxTurns, waitingForAgent, sessionEnded, awaitingClosing]);
+
   async function send(e: React.FormEvent) {
     e.preventDefault();
     const text = input.trim();
-    if (!text || busy || !sessionId || sessionEnded || turn >= maxTurns) return;
+    const phase = deriveRoleplayPracticePhase({
+      waitingForAgent,
+      awaitingClosing,
+      sessionEnded,
+      turn,
+      maxTurns,
+    });
+    const isClosingTurn = phase === "closing";
+    if (!text || busy || scoring || !sessionId || phase === "ready_to_score") {
+      return;
+    }
     setInput("");
     setError("");
     setNotice("");
@@ -152,8 +220,13 @@ function PracticeContent() {
     const isFirstAgentTurn = waitingForAgent;
 
     setMessages((m) => [...m, { id: agentId, role: "agent", content: text }]);
-    const pendingId = newId();
-    setMessages((m) => [...m, { id: pendingId, role: "customer", content: "", pending: true }]);
+    const pendingId = isClosingTurn ? null : newId();
+    if (pendingId) {
+      setMessages((m) => [
+        ...m,
+        { id: pendingId, role: "customer", content: "", pending: true },
+      ]);
+    }
     setBusy(true);
 
     try {
@@ -166,36 +239,42 @@ function PracticeContent() {
         customerMessage?: string;
         turn?: number;
         shouldFinish?: boolean;
+        awaitingAgentClosing?: boolean;
+        readyToScore?: boolean;
         error?: string;
       };
       if (!res.ok) {
         setError(data.error ?? "送出失敗");
-        setMessages((m) => m.filter((x) => x.id !== pendingId && x.id !== agentId));
+        setMessages((m) =>
+          m.filter((x) => x.id !== agentId && (pendingId ? x.id !== pendingId : true)),
+        );
+        setInput(text);
         return;
       }
-      setTurn(data.turn ?? turn + 1);
       if (isFirstAgentTurn) setWaitingForAgent(false);
-      setMessages((m) =>
-        m.map((x) =>
-          x.id === pendingId
-            ? { id: pendingId, role: "customer", content: data.customerMessage ?? "" }
-            : x,
-        ),
-      );
-      if (data.shouldFinish) {
-        setSessionEnded(true);
-        setNotice(`您已完成本場 ${maxTurns} 輪回覆，請點「結束評分」查看修正點與建議。`);
+      if (pendingId) {
+        setMessages((m) =>
+          m.map((x) =>
+            x.id === pendingId
+              ? { id: pendingId, role: "customer", content: data.customerMessage ?? "" }
+              : x,
+          ),
+        );
       }
+      applyTurnResponse(data, maxTurns);
     } catch {
       setError("連線失敗");
-      setMessages((m) => m.filter((x) => x.id !== pendingId));
+      setMessages((m) =>
+        m.filter((x) => x.id !== agentId && (pendingId ? x.id !== pendingId : true)),
+      );
+      setInput(text);
     } finally {
       setBusy(false);
     }
   }
 
   async function finish() {
-    if (!sessionId || busy || scoring) return;
+    if (!sessionId || busy || scoring || !sessionEnded) return;
     setScoring(true);
     setBusy(true);
     setError("");
@@ -204,11 +283,23 @@ function PracticeContent() {
         `/api/roleplay/sessions/${encodeURIComponent(sessionId)}/finish`,
         { method: "POST" },
       );
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as {
+        error?: string;
+        scoreResult?: RoleplayScoreResult;
+      };
       if (!res.ok) {
         setError(data.error ?? "評分失敗");
         setScoring(false);
         return;
+      }
+      if (data.scoreResult) {
+        sessionStorage.setItem(
+          `roleplay-result-${sessionId}`,
+          JSON.stringify({
+            scenarioTitle,
+            scoreResult: data.scoreResult,
+          }),
+        );
       }
       router.push(`/roleplay/result?sessionId=${encodeURIComponent(sessionId)}`);
     } catch {
@@ -251,11 +342,13 @@ function PracticeContent() {
         onFinish={() => void finish()}
         busy={busy}
         scoring={scoring}
-        canFinish={(turn >= 1 && !waitingForAgent) || sessionEnded}
+        canFinish={sessionEnded && !waitingForAgent}
         error={error}
         notice={notice}
         sessionEnded={sessionEnded}
         waitingForAgent={waitingForAgent}
+        awaitingClosing={awaitingClosing}
+        scenarioTitle={scenarioTitle}
       />
     </>
   );

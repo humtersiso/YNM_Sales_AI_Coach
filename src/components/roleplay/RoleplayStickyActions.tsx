@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function RoleplayStickyActions() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-emerald-100 bg-[#f3fbf6]/95 backdrop-blur">
+    <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-background/95 backdrop-blur">
       <div className="portal-safe-bottom mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-3 pt-3">
         <Link
           href="/roleplay/setup"

@@ -82,12 +82,26 @@ function inferConsumerTopic(fact: { label: string; value: string }): string {
 }
 
 function collectThemes(rag: RoleplayRagBundle): string[] {
-  const themes: string[] = [];
+  const found = new Set<string>();
   for (const f of rag.facts.filter(isValidRagFact)) {
-    const t = inferConsumerTopic(f);
-    if (!themes.includes(t)) themes.push(t);
+    const text = `${f.label} ${f.value}`;
+    for (const p of THEME_PATTERNS) {
+      if (p.re.test(text)) found.add(p.topic);
+    }
   }
-  return themes.length > 0 ? themes : [pickRandom(CONCERN_ANGLES)];
+  if (found.size === 0) return [pickRandom(CONCERN_ANGLES)];
+
+  const ordered = CONCERN_ANGLES.filter((t) => found.has(t));
+  const extras = [...found].filter((t) => !ordered.includes(t));
+  return [...ordered, ...extras];
+}
+
+/** 依競品輪替主議題，避免 RAG 語料排序讓開場永遠是油耗 */
+function pickPrimaryTopic(themes: string[], competitor: string): string {
+  if (themes.length === 0) return pickRandom(CONCERN_ANGLES);
+  const seed = competitor.split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+  const idx = seed % themes.length;
+  return themes[idx]!;
 }
 
 /** 規則式備援：口語開場，不照搬 fact 標籤 */
@@ -98,7 +112,8 @@ export function deriveBriefFromRag(
   persona: RoleplayPersona,
 ): RoleplayOpeningBrief {
   const themes = collectThemes(rag);
-  const topic = themes[0]!;
+  const topic = pickPrimaryTopic(themes, competitor);
+  const rotated = [topic, ...themes.filter((t) => t !== topic)];
   const hook = pickRandom(NATURAL_HOOKS);
   const tpl = pickRandom(NATURAL_OPENINGS);
   let openingLine = fillTemplate(tpl, { product, competitor, topic, hook });
@@ -109,7 +124,7 @@ export function deriveBriefFromRag(
   const shortComp = competitor.replace(/^(Toyota|Honda|Hyundai|Mitsubishi|KIA)\s+/i, "");
   const followUps = [
     fillTemplate(pickRandom(NATURAL_FOLLOW_UPS), { product, competitor: shortComp }),
-    ...themes.slice(1, 4).map((t) =>
+    ...rotated.slice(1, 4).map((t) =>
       `另外我也想搞懂${t}，跟 ${shortComp} 比起來怎樣？`,
     ),
     fillTemplate(NATURAL_FOLLOW_UPS[4]!, { product, competitor: shortComp }),

@@ -44,6 +44,8 @@ export type RoleplayScoreResult = {
   improvementTips: string[];
   /** 本場修正點（取代舊版「未使用策略」） */
   correctionPoints: RoleplayCorrectionPoint[];
+  /** 待加強 Rubric 版本（完賽寫入 BQ report_json） */
+  rubricVersion?: string;
   /** @deprecated 由 correctionPoints.issue 同步，供舊報表相容 */
   unusedStrategies: string[];
   previousScore: number | null;
@@ -62,11 +64,18 @@ export type RoleplaySession = {
   branch: string;
   turns: RoleplayChatTurn[];
   agentTurnCount: number;
+  /** 業代已完成的「計入輪次」對話回覆數（不含開場招呼與收尾致謝） */
   maxTurns: number;
   status: "active" | "finished";
   startedAt: string;
   finishedAt?: string;
   scoreResult?: RoleplayScoreResult;
   followUpIndex: number;
+  /** 業代先發：客戶首句意向（尚未寫入 turns，等業代打招呼後再生成） */
+  pendingCustomerOpening?: string;
+  /** 對話輪次已滿，等待業代收尾致謝 */
+  awaitingAgentClosing?: boolean;
+  /** 業代已送出收尾致謝，可結束評分 */
+  agentClosingSent?: boolean;
   ragCoverage?: RoleplayRagCoverage;
 };

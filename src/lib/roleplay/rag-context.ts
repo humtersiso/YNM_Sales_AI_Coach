@@ -5,6 +5,10 @@ import {
   sanitizeCoachFactLabel,
   sanitizeCoachFactValue,
 } from "@/lib/roleplay/customer-text-sanitize";
+import {
+  filterRoleplayRagHits,
+  splitScenarioFactsForSession,
+} from "@/lib/roleplay/roleplay-rag-filter";
 import type { RagChunkHit } from "@/lib/rag/discovery-engine-search";
 import { getRagCorpusForCategory } from "@/lib/rag/rag-engine-config";
 import { searchVertexRagCorpus } from "@/lib/rag/vertex-rag-search";
@@ -154,11 +158,13 @@ export async function fetchRoleplayRagContext(
   const sorted = dedupeHits([...allHits]).sort(
     (a, b) => (b.relevance ?? 0) - (a.relevance ?? 0),
   );
-  const top = sorted.slice(0, topK);
-  const facts = top
+  const competitorFiltered = filterRoleplayRagHits(sorted, config.competitor);
+  const top = competitorFiltered.slice(0, topK);
+  const rawFacts = top
     .map((h, i) => snippetToFact(h, i))
-    .filter((f) => isValidRagFact(f))
-    .slice(0, 10);
+    .filter((f) => isValidRagFact(f));
+  const split = splitScenarioFactsForSession(rawFacts, config.competitor);
+  const facts = (split.facts.length > 0 ? split.facts : rawFacts).slice(0, 10);
   const strategies = extractStrategies(top);
   const validFactCount = facts.length;
   const coverageOk = validFactCount >= MIN_RAG_FACTS;

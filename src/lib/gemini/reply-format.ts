@@ -376,14 +376,17 @@ export function stripInvalidCitationMarkers(text: string, maxDocId: number): str
   });
 }
 
+/** 正文移除全部 [n]；引用由 citations 卡片另行顯示 */
 export function sanitizeReplyCitationMarkers(
   intro: string,
   bullets: string[],
   maxDocId: number,
 ): { intro: string; bullets: string[] } {
   return {
-    intro: stripInvalidCitationMarkers(intro, maxDocId),
-    bullets: bullets.map((b) => stripInvalidCitationMarkers(b, maxDocId)),
+    intro: stripInlineCitationMarkers(stripInvalidCitationMarkers(intro, maxDocId)),
+    bullets: bullets.map((b) =>
+      stripInlineCitationMarkers(stripInvalidCitationMarkers(b, maxDocId)),
+    ),
   };
 }
 

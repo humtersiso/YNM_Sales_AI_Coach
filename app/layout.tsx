@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+import { PortalThemeProvider } from "@/components/theme/PortalThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,7 +32,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full bg-background text-foreground">
+        <Script id="portal-theme-init" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem("ynm-portal-theme");if(t==="default")document.documentElement.dataset.portalTheme="default";}catch(e){}})();`}
+        </Script>
+        <PortalThemeProvider>{children}</PortalThemeProvider>
+      </body>
     </html>
   );
 }

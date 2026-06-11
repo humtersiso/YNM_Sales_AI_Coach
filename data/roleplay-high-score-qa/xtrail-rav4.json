@@ -1,0 +1,505 @@
+{
+  "slug": "rav4",
+  "competitor": "Toyota RAV4",
+  "short": "RAV4",
+  "productLine": "xtrail",
+  "product": "X-TRAIL ICE",
+  "issue": "操作／盲操（vs RAV4）",
+  "themes": [
+    "總價差異",
+    "安全輔助",
+    "WLTC 試算",
+    "油耗／持有成本",
+    "價格／方案",
+    "隔音／質感",
+    "盲操／操作",
+    "空間／舒適"
+  ],
+  "questions": [
+    {
+      "slot": 1,
+      "tags": [
+        "R1 開場",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "綜合比較",
+      "q": "「我最近在比 X-TRAIL ICE 跟 RAV4，我這陣子做滿多功課的，看網路上大家都說 RAV4 的油耗表現很強，不過我還是想聽聽看這台 X-TRAIL 實際開起來，長期的持有成本真的有比它省嗎。你們值得考慮嗎？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在做功課時，會特別在意長期持有成本與油耗表現\">＿＿＿</span>，這確實是購車時很關鍵的考量。<br/><br/>其實數據往往僅供參考，實際的駕駛感受才是最準確的。<span class=\"blank\" data-answer=\"X-TRAIL ICE 在動力、油耗與扭力的表現上，與數據呈現的差異並不大\">＿＿＿</span>，且實際開起來的感受非常紮實。<br/><br/><span class=\"blank\" data-answer=\"建議您今天直接安排一場試乘，親自體驗一下這台車的動力回饋與操控感\">＿＿＿</span>，我們也能現場為您針對用車習慣做更精確的持有成本分析，您覺得如何？",
+      "full": "我非常理解您在做功課時，會特別在意長期持有成本與油耗表現，這確實是購車時很關鍵的考量。<br/><br/>其實數據往往僅供參考，實際的駕駛感受才是最準確的。X-TRAIL ICE 在動力、油耗與扭力的表現上，與數據呈現的差異並不大，且實際開起來的感受非常紮實。<br/><br/>建議您今天直接安排一場試乘，親自體驗一下這台車的動力回饋與操控感，我們也能現場為您針對用車習慣做更精確的持有成本分析，您覺得如何？",
+      "score": "同理+事實 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-01"
+    },
+    {
+      "slot": 2,
+      "tags": [
+        "油耗／WLTC",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "油耗／持有成本",
+      "q": "「RAV4 官網油耗我都看過了，你們教材怎麼說？WLTC 跟實際差很多吧？」",
+      "blank": "我<span class=\"blank\" data-answer=\"非常理解您的考量\">＿＿＿</span>，畢竟官方油耗數據在不同路況下確實會產生差異，這也是為什麼我們更建議您親自體驗。<br/><br/>其實 X-TRAIL ICE 在動力輸出與油耗表現的平衡上，<span class=\"blank\" data-answer=\"實際駕駛的感受與數據非常接近，並不會有落差感\">＿＿＿</span>。與其單看帳面數字，不如我們現在就<span class=\"blank\" data-answer=\"安排一場試駕，讓您親自感受\">＿＿＿</span>它在市區與高速路段的真實動力與節能表現，這樣對您的日常用車參考價值最高，您看如何？",
+      "full": "我非常理解您的考量，畢竟官方油耗數據在不同路況下確實會產生差異，這也是為什麼我們更建議您親自體驗。<br/><br/>其實 X-TRAIL ICE 在動力輸出與油耗表現的平衡上，實際駕駛的感受與數據非常接近，並不會有落差感。與其單看帳面數字，不如我們現在就安排一場試駕，讓您親自感受它在市區與高速路段的真實動力與節能表現，這樣對您的日常用車參考價值最高，您看如何？",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-02"
+    },
+    {
+      "slot": 3,
+      "tags": [
+        "保養／回廠",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "保養／耐用",
+      "q": "「RAV4 聽說保養便宜，X-TRAIL ICE 回廠費用跟耐用度教材怎麼說？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在購車時，會將後續的保養成本與耐用度納入考量\">＿＿＿</span>，這確實是精打細算的表現。<br/><br/>關於車輛的實際表現，數據往往僅供參考，我們更建議您親自體驗，因為 <span class=\"blank\" data-answer=\"X-TRAIL ICE 在動力、油耗與扭力的實際駕駛感官上，能帶給您更具體的感受\">＿＿＿</span>，這也是我們最核心的優勢。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您現在就進行一場實際試駕\">＿＿＿</span>，透過親身的駕馭體驗，您將能更精準地評估車輛的耐用度與整體價值，感受它與數據呈現出的差異。",
+      "full": "我非常理解您在購車時，會將後續的保養成本與耐用度納入考量，這確實是精打細算的表現。<br/><br/>關於車輛的實際表現，數據往往僅供參考，我們更建議您親自體驗，因為 X-TRAIL ICE 在動力、油耗與扭力的實際駕駛感官上，能帶給您更具體的感受，這也是我們最核心的優勢。<br/><br/>誠摯邀請您現在就進行一場實際試駕，透過親身的駕馭體驗，您將能更精準地評估車輛的耐用度與整體價值，感受它與數據呈現出的差異。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-03"
+    },
+    {
+      "slot": 4,
+      "tags": [
+        "隔音／玻璃",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "隔音／質感",
+      "q": "「我家人在意隔音，RAV4 跟 X-TRAIL ICE 玻璃、NVH 教材有數據嗎？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對家人乘車舒適度的重視\">＿＿＿</span>，畢竟安靜的車室空間確實能讓旅途更放鬆。<br/><br/>關於隔音與 NVH 工程，<span class=\"blank\" data-answer=\"數據往往只能呈現部分面向，實際的感受還是要親自體驗才最準確\">＿＿＿</span>。X-TRAIL ICE 在設計時特別強化了車室靜謐性，這部分的細膩質感，<span class=\"blank\" data-answer=\"建議您直接帶家人來展間試乘，透過實際駕駛感受，您一定能體會到我們在隔音工程上的用心\">＿＿＿</span>。<br/><br/>現在就請您與家人上車感受一下，親自體驗過後，相信您會對它的靜肅表現更有信心。",
+      "full": "我非常理解您對家人乘車舒適度的重視，畢竟安靜的車室空間確實能讓旅途更放鬆。<br/><br/>關於隔音與 NVH 工程，數據往往只能呈現部分面向，實際的感受還是要親自體驗才最準確。X-TRAIL ICE 在設計時特別強化了車室靜謐性，這部分的細膩質感，建議您直接帶家人來展間試乘，透過實際駕駛感受，您一定能體會到我們在隔音工程上的用心。<br/><br/>現在就請您與家人上車感受一下，親自體驗過後，相信您會對它的靜肅表現更有信心。",
+      "score": "factCheck+同理 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-04"
+    },
+    {
+      "slot": 5,
+      "tags": [
+        "盲操／操作",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "盲操／操作",
+      "q": "「RAV4 中控都是螢幕，X-TRAIL ICE 冷氣旋鈕／盲操教材怎麼說？」",
+      "blank": "我非常理解您對於中控操作便利性的考量，畢竟開車時的直覺性確實非常重要。<br/><br/>其實 X-TRAIL ICE <span class=\"blank\" data-answer=\"保留實體旋鈕的設計\">＿＿＿</span>，是為了讓駕駛在行進間能更專注於路況，<span class=\"blank\" data-answer=\"透過觸覺就能精準調整，減少視線離開道路的時間\">＿＿＿</span>，這也是許多重視行車安全的車主非常喜愛的設計。<br/><br/>數據與規格的差異，往往不如親身體驗來得準確，<span class=\"blank\" data-answer=\"誠摯邀請您現在就坐進駕駛座，親自操作看看\">＿＿＿</span>這套旋鈕的阻尼感與回饋，相信您實際試乘後，就能感受到這種盲操設計帶來的安心感。",
+      "full": "我非常理解您對於中控操作便利性的考量，畢竟開車時的直覺性確實非常重要。<br/><br/>其實 X-TRAIL ICE 保留實體旋鈕的設計，是為了讓駕駛在行進間能更專注於路況，透過觸覺就能精準調整，減少視線離開道路的時間，這也是許多重視行車安全的車主非常喜愛的設計。<br/><br/>數據與規格的差異，往往不如親身體驗來得準確，誠摯邀請您現在就坐進駕駛座，親自操作看看這套旋鈕的阻尼感與回饋，相信您實際試乘後，就能感受到這種盲操設計帶來的安心感。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-05"
+    },
+    {
+      "slot": 6,
+      "tags": [
+        "空間／舒適",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "空間／舒適",
+      "q": "「我們家有小孩，RAV4 跟 X-TRAIL ICE 後座空間、行李廂教材怎麼比？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對家庭用車空間的重視\">＿＿＿</span>，畢竟載著小孩，舒適度與實用性絕對是首要考量。<br/><br/>關於空間表現，<span class=\"blank\" data-answer=\"數據往往只能呈現一部分，實際的乘坐感受與行李廂的運用靈活度，還是要親自體驗才能感受到差異\">＿＿＿</span>。<br/><br/>誠摯邀請您帶家人一起來試乘，讓我們實際把安全座椅裝上去，並放入您平時常用的推車或行李，親自感受 X-TRAIL ICE 在空間規劃上的貼心設計，這會比單看規格表更準確喔！",
+      "full": "我非常理解您對家庭用車空間的重視，畢竟載著小孩，舒適度與實用性絕對是首要考量。<br/><br/>關於空間表現，數據往往只能呈現一部分，實際的乘坐感受與行李廂的運用靈活度，還是要親自體驗才能感受到差異。<br/><br/>誠摯邀請您帶家人一起來試乘，讓我們實際把安全座椅裝上去，並放入您平時常用的推車或行李，親自感受 X-TRAIL ICE 在空間規劃上的貼心設計，這會比單看規格表更準確喔！",
+      "score": "策略+事實 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-06"
+    },
+    {
+      "slot": 7,
+      "tags": [
+        "價格／方案",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "價格／方案",
+      "q": "「RAV4 現在促銷很大，X-TRAIL ICE 總價跟方案教材怎麼說？」",
+      "blank": "<span class=\"blank\" data-answer=\"我完全理解您在比較車款時，會特別關注目前的促銷方案與總價\">＿＿＿</span>，這確實是購車時非常重要的考量。<br/><br/>不過，車輛的<span class=\"blank\" data-answer=\"動力、油耗與扭力表現，在實際駕駛的感官體驗上，往往與帳面數據有不同的感受\">＿＿＿</span>，這也是 X-TRAIL ICE 最具優勢的地方。<br/><br/>建議您今天直接安排一趟試乘，親自感受我們在動力輸出與行路質感上的細膩表現，我同時為您準備了專屬的購車方案試算，讓您能更精準地評估整體價值。",
+      "full": "我完全理解您在比較車款時，會特別關注目前的促銷方案與總價，這確實是購車時非常重要的考量。<br/><br/>不過，車輛的動力、油耗與扭力表現，在實際駕駛的感官體驗上，往往與帳面數據有不同的感受，這也是 X-TRAIL ICE 最具優勢的地方。<br/><br/>建議您今天直接安排一趟試乘，親自感受我們在動力輸出與行路質感上的細膩表現，我同時為您準備了專屬的購車方案試算，讓您能更精準地評估整體價值。",
+      "score": "factCheck+成交 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-07"
+    },
+    {
+      "slot": 8,
+      "tags": [
+        "安全／輔助",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "安全／輔助",
+      "q": "「RAV4 輔助駕駛很強，X-TRAIL ICE ProPILOT／安全配備教材怎麼比？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對輔助駕駛系統的重視\">＿＿＿</span>，畢竟行車安全是選擇休旅車時最重要的考量。<br/><br/>其實輔助駕駛系統的實際運作感受，往往比規格表上的數據更重要。X-TRAIL ICE 的 <span class=\"blank\" data-answer=\"ProPILOT 智行安全系統在設計上非常強調人車互動的流暢度\">＿＿＿</span>，這部分與其看規格比較，不如邀請您親自試駕體驗，感受系統在實際路況下的細膩度與安心感。<br/><br/><span class=\"blank\" data-answer=\"我們現在就安排一趟試乘，讓您親自感受這套系統在動力與安全表現上的實際優勢\">＿＿＿</span>，您覺得如何？",
+      "full": "我非常理解您對輔助駕駛系統的重視，畢竟行車安全是選擇休旅車時最重要的考量。<br/><br/>其實輔助駕駛系統的實際運作感受，往往比規格表上的數據更重要。X-TRAIL ICE 的 ProPILOT 智行安全系統在設計上非常強調人車互動的流暢度，這部分與其看規格比較，不如邀請您親自試駕體驗，感受系統在實際路況下的細膩度與安心感。<br/><br/>我們現在就安排一趟試乘，讓您親自感受這套系統在動力與安全表現上的實際優勢，您覺得如何？",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-08"
+    },
+    {
+      "slot": 9,
+      "tags": [
+        "P-01",
+        "P-01 理性",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "油耗／持有成本",
+      "q": "「我是 理性分析型，請把 RAV4 跟 X-TRAIL ICE 的 WLTC 條件跟試算依據講清楚。」",
+      "blank": "我非常理解您作為<span class=\"blank\" data-answer=\"理性買家\">＿＿＿</span>，對於油耗數據與持有成本的精確要求。<br/><br/>關於 WLTC 測試標準，這是一套更貼近實際路況的模擬規範，雖然數據能作為參考基準，但實際油耗會因每位駕駛的習慣與路況而異。X-TRAIL ICE 在動力輸出與油耗表現上，皆經過嚴謹調校，與 RAV4 相比，兩者在帳面數據上的差異，在實際駕駛感官中並不明顯。<br/><br/>與其單看紙上數據，我更<span class=\"blank\" data-answer=\"建議您安排一場實際試駕，親自感受車輛在不同路況下的動力與油耗表現\">＿＿＿</span>，這將會是您評估長期持有成本最準確的依據。",
+      "full": "我非常理解您作為理性買家，對於油耗數據與持有成本的精確要求。<br/><br/>關於 WLTC 測試標準，這是一套更貼近實際路況的模擬規範，雖然數據能作為參考基準，但實際油耗會因每位駕駛的習慣與路況而異。X-TRAIL ICE 在動力輸出與油耗表現上，皆經過嚴謹調校，與 RAV4 相比，兩者在帳面數據上的差異，在實際駕駛感官中並不明顯。<br/><br/>與其單看紙上數據，我更建議您安排一場實際試駕，親自感受車輛在不同路況下的動力與油耗表現，這將會是您評估長期持有成本最準確的依據。",
+      "score": "數據、WLTC、試算公式 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-09"
+    },
+    {
+      "slot": 10,
+      "tags": [
+        "P-03",
+        "P-03 預算",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "價格／方案",
+      "q": "「我預算緊，RAV4 促銷那麼兇，X-TRAIL ICE 總成本教材怎麼說？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在預算上的考量\">＿＿＿</span>，畢竟買車是筆大支出，精打細算絕對是正確的。<br/><br/>雖然帳面上的促銷方案各有不同，但車輛的價值更在於長期駕駛的動力表現與油耗節能，這些實際感受往往與數據呈現的差異不大。<br/><br/><span class=\"blank\" data-answer=\"建議您今天直接安排試駕，我們現場針對您的購車預算進行詳細的總成本試算\">＿＿＿</span>，讓您親自體驗 X-TRAIL ICE 的真實駕馭感，感受它帶來的價值是否更符合您的需求。",
+      "full": "我非常理解您在預算上的考量，畢竟買車是筆大支出，精打細算絕對是正確的。<br/><br/>雖然帳面上的促銷方案各有不同，但車輛的價值更在於長期駕駛的動力表現與油耗節能，這些實際感受往往與數據呈現的差異不大。<br/><br/>建議您今天直接安排試駕，我們現場針對您的購車預算進行詳細的總成本試算，讓您親自體驗 X-TRAIL ICE 的真實駕馭感，感受它帶來的價值是否更符合您的需求。",
+      "score": "總價、月供、促銷 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-10"
+    },
+    {
+      "slot": 11,
+      "tags": [
+        "P-05",
+        "P-05 研究",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "保養／耐用",
+      "q": "「論壇上 RAV4 引擎／耐用討論很多，你們教材數據來源哪裡來？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在網路上看到不同討論時會產生的疑慮\">＿＿＿</span>，畢竟買車是大事，謹慎一點絕對是正確的。<br/><br/>其實數據與網路評論往往因人而異，與其單看規格表，我更建議您親自體驗 X-TRAIL ICE 的實際駕駛感受。我們在動力、油耗及扭力的表現上，都是為了提供最穩定的行駛品質而設計，這些細節在實際路測中會比單純的數據更有說服力。<br/><br/><span class=\"blank\" data-answer=\"不如我們現在就安排一趟試乘，讓您親自感受這台車的耐用度與操控感\">＿＿＿</span>，您覺得如何？",
+      "full": "我非常理解您在網路上看到不同討論時會產生的疑慮，畢竟買車是大事，謹慎一點絕對是正確的。<br/><br/>其實數據與網路評論往往因人而異，與其單看規格表，我更建議您親自體驗 X-TRAIL ICE 的實際駕駛感受。我們在動力、油耗及扭力的表現上，都是為了提供最穩定的行駛品質而設計，這些細節在實際路測中會比單純的數據更有說服力。<br/><br/>不如我們現在就安排一趟試乘，讓您親自感受這台車的耐用度與操控感，您覺得如何？",
+      "score": "論壇質疑、耐用與來源 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-11"
+    },
+    {
+      "slot": 12,
+      "tags": [
+        "30-40",
+        "30–40 歲",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "空間／舒適",
+      "q": "【30–40 歲客戶】「RAV4 跟 X-TRAIL ICE，家庭用車、比較理性，空間跟安全怎麼選？」",
+      "blank": "我<span class=\"blank\" data-answer=\"非常理解您在為家庭選擇車輛時，對於空間與安全性的重視\">＿＿＿</span>，這確實是理性購車最關鍵的考量。<br/><br/>關於空間與舒適度的感受，<span class=\"blank\" data-answer=\"數據往往僅供參考，實際的乘坐體驗才是最準確的標準\">＿＿＿</span>。X-TRAIL ICE 在設計上非常注重家庭用車的實際需求，<span class=\"blank\" data-answer=\"建議您親自帶家人來試乘，感受一下我們在動力與舒適度上的真實表現\">＿＿＿</span>。<br/><br/>透過實際駕駛，您能更直接地體驗到 X-TRAIL ICE 與 RAV4 在感官上的差異，讓我們一起安排一場試駕，親自驗證哪一款車更符合您心目中理想的家庭座駕。",
+      "full": "我非常理解您在為家庭選擇車輛時，對於空間與安全性的重視，這確實是理性購車最關鍵的考量。<br/><br/>關於空間與舒適度的感受，數據往往僅供參考，實際的乘坐體驗才是最準確的標準。X-TRAIL ICE 在設計上非常注重家庭用車的實際需求，建議您親自帶家人來試乘，感受一下我們在動力與舒適度上的真實表現。<br/><br/>透過實際駕駛，您能更直接地體驗到 X-TRAIL ICE 與 RAV4 在感官上的差異，讓我們一起安排一場試駕，親自驗證哪一款車更符合您心目中理想的家庭座駕。",
+      "score": "同理+事實 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-12"
+    },
+    {
+      "slot": 13,
+      "tags": [
+        "50+",
+        "50+ 歲",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "安全／輔助",
+      "q": "【50 歲以上客戶】「RAV4 跟 X-TRAIL ICE，重視可靠與好上手，哪台比較好開、比較省心？」",
+      "blank": "大哥您好，我非常理解您在購車時，最重視的就是車輛的可靠度與操作的上手程度，畢竟<span class=\"blank\" data-answer=\"開得安心、省心才是最重要的\">＿＿＿</span>。<br/><br/>其實<span class=\"blank\" data-answer=\"數據上的規格僅供參考，車輛實際開起來的動力輸出、油耗表現以及操控感，還是要透過親自駕駛才能感受到最真實的差異\">＿＿＿</span>。<br/><br/>我誠摯邀請您現在就跟我一起去試駕，透過實際的駕駛體驗，您一定能感受到 X-TRAIL ICE 在動力與操控上的優勢，親自驗證哪一台車最符合您心目中好開又省心的標準。",
+      "full": "大哥您好，我非常理解您在購車時，最重視的就是車輛的可靠度與操作的上手程度，畢竟開得安心、省心才是最重要的。<br/><br/>其實數據上的規格僅供參考，車輛實際開起來的動力輸出、油耗表現以及操控感，還是要透過親自駕駛才能感受到最真實的差異。<br/><br/>我誠摯邀請您現在就跟我一起去試駕，透過實際的駕駛體驗，您一定能感受到 X-TRAIL ICE 在動力與操控上的優勢，親自驗證哪一台車最符合您心目中好開又省心的標準。",
+      "score": "同理 · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-13"
+    },
+    {
+      "slot": 14,
+      "tags": [
+        "策略-LINE延後",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "銷售策略",
+      "q": "【情境】客戶問隔音數據，業代：「加 LINE 我傳表。」你該怎麼答？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對隔音數據的重視\">＿＿＿</span>，畢竟這直接影響到日常駕駛的舒適品質。<br/><br/>其實<span class=\"blank\" data-answer=\"數據往往只是參考，因為每個人的聽覺感受與路況環境都不同\">＿＿＿</span>，與其看冷冰冰的規格表，不如親自體驗最準確。<br/><br/>我現在就安排一台 X-TRAIL ICE 給您，<span class=\"blank\" data-answer=\"邀請您親自試駕感受一下我們在車室靜謐性上的用心\">＿＿＿</span>，您覺得這週末下午方便嗎？",
+      "full": "我非常理解您對隔音數據的重視，畢竟這直接影響到日常駕駛的舒適品質。<br/><br/>其實數據往往只是參考，因為每個人的聽覺感受與路況環境都不同，與其看冷冰冰的規格表，不如親自體驗最準確。<br/><br/>我現在就安排一台 X-TRAIL ICE 給您，邀請您親自試駕感受一下我們在車室靜謐性上的用心，您覺得這週末下午方便嗎？",
+      "score": "strategy · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-14"
+    },
+    {
+      "slot": 15,
+      "tags": [
+        "策略-試乘延後",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "銷售策略",
+      "q": "【情境】業代只說試乘才準，未當場講保養費用。你該怎麼答？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對於保養成本的考量\">＿＿＿</span>，畢竟購車後的長期持有費用確實是關鍵。<br/><br/>數據雖然能提供參考，但車輛的動力輸出、油耗表現以及實際駕駛時的扭力感受，往往需要透過親自駕馭才能體會到與數據間的細微差異。X-TRAIL ICE 的實際操駕體驗，絕對能讓您感受到與帳面數據相符的優異品質。<br/><br/><span class=\"blank\" data-answer=\"建議您現在就安排一場試乘，讓我們在體驗過程中，針對您關心的保養費用進行詳細的試算與說明\">＿＿＿</span>，讓您能更精準地評估整體持有成本。",
+      "full": "我非常理解您對於保養成本的考量，畢竟購車後的長期持有費用確實是關鍵。<br/><br/>數據雖然能提供參考，但車輛的動力輸出、油耗表現以及實際駕駛時的扭力感受，往往需要透過親自駕馭才能體會到與數據間的細微差異。X-TRAIL ICE 的實際操駕體驗，絕對能讓您感受到與帳面數據相符的優異品質。<br/><br/>建議您現在就安排一場試乘，讓我們在體驗過程中，針對您關心的保養費用進行詳細的試算與說明，讓您能更精準地評估整體持有成本。",
+      "score": "strategy · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-15"
+    },
+    {
+      "slot": 16,
+      "tags": [
+        "配備／科技",
+        "RAV4",
+        "挑戰",
+        "RAG"
+      ],
+      "topic": "配備／科技",
+      "q": "「你們講半天都沒具體配備，RAV4 科技功能教材差在哪？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對科技配備的重視\">＿＿＿</span>，畢竟買車就是要享受最先進的體驗。<br/><br/>其實規格表上的數字往往很難呈現出實際的駕駛感受，<span class=\"blank\" data-answer=\"X-TRAIL ICE 的動力輸出、油耗表現以及扭力調校，在實際行駛時的細膩度與穩定性，與 RAV4 確實有著不同的感官體驗\">＿＿＿</span>。<br/><br/>與其看著冷冰冰的數據比較，<span class=\"blank\" data-answer=\"我誠摯邀請您現在就親自試駕，透過實際駕駛來感受兩者在科技輔助與操控上的差異\">＿＿＿</span>，這才是最準確的驗證方式。",
+      "full": "我非常理解您對科技配備的重視，畢竟買車就是要享受最先進的體驗。<br/><br/>其實規格表上的數字往往很難呈現出實際的駕駛感受，X-TRAIL ICE 的動力輸出、油耗表現以及扭力調校，在實際行駛時的細膩度與穩定性，與 RAV4 確實有著不同的感官體驗。<br/><br/>與其看著冷冰冰的數據比較，我誠摯邀請您現在就親自試駕，透過實際駕駛來感受兩者在科技輔助與操控上的差異，這才是最準確的驗證方式。",
+      "score": "factCheck+advance · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-16"
+    },
+    {
+      "slot": 17,
+      "tags": [
+        "RAG 事實 1",
+        "RAV4"
+      ],
+      "topic": "配備／科技",
+      "q": "【RAG 事實 1】客戶：「你剛說的配備依據是什麼？」（RAV4）",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對規格數據的重視\">＿＿＿</span>，畢竟買車是為了長期的駕駛體驗。<br/><br/>其實數據只是參考基準，因為動力、油耗與扭力在實際駕駛時的體感，往往與帳面數字存在差異。X-TRAIL ICE 的優勢在於實際操駕的細膩度與舒適感，這些是單看規格表無法呈現的。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您現在就親自試駕，透過實際的路感回饋與加速體驗，您就能親自驗證\">＿＿＿</span> X-TRAIL ICE 是否符合您對理想座駕的期待。",
+      "full": "我非常理解您對規格數據的重視，畢竟買車是為了長期的駕駛體驗。<br/><br/>其實數據只是參考基準，因為動力、油耗與扭力在實際駕駛時的體感，往往與帳面數字存在差異。X-TRAIL ICE 的優勢在於實際操駕的細膩度與舒適感，這些是單看規格表無法呈現的。<br/><br/>誠摯邀請您現在就親自試駕，透過實際的路感回饋與加速體驗，您就能親自驗證 X-TRAIL ICE 是否符合您對理想座駕的期待。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-17"
+    },
+    {
+      "slot": 18,
+      "tags": [
+        "RAG 事實 2",
+        "RAV4"
+      ],
+      "topic": "保養／耐用",
+      "q": "【RAG 事實 2】客戶追問耐用／回廠（RAV4）",
+      "blank": "我非常理解您在購車時，對於車輛長期耐用度與後續回廠保養的重視，這確實是精打細算的車主最關心的部分。<br/><br/>其實車輛的耐用與否，除了參考帳面數據外，更建議您親自體驗 X-TRAIL ICE 的實際駕駛感官，因為動力、油耗與扭力在實際路況的表現，往往比規格表更能反映真實的耐用品質。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您現在就進行一場深度試駕，透過親自駕駛來感受\">＿＿＿</span>車輛的紮實度與操控表現，相信這會比單純比較數據更能讓您放心。",
+      "full": "我非常理解您在購車時，對於車輛長期耐用度與後續回廠保養的重視，這確實是精打細算的車主最關心的部分。<br/><br/>其實車輛的耐用與否，除了參考帳面數據外，更建議您親自體驗 X-TRAIL ICE 的實際駕駛感官，因為動力、油耗與扭力在實際路況的表現，往往比規格表更能反映真實的耐用品質。<br/><br/>誠摯邀請您現在就進行一場深度試駕，透過親自駕駛來感受車輛的紮實度與操控表現，相信這會比單純比較數據更能讓您放心。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-18"
+    },
+    {
+      "slot": 19,
+      "tags": [
+        "地雷-競品錨定",
+        "RAV4",
+        "競品錨定",
+        "RAG"
+      ],
+      "topic": "綜合比較",
+      "q": "【錯誤】業代拿 CR-V 來比（客戶在看 RAV4）。你該怎麼拉回？",
+      "blank": "<span class=\"blank\" data-answer=\"我完全理解您在比較 RAV4 時，會希望找到最適合自己駕駛習慣的車款\">＿＿＿</span>。<br/><br/>其實數據只是參考，<span class=\"blank\" data-answer=\"車輛的動力、油耗與扭力表現，在實際駕駛感官上往往與帳面數字有差異\">＿＿＿</span>，這也是為什麼我們建議一定要親自體驗。<br/><br/><span class=\"blank\" data-answer=\"不如現在就請您坐上 X-TRAIL ICE 試駕看看，透過實際路況的感受，您一定能更精準地判斷\">＿＿＿</span>哪一款車的操控感最符合您的需求。",
+      "full": "我完全理解您在比較 RAV4 時，會希望找到最適合自己駕駛習慣的車款。<br/><br/>其實數據只是參考，車輛的動力、油耗與扭力表現，在實際駕駛感官上往往與帳面數字有差異，這也是為什麼我們建議一定要親自體驗。<br/><br/>不如現在就請您坐上 X-TRAIL ICE 試駕看看，透過實際路況的感受，您一定能更精準地判斷哪一款車的操控感最符合您的需求。",
+      "score": "strategy+factCheck · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-19"
+    },
+    {
+      "slot": 20,
+      "tags": [
+        "成交收尾",
+        "RAV4",
+        "RAG"
+      ],
+      "topic": "推進成交",
+      "q": "【最後一輪】客戶要回去跟家人討論，業代怎麼收尾？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您需要與家人討論\">＿＿＿</span>，畢竟購車是家中的大事，確實需要多方考量。<br/><br/>其實數據只是參考，X-TRAIL ICE 的<span class=\"blank\" data-answer=\"動力、油耗與扭力表現，唯有透過實際駕駛才能感受到與帳面數據的差異\">＿＿＿</span>，這也是我們最核心的優勢。<br/><br/>為了讓您回去與家人討論時更有底氣，<span class=\"blank\" data-answer=\"不如我們現在就安排一趟試乘，讓您親自體驗它的操控感\">＿＿＿</span>，這樣您向家人說明時也會更有說服力，您看如何？",
+      "full": "我非常理解您需要與家人討論，畢竟購車是家中的大事，確實需要多方考量。<br/><br/>其實數據只是參考，X-TRAIL ICE 的動力、油耗與扭力表現，唯有透過實際駕駛才能感受到與帳面數據的差異，這也是我們最核心的優勢。<br/><br/>為了讓您回去與家人討論時更有底氣，不如我們現在就安排一趟試乘，讓您親自體驗它的操控感，這樣您向家人說明時也會更有說服力，您看如何？",
+      "score": "advance · RAG核對",
+      "ragSources": [
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 6-10)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 4-6)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 3)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3)",
+        "YF X-TRAIL · T33_ICE_Q&A - 工作表1.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 1-3)",
+        "RAV4 X-TRAIL VS RAV4改款_20260327.pdf (page 10-14)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)"
+      ],
+      "id": "XT-RAV4-20"
+    }
+  ]
+}

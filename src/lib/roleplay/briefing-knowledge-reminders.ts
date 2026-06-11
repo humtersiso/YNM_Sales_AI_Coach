@@ -1,4 +1,9 @@
 import type { RoleplayCompletedDetail } from "@/lib/bq/roleplay-sessions-bq";
+import {
+  isValidFactMemoryLine,
+  parseScenarioFactsFromReport,
+} from "@/lib/roleplay/briefing-correction-summary";
+import { filterFactsForSession } from "@/lib/roleplay/engine/correction-guide";
 import { DEMO_ROLEPLAY_SCENARIOS } from "@/lib/roleplay/seed/demo-scenarios";
 
 const FACT_WEAK_THRESHOLD = 13;
@@ -9,13 +14,21 @@ function compactLine(text: string, max = 100): string {
   return `${t.slice(0, max - 1)}…`;
 }
 
+function isGarbageFactText(text: string): boolean {
+  return (
+    /重點\s*\d|舊世代\s*HEV|Do not use|請對照|依教材|vs\.\s*重點/i.test(text) ||
+    text.length > 220
+  );
+}
+
 function formatFactLine(label: string, value: string): string {
   const l = label.trim();
   const v = value.trim();
   if (!l && !v) return "";
-  if (!l) return compactLine(`記熟：${v}`);
-  if (!v) return compactLine(`記熟：${l}`);
-  return compactLine(`記熟：${l} ${v}`);
+  const combined = !l ? v : !v ? l : `${l} ${v}`;
+  if (isGarbageFactText(combined)) return "";
+  const line = compactLine(`記熟：${combined}`);
+  return isValidFactMemoryLine(line.replace(/^記熟：/, "須牢記：")) ? line : "";
 }
 
 function demoFactsForSession(competitor: string, targetModel: string) {
@@ -31,26 +44,7 @@ function demoFactsForSession(competitor: string, targetModel: string) {
   return hit.sectionC.facts;
 }
 
-/** 從 report_json 解析情境佐證事實 */
-export function parseScenarioFactsFromReport(
-  reportJson: string | null | undefined,
-): { label: string; value: string }[] {
-  if (!reportJson?.trim()) return [];
-  try {
-    const j = JSON.parse(reportJson) as {
-      scenarioFacts?: { label?: string; value?: string }[];
-    };
-    if (!Array.isArray(j.scenarioFacts)) return [];
-    return j.scenarioFacts
-      .map((f) => ({
-        label: String(f.label ?? "").trim(),
-        value: String(f.value ?? "").trim(),
-      }))
-      .filter((f) => f.label || f.value);
-  } catch {
-    return [];
-  }
-}
+export { parseScenarioFactsFromReport } from "@/lib/roleplay/briefing-correction-summary";
 
 function factCheckCommentFromReport(reportJson: string | null | undefined): string {
   if (!reportJson?.trim()) return "";
@@ -110,7 +104,8 @@ export function buildKnowledgeRemindersFromSessions(
 
   for (const s of weakFirst) {
     const weakFact = (s.scoreFactCheck ?? 20) <= FACT_WEAK_THRESHOLD;
-    for (const f of s.scenarioFacts ?? []) {
+    const sessionFacts = filterFactsForSession(s.scenarioFacts ?? [], s.competitor);
+    for (const f of sessionFacts) {
       push(formatFactLine(f.label, f.value));
     }
     if (weakFact && s.factCheckComment && s.factCheckComment !== "—") {

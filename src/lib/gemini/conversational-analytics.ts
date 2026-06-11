@@ -152,6 +152,13 @@ async function tryGroundedRagChat(
     };
   }
 
+  const preCheck = assessSalesQueryAnswerability(message, [], {
+    questionCategory: profile.category,
+  });
+  if (!preCheck.ok && preCheck.userReply) {
+    return outOfScopeResult(message, preCheck.userReply);
+  }
+
   try {
     const grounded = await chatWithVertexRagGrounding(message, profile);
     if (!grounded.rawText.trim() && grounded.citations.length === 0) {
@@ -165,7 +172,7 @@ async function tryGroundedRagChat(
     const answerability = assessSalesQueryAnswerability(message, grounded.citations, {
       questionCategory: profile.category,
     });
-    if (!answerability.ok && grounded.citations.length === 0) {
+    if (!answerability.ok && !isSpecQuestion(message, profile)) {
       return outOfScopeResult(
         message,
         answerability.userReply ?? outOfScopeKnowledgeMessage(),
@@ -479,6 +486,14 @@ export async function* streamSalesChat(
           question: message,
         },
       };
+      return;
+    }
+
+    const preCheck = assessSalesQueryAnswerability(message, [], {
+      questionCategory: profile.category,
+    });
+    if (!preCheck.ok && preCheck.userReply) {
+      yield { type: "done", result: outOfScopeResult(message, preCheck.userReply) };
       return;
     }
 

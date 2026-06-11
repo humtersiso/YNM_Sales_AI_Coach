@@ -1,0 +1,485 @@
+{
+  "slug": "sportage",
+  "competitor": "KIA Sportage",
+  "short": "Sportage",
+  "productLine": "xtrail",
+  "product": "X-TRAIL ICE",
+  "issue": "引擎／耐用（vs Sportage）",
+  "themes": [
+    "外型 vs 實用",
+    "保養",
+    "積碳／亮燈",
+    "引擎耐用",
+    "保養／耐用",
+    "隔音／質感",
+    "盲操／操作",
+    "空間／舒適"
+  ],
+  "questions": [
+    {
+      "slot": 1,
+      "tags": [
+        "R1 開場",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "綜合比較",
+      "q": "「我最近在比 X-TRAIL ICE 跟 Sportage，這陣子一直在看 Sportage 跟 X-TRAIL，Sportage 外型確實蠻潮的，但網路上有人提到它的引擎跟 Tucson L 同款，這會不會有積碳或亮燈的問題啊。你們值得考慮嗎？」",
+      "blank": "<span class=\"blank\" data-answer=\"我完全理解您在挑選車款時，對於引擎耐用度與長期維護的考量\">＿＿＿</span>，畢竟買車是為了讓生活更便利。<br/><br/>其實車輛的<span class=\"blank\" data-answer=\"動力表現與油耗，單看規格數據有時會與實際駕駛感受有落差\">＿＿＿</span>，<span class=\"blank\" data-answer=\"建議您親自試駕 X-TRAIL ICE，透過實際體驗來感受我們在動力輸出與操控上的細膩度\">＿＿＿</span>。<br/><br/>我們現在就安排一趟試乘，讓您親自感受 X-TRAIL ICE 的駕駛感官，這會是判斷哪款車最適合您的核心關鍵。",
+      "full": "我完全理解您在挑選車款時，對於引擎耐用度與長期維護的考量，畢竟買車是為了讓生活更便利。<br/><br/>其實車輛的動力表現與油耗，單看規格數據有時會與實際駕駛感受有落差，建議您親自試駕 X-TRAIL ICE，透過實際體驗來感受我們在動力輸出與操控上的細膩度。<br/><br/>我們現在就安排一趟試乘，讓您親自感受 X-TRAIL ICE 的駕駛感官，這會是判斷哪款車最適合您的核心關鍵。",
+      "score": "同理+事實 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-01"
+    },
+    {
+      "slot": 2,
+      "tags": [
+        "油耗／WLTC",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "油耗／持有成本",
+      "q": "「Sportage 官網油耗我都看過了，你們教材怎麼說？WLTC 跟實際差很多吧？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對油耗數據的考量\">＿＿＿</span>，畢竟這直接關係到未來的持有成本。<br/><br/>其實<span class=\"blank\" data-answer=\"官方公布的數據都是在特定條件下測試的，與實際路況確實會有落差\">＿＿＿</span>，因此我們建議客戶應以實際試乘的感受為準，這樣才能最準確地評估車輛在您日常行駛路線中的真實表現。<br/><br/>我們非常<span class=\"blank\" data-answer=\"歡迎您今天就直接開開看，親自體驗 X-TRAIL ICE 的動力輸出與油耗表現\">＿＿＿</span>，感受它在實際駕駛感官上與數據的高度契合，讓您的親身體驗成為最可靠的購車依據。",
+      "full": "我非常理解您對油耗數據的考量，畢竟這直接關係到未來的持有成本。<br/><br/>其實官方公布的數據都是在特定條件下測試的，與實際路況確實會有落差，因此我們建議客戶應以實際試乘的感受為準，這樣才能最準確地評估車輛在您日常行駛路線中的真實表現。<br/><br/>我們非常歡迎您今天就直接開開看，親自體驗 X-TRAIL ICE 的動力輸出與油耗表現，感受它在實際駕駛感官上與數據的高度契合，讓您的親身體驗成為最可靠的購車依據。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-02"
+    },
+    {
+      "slot": 3,
+      "tags": [
+        "保養／回廠",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "保養／耐用",
+      "q": "「Sportage 聽說保養便宜，X-TRAIL ICE 回廠費用跟耐用度教材怎麼說？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在購車時，會將後續的保養成本與耐用度納入考量\">＿＿＿</span>，這確實是精打細算的表現。<br/><br/>關於保養與耐用度，<span class=\"blank\" data-answer=\"建議您可以親自預約試駕，透過實際體驗來感受車輛的品質與穩定性\">＿＿＿</span>，這比單純比較帳面數據更能反映未來的用車感受。<br/><br/><span class=\"blank\" data-answer=\"我們非常歡迎您安排時間到展間親自試乘\">＿＿＿</span>，透過實際駕駛來感受 X-TRAIL ICE 的動力與操控表現，讓我們為您提供最完整的用車規劃與體驗。",
+      "full": "我非常理解您在購車時，會將後續的保養成本與耐用度納入考量，這確實是精打細算的表現。<br/><br/>關於保養與耐用度，建議您可以親自預約試駕，透過實際體驗來感受車輛的品質與穩定性，這比單純比較帳面數據更能反映未來的用車感受。<br/><br/>我們非常歡迎您安排時間到展間親自試乘，透過實際駕駛來感受 X-TRAIL ICE 的動力與操控表現，讓我們為您提供最完整的用車規劃與體驗。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-03"
+    },
+    {
+      "slot": 4,
+      "tags": [
+        "隔音／玻璃",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "隔音／質感",
+      "q": "「我家人在意隔音，Sportage 跟 X-TRAIL ICE 玻璃、NVH 教材有數據嗎？」",
+      "blank": "我<span class=\"blank\" data-answer=\"非常理解您對家人乘坐舒適度的重視\">＿＿＿</span>，畢竟車內隔音確實是長途駕駛時提升質感的關鍵。<br/><br/>關於隔音工程與玻璃規格，<span class=\"blank\" data-answer=\"由於各家車廠的測試環境與標準不同，數據僅供參考\">＿＿＿</span>，最準確的方式還是建議您親自試駕體驗。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您現在就帶家人一起來試乘 X-TRAIL ICE\">＿＿＿</span>，透過實際行駛在不同路況下的感官體驗，您一定能親自感受到我們在 NVH 靜肅性上的用心與優勢。",
+      "full": "我非常理解您對家人乘坐舒適度的重視，畢竟車內隔音確實是長途駕駛時提升質感的關鍵。<br/><br/>關於隔音工程與玻璃規格，由於各家車廠的測試環境與標準不同，數據僅供參考，最準確的方式還是建議您親自試駕體驗。<br/><br/>誠摯邀請您現在就帶家人一起來試乘 X-TRAIL ICE，透過實際行駛在不同路況下的感官體驗，您一定能親自感受到我們在 NVH 靜肅性上的用心與優勢。",
+      "score": "factCheck+同理 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-04"
+    },
+    {
+      "slot": 5,
+      "tags": [
+        "盲操／操作",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "盲操／操作",
+      "q": "「Sportage 中控都是螢幕，X-TRAIL ICE 冷氣旋鈕／盲操教材怎麼說？」",
+      "blank": "我完全理解您對科技感與操作便利性的重視，畢竟車輛在行進間的直覺操作確實非常重要。<br/><br/>X-TRAIL ICE 在設計上<span class=\"blank\" data-answer=\"保留了實體旋鈕\">＿＿＿</span>，是為了<span class=\"blank\" data-answer=\"讓駕駛在行駛中能更精準、安全地調整空調，不必分心操作螢幕\">＿＿＿</span>，這也是許多重視行車安全與盲操便利性的車主所喜愛的設計。<br/><br/><span class=\"blank\" data-answer=\"建議您現在就親自上路試駕，透過實際駕駛的感官體驗\">＿＿＿</span>，感受實體按鍵在操作上的直覺與便利，這絕對比單看規格表更能讓您感受到這台車的貼心設計。",
+      "full": "我完全理解您對科技感與操作便利性的重視，畢竟車輛在行進間的直覺操作確實非常重要。<br/><br/>X-TRAIL ICE 在設計上保留了實體旋鈕，是為了讓駕駛在行駛中能更精準、安全地調整空調，不必分心操作螢幕，這也是許多重視行車安全與盲操便利性的車主所喜愛的設計。<br/><br/>建議您現在就親自上路試駕，透過實際駕駛的感官體驗，感受實體按鍵在操作上的直覺與便利，這絕對比單看規格表更能讓您感受到這台車的貼心設計。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-05"
+    },
+    {
+      "slot": 6,
+      "tags": [
+        "空間／舒適",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "空間／舒適",
+      "q": "「我們家有小孩，Sportage 跟 X-TRAIL ICE 後座空間、行李廂教材怎麼比？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對家庭用車空間的重視\">＿＿＿</span>，畢竟要讓孩子坐得舒服、行李裝得下，實際體驗最準確。<br/><br/>關於空間與行李廂的配置，<span class=\"blank\" data-answer=\"數據規格往往因測量標準不同而有差異\">＿＿＿</span>，與其紙上談兵，<span class=\"blank\" data-answer=\"我更建議您帶家人一起來試乘，親自感受 X-TRAIL ICE 的後座寬敞度與座椅舒適性\">＿＿＿</span>。<br/><br/>我們現場備有實車，您可以直接把平時常用的兒童安全座椅裝上去試試，實際體驗過後，您一定能感受到 X-TRAIL ICE 在空間規劃上的貼心與優勢。",
+      "full": "我非常理解您對家庭用車空間的重視，畢竟要讓孩子坐得舒服、行李裝得下，實際體驗最準確。<br/><br/>關於空間與行李廂的配置，數據規格往往因測量標準不同而有差異，與其紙上談兵，我更建議您帶家人一起來試乘，親自感受 X-TRAIL ICE 的後座寬敞度與座椅舒適性。<br/><br/>我們現場備有實車，您可以直接把平時常用的兒童安全座椅裝上去試試，實際體驗過後，您一定能感受到 X-TRAIL ICE 在空間規劃上的貼心與優勢。",
+      "score": "策略+事實 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-06"
+    },
+    {
+      "slot": 7,
+      "tags": [
+        "價格／方案",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "價格／方案",
+      "q": "「Sportage 現在促銷很大，X-TRAIL ICE 總價跟方案教材怎麼說？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在比較車款時，會特別關注目前的促銷方案與總價\">＿＿＿</span>，這確實是購車時很重要的考量。<br/><br/>不過，車輛的實際駕駛感受往往與帳面數據存在差異，建議您親自試駕 X-TRAIL ICE，親身體驗我們在動力輸出、油耗表現以及扭力調校上的優勢。<br/><br/><span class=\"blank\" data-answer=\"我們現在就安排一場試乘，讓您親自感受兩者在實際駕駛感官上的不同\">＿＿＿</span>，我再為您詳細規劃最適合您的購車方案。",
+      "full": "我非常理解您在比較車款時，會特別關注目前的促銷方案與總價，這確實是購車時很重要的考量。<br/><br/>不過，車輛的實際駕駛感受往往與帳面數據存在差異，建議您親自試駕 X-TRAIL ICE，親身體驗我們在動力輸出、油耗表現以及扭力調校上的優勢。<br/><br/>我們現在就安排一場試乘，讓您親自感受兩者在實際駕駛感官上的不同，我再為您詳細規劃最適合您的購車方案。",
+      "score": "factCheck+成交 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-07"
+    },
+    {
+      "slot": 8,
+      "tags": [
+        "安全／輔助",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "安全／輔助",
+      "q": "「Sportage 輔助駕駛很強，X-TRAIL ICE ProPILOT／安全配備教材怎麼比？」",
+      "blank": "我完全理解您對輔助駕駛系統的重視，畢竟<span class=\"blank\" data-answer=\"行車安全是家人出遊最重要的考量\">＿＿＿</span>。<br/><br/>其實輔助駕駛系統的<span class=\"blank\" data-answer=\"實際運作邏輯與細膩度，往往比規格表上的數據更能影響駕駛感受\">＿＿＿</span>，建議您親自試駕體驗 X-TRAIL ICE 的 ProPILOT 智行安全系統，感受它在車道維持與跟車時的平順與穩定性。<br/><br/>數據與規格僅供參考，實際駕駛的安心感才是最真實的，現在就邀請您上路親自驗證看看，相信您會對它的表現感到滿意。",
+      "full": "我完全理解您對輔助駕駛系統的重視，畢竟行車安全是家人出遊最重要的考量。<br/><br/>其實輔助駕駛系統的實際運作邏輯與細膩度，往往比規格表上的數據更能影響駕駛感受，建議您親自試駕體驗 X-TRAIL ICE 的 ProPILOT 智行安全系統，感受它在車道維持與跟車時的平順與穩定性。<br/><br/>數據與規格僅供參考，實際駕駛的安心感才是最真實的，現在就邀請您上路親自驗證看看，相信您會對它的表現感到滿意。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-08"
+    },
+    {
+      "slot": 9,
+      "tags": [
+        "P-01",
+        "P-01 理性",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "油耗／持有成本",
+      "q": "「我是 理性分析型，請把 Sportage 跟 X-TRAIL ICE 的 WLTC 條件跟試算依據講清楚。」",
+      "blank": "我非常理解您作為<span class=\"blank\" data-answer=\"理性買家\">＿＿＿</span>，對於油耗數據與持有成本的精確要求。<br/><br/>關於 <span class=\"blank\" data-answer=\"WLTC 測試標準，由於各車款在實驗室模擬的駕駛條件與負載設定不同\">＿＿＿</span>，單看帳面數據容易產生誤差。X-TRAIL ICE 在動力與油耗的平衡上，經過嚴格的實測驗證，能提供更貼近日常駕駛的穩定表現。<br/><br/><span class=\"blank\" data-answer=\"建議您可以親自試駕，感受我們在扭力輸出與節能效率上的實際表現\">＿＿＿</span>，透過實際駕駛體驗，您將能更精準地評估這台車是否符合您對長期持有成本的期待。",
+      "full": "我非常理解您作為理性買家，對於油耗數據與持有成本的精確要求。<br/><br/>關於 WLTC 測試標準，由於各車款在實驗室模擬的駕駛條件與負載設定不同，單看帳面數據容易產生誤差。X-TRAIL ICE 在動力與油耗的平衡上，經過嚴格的實測驗證，能提供更貼近日常駕駛的穩定表現。<br/><br/>建議您可以親自試駕，感受我們在扭力輸出與節能效率上的實際表現，透過實際駕駛體驗，您將能更精準地評估這台車是否符合您對長期持有成本的期待。",
+      "score": "數據、WLTC、試算公式 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-09"
+    },
+    {
+      "slot": 10,
+      "tags": [
+        "P-03",
+        "P-03 預算",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "價格／方案",
+      "q": "「我預算緊，Sportage 促銷那麼兇，X-TRAIL ICE 總成本教材怎麼說？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在購車時對預算與促銷方案的考量\">＿＿＿</span>，畢竟每一分錢都要花在刀口上。<br/><br/>雖然競品目前有促銷活動，但購車的總成本不應只看帳面數字，建議您親自試駕 X-TRAIL ICE，<span class=\"blank\" data-answer=\"感受我們在動力、油耗與扭力表現上的實際駕駛質感，這些細膩的操控體驗往往是數據無法完全呈現的價值\">＿＿＿</span>。<br/><br/><span class=\"blank\" data-answer=\"不如我們現在就安排一趟試乘，讓我為您進行詳細的總成本試算\">＿＿＿</span>，讓您親自體驗這台車是否符合您的用車需求與預算規劃。",
+      "full": "我非常理解您在購車時對預算與促銷方案的考量，畢竟每一分錢都要花在刀口上。<br/><br/>雖然競品目前有促銷活動，但購車的總成本不應只看帳面數字，建議您親自試駕 X-TRAIL ICE，感受我們在動力、油耗與扭力表現上的實際駕駛質感，這些細膩的操控體驗往往是數據無法完全呈現的價值。<br/><br/>不如我們現在就安排一趟試乘，讓我為您進行詳細的總成本試算，讓您親自體驗這台車是否符合您的用車需求與預算規劃。",
+      "score": "總價、月供、促銷 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-10"
+    },
+    {
+      "slot": 11,
+      "tags": [
+        "P-05",
+        "P-05 研究",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "保養／耐用",
+      "q": "「論壇上 Sportage 引擎／耐用討論很多，你們教材數據來源哪裡來？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在網路上看到不同討論時的疑慮\">＿＿＿</span>，畢竟買車是大事，大家都會希望車輛能長久耐用。<br/><br/>其實數據與規格只是參考，最準確的方式還是親自體驗。我們建議您直接試駕 X-Trail，<span class=\"blank\" data-answer=\"親身感受它在動力、油耗與扭力上的實際表現\">＿＿＿</span>，這些駕駛感官上的回饋，往往比單看網路討論更能讓您安心。<br/><br/>今天現場剛好有車，<span class=\"blank\" data-answer=\"不如我們現在就出發試駕，讓您親自驗證\">＿＿＿</span> X-Trail 的操控與品質是否符合您的期待？",
+      "full": "我非常理解您在網路上看到不同討論時的疑慮，畢竟買車是大事，大家都會希望車輛能長久耐用。<br/><br/>其實數據與規格只是參考，最準確的方式還是親自體驗。我們建議您直接試駕 X-Trail，親身感受它在動力、油耗與扭力上的實際表現，這些駕駛感官上的回饋，往往比單看網路討論更能讓您安心。<br/><br/>今天現場剛好有車，不如我們現在就出發試駕，讓您親自驗證 X-Trail 的操控與品質是否符合您的期待？",
+      "score": "論壇質疑、耐用與來源 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-11"
+    },
+    {
+      "slot": 12,
+      "tags": [
+        "30-40",
+        "30–40 歲",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "空間／舒適",
+      "q": "【30–40 歲客戶】「Sportage 跟 X-TRAIL ICE，家庭用車、比較理性，空間跟安全怎麼選？」",
+      "blank": "我<span class=\"blank\" data-answer=\"非常理解您在為家人挑選車輛時，對於空間與安全性的重視\">＿＿＿</span>，這確實是理性購車最關鍵的考量。<br/><br/>關於空間與舒適度的感受，<span class=\"blank\" data-answer=\"數據往往只是參考，實際的乘坐體驗才是最準確的\">＿＿＿</span>。X-TRAIL ICE 在設計上非常注重家庭成員的實際感受，<span class=\"blank\" data-answer=\"建議您可以帶家人一起來展間親自試駕，透過實際體驗來感受空間配置與動力表現\">＿＿＿</span>，這會比單看規格表更能幫助您做出最適合家庭的選擇。<br/><br/>我們現在就安排一趟試乘，讓您親自感受看看，如何？",
+      "full": "我非常理解您在為家人挑選車輛時，對於空間與安全性的重視，這確實是理性購車最關鍵的考量。<br/><br/>關於空間與舒適度的感受，數據往往只是參考，實際的乘坐體驗才是最準確的。X-TRAIL ICE 在設計上非常注重家庭成員的實際感受，建議您可以帶家人一起來展間親自試駕，透過實際體驗來感受空間配置與動力表現，這會比單看規格表更能幫助您做出最適合家庭的選擇。<br/><br/>我們現在就安排一趟試乘，讓您親自感受看看，如何？",
+      "score": "同理+事實 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-12"
+    },
+    {
+      "slot": 13,
+      "tags": [
+        "50+",
+        "50+ 歲",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "安全／輔助",
+      "q": "【50 歲以上客戶】「Sportage 跟 X-TRAIL ICE，重視可靠與好上手，哪台比較好開、比較省心？」",
+      "blank": "大哥您好，<span class=\"blank\" data-answer=\"完全理解您到了這個階段，買車最在意的就是開起來順手、用起來安心\">＿＿＿</span>，畢竟車子是要陪伴家人長久使用的夥伴。<br/><br/>其實<span class=\"blank\" data-answer=\"數據上的規格僅供參考，真正好不好開、省不省心，還是要透過實際駕駛的感官體驗最準確\">＿＿＿</span>。X-TRAIL ICE 在動力輸出與油耗表現上，都是為了讓駕駛過程更輕鬆、無負擔而設計的。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您今天就親自試駕體驗看看，感受一下我們車款在實際路況中的操控感與舒適度\">＿＿＿</span>，相信您親自開過後，就能感受到那份最適合您的安心感。",
+      "full": "大哥您好，完全理解您到了這個階段，買車最在意的就是開起來順手、用起來安心，畢竟車子是要陪伴家人長久使用的夥伴。<br/><br/>其實數據上的規格僅供參考，真正好不好開、省不省心，還是要透過實際駕駛的感官體驗最準確。X-TRAIL ICE 在動力輸出與油耗表現上，都是為了讓駕駛過程更輕鬆、無負擔而設計的。<br/><br/>誠摯邀請您今天就親自試駕體驗看看，感受一下我們車款在實際路況中的操控感與舒適度，相信您親自開過後，就能感受到那份最適合您的安心感。",
+      "score": "同理 · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-13"
+    },
+    {
+      "slot": 14,
+      "tags": [
+        "策略-LINE延後",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "銷售策略",
+      "q": "【情境】客戶問隔音數據，業代：「加 LINE 我傳表。」你該怎麼答？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對隔音數據的重視\">＿＿＿</span>，畢竟這直接影響到長途駕駛的舒適品質。<br/><br/>不過，<span class=\"blank\" data-answer=\"單純的數據往往難以呈現車室內實際的靜謐感受\">＿＿＿</span>，因為隔音效果會受到路況與環境音的綜合影響。與其參考紙面上的測試數據，<span class=\"blank\" data-answer=\"我更建議您現在就親自試駕體驗\">＿＿＿</span>。<br/><br/>透過實際駕駛 X-TRAIL ICE，您可以直接感受它在行進間的隔音表現，並親自驗證動力與油耗在實際路況下的優異水準，讓您的感官體驗成為最真實的判斷依據，我們現在就出發試乘看看嗎？",
+      "full": "我非常理解您對隔音數據的重視，畢竟這直接影響到長途駕駛的舒適品質。<br/><br/>不過，單純的數據往往難以呈現車室內實際的靜謐感受，因為隔音效果會受到路況與環境音的綜合影響。與其參考紙面上的測試數據，我更建議您現在就親自試駕體驗。<br/><br/>透過實際駕駛 X-TRAIL ICE，您可以直接感受它在行進間的隔音表現，並親自驗證動力與油耗在實際路況下的優異水準，讓您的感官體驗成為最真實的判斷依據，我們現在就出發試乘看看嗎？",
+      "score": "strategy · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-14"
+    },
+    {
+      "slot": 15,
+      "tags": [
+        "策略-試乘延後",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "銷售策略",
+      "q": "【情境】業代只說試乘才準，未當場講保養費用。你該怎麼答？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在比較車款時，除了規格數據，更在意長期持有後的實際養護成本與駕駛感受\">＿＿＿</span>。<br/><br/>其實數據只是參考基準，<span class=\"blank\" data-answer=\"X-TRAIL ICE 在動力、油耗與扭力的表現上，實際駕駛的感官體驗與數據非常吻合\">＿＿＿</span>，這也是我們對產品非常有信心的原因。<br/><br/>與其單看帳面數字，我誠摯邀請您現在就進行試駕，親自感受它在路上的動力回饋，試駕後我們再一起針對您的用車習慣，詳細試算保養與油耗的預估費用，讓您評估得更精準。",
+      "full": "我非常理解您在比較車款時，除了規格數據，更在意長期持有後的實際養護成本與駕駛感受。<br/><br/>其實數據只是參考基準，X-TRAIL ICE 在動力、油耗與扭力的表現上，實際駕駛的感官體驗與數據非常吻合，這也是我們對產品非常有信心的原因。<br/><br/>與其單看帳面數字，我誠摯邀請您現在就進行試駕，親自感受它在路上的動力回饋，試駕後我們再一起針對您的用車習慣，詳細試算保養與油耗的預估費用，讓您評估得更精準。",
+      "score": "strategy · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-15"
+    },
+    {
+      "slot": 16,
+      "tags": [
+        "配備／科技",
+        "Sportage",
+        "挑戰",
+        "RAG"
+      ],
+      "topic": "配備／科技",
+      "q": "「你們講半天都沒具體配備，Sportage 科技功能教材差在哪？」",
+      "blank": "我非常理解您在比較科技配備時，希望能有最直觀的感受。<br/><br/>其實規格表上的數據只是參考，X-TRAIL ICE 在動力輸出、油耗表現與扭力調校上，都是為了讓駕駛在實際路況中能有最舒適且充沛的體驗，這與 Sportage 在帳面數據上的差異，往往要在實際駕駛中才能體會出細膩的差別。<br/><br/>與其看著規格表比較，<span class=\"blank\" data-answer=\"不如現在就請您親自試駕\">＿＿＿</span>，感受一下 X-TRAIL ICE 在動力與科技整合後的實際操駕質感，您覺得如何？",
+      "full": "我非常理解您在比較科技配備時，希望能有最直觀的感受。<br/><br/>其實規格表上的數據只是參考，X-TRAIL ICE 在動力輸出、油耗表現與扭力調校上，都是為了讓駕駛在實際路況中能有最舒適且充沛的體驗，這與 Sportage 在帳面數據上的差異，往往要在實際駕駛中才能體會出細膩的差別。<br/><br/>與其看著規格表比較，不如現在就請您親自試駕，感受一下 X-TRAIL ICE 在動力與科技整合後的實際操駕質感，您覺得如何？",
+      "score": "factCheck+advance · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-16"
+    },
+    {
+      "slot": 17,
+      "tags": [
+        "RAG 事實 1",
+        "Sportage"
+      ],
+      "topic": "配備／科技",
+      "q": "【RAG 事實 1】客戶：「你剛說的配備依據是什麼？」（Sportage）",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對於配備規格的嚴謹態度\">＿＿＿</span>，畢竟買車是大事，數據的精確度確實很重要。<br/><br/>關於 Sportage 與 X-Trail ICE 的配備差異，建議您可以親自試駕體驗，因為動力、油耗及扭力在實際駕駛感官上，往往與紙面數據存在差異，實際感受才是最真實的。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您現在就安排一場試乘\">＿＿＿</span>，讓我們一起在道路上親自驗證 X-Trail 的操控表現與各項優點，相信您體驗後會有更明確的感受。",
+      "full": "我非常理解您對於配備規格的嚴謹態度，畢竟買車是大事，數據的精確度確實很重要。<br/><br/>關於 Sportage 與 X-Trail ICE 的配備差異，建議您可以親自試駕體驗，因為動力、油耗及扭力在實際駕駛感官上，往往與紙面數據存在差異，實際感受才是最真實的。<br/><br/>誠摯邀請您現在就安排一場試乘，讓我們一起在道路上親自驗證 X-Trail 的操控表現與各項優點，相信您體驗後會有更明確的感受。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-17"
+    },
+    {
+      "slot": 18,
+      "tags": [
+        "RAG 事實 2",
+        "Sportage"
+      ],
+      "topic": "保養／耐用",
+      "q": "【RAG 事實 2】客戶追問耐用／回廠（Sportage）",
+      "blank": "我<span class=\"blank\" data-answer=\"非常理解您在購車時，會特別在意車輛長期的耐用度與後續回廠保養的便利性\">＿＿＿</span>。<br/><br/>其實車輛的耐用表現，除了參考官方數據之外，最準確的方式還是透過實際駕駛來感受動力與機械結構的穩定度。<span class=\"blank\" data-answer=\"X-TRAIL ICE 在動力輸出、油耗表現以及扭力調校上，實際駕駛的感官體驗非常紮實，與數據呈現的優勢高度一致\">＿＿＿</span>。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您現在就親自試駕體驗，感受一下 X-TRAIL ICE 在實際路況下的操控質感\">＿＿＿</span>，相信您親自開過後，就能感受到我們對車輛品質的堅持。",
+      "full": "我非常理解您在購車時，會特別在意車輛長期的耐用度與後續回廠保養的便利性。<br/><br/>其實車輛的耐用表現，除了參考官方數據之外，最準確的方式還是透過實際駕駛來感受動力與機械結構的穩定度。X-TRAIL ICE 在動力輸出、油耗表現以及扭力調校上，實際駕駛的感官體驗非常紮實，與數據呈現的優勢高度一致。<br/><br/>誠摯邀請您現在就親自試駕體驗，感受一下 X-TRAIL ICE 在實際路況下的操控質感，相信您親自開過後，就能感受到我們對車輛品質的堅持。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-18"
+    },
+    {
+      "slot": 19,
+      "tags": [
+        "地雷-競品錨定",
+        "Sportage",
+        "競品錨定",
+        "RAG"
+      ],
+      "topic": "綜合比較",
+      "q": "【錯誤】業代拿 RAV4 來比（客戶在看 Sportage）。你該怎麼拉回？",
+      "blank": "<span class=\"blank\" data-answer=\"我完全理解您在比較 Sportage 時，會希望找到最適合自己的車款\">＿＿＿</span>，這確實是非常謹慎的考量。<br/><br/>其實數據只是參考基準，車輛的<span class=\"blank\" data-answer=\"動力輸出、油耗表現與扭力反應，在實際駕駛時的體感才是最真實的\">＿＿＿</span>，這也是為什麼我們建議一定要親自試駕。<br/><br/>誠摯邀請您現在就坐上 X-TRAIL ICE 實際體驗，透過親身的駕駛感受，來驗證這些規格數據與您實際需求的契合度，我們馬上出發試駕看看吧！",
+      "full": "我完全理解您在比較 Sportage 時，會希望找到最適合自己的車款，這確實是非常謹慎的考量。<br/><br/>其實數據只是參考基準，車輛的動力輸出、油耗表現與扭力反應，在實際駕駛時的體感才是最真實的，這也是為什麼我們建議一定要親自試駕。<br/><br/>誠摯邀請您現在就坐上 X-TRAIL ICE 實際體驗，透過親身的駕駛感受，來驗證這些規格數據與您實際需求的契合度，我們馬上出發試駕看看吧！",
+      "score": "strategy+factCheck · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-19"
+    },
+    {
+      "slot": 20,
+      "tags": [
+        "成交收尾",
+        "Sportage",
+        "RAG"
+      ],
+      "topic": "推進成交",
+      "q": "【最後一輪】客戶要回去跟家人討論，業代怎麼收尾？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您需要與家人討論\">＿＿＿</span>，畢竟買車是全家人的大事，慎重考慮是應該的。<br/><br/>不過，數據上的規格比較往往只能呈現一部分，<span class=\"blank\" data-answer=\"實際的駕駛感受才是決定舒適度的關鍵\">＿＿＿</span>。X-TRAIL ICE 的動力輸出與油耗表現，在實際道路駕駛時的細膩度，往往能給駕駛者與乘客更直接的體驗。<br/><br/>為了讓您回去與家人討論時更有底氣，<span class=\"blank\" data-answer=\"我建議您現在就安排一場試乘，親自感受一下它在動力與操控上的優勢\">＿＿＿</span>，這樣您回家分享時，也能更具體地描述這台車帶給您的真實感受，您看這週六或週日方便過來嗎？",
+      "full": "我非常理解您需要與家人討論，畢竟買車是全家人的大事，慎重考慮是應該的。<br/><br/>不過，數據上的規格比較往往只能呈現一部分，實際的駕駛感受才是決定舒適度的關鍵。X-TRAIL ICE 的動力輸出與油耗表現，在實際道路駕駛時的細膩度，往往能給駕駛者與乘客更直接的體驗。<br/><br/>為了讓您回去與家人討論時更有底氣，我建議您現在就安排一場試乘，親自感受一下它在動力與操控上的優勢，這樣您回家分享時，也能更具體地描述這台車帶給您的真實感受，您看這週六或週日方便過來嗎？",
+      "score": "advance · RAG核對",
+      "ragSources": [
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-4)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 1-2)",
+        "SPORTAGE X-TRAIL 對戰 SPORTAGE 對戰話術策略 _260508.pdf (page 4)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "這次改款動力有提升和X-TRAIL 有的比? · KUGA ALL NEW X-TRAIL對戰KUGA改款正式話術.pdf (page 5-6)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)"
+      ],
+      "id": "XT-SPORTAGE-20"
+    }
+  ]
+}

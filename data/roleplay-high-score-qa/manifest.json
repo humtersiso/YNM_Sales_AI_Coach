@@ -1,0 +1,415 @@
+{
+  "version": 3,
+  "title": "競品對答高分指南（RAG 驅動 · 多議題）",
+  "questionsPerChapter": 20,
+  "dataSource": "Vertex RAG（snapshot 或 --live 檢索）",
+  "scenarioDimensions": {
+    "products": [
+      {
+        "id": "xtrail-ice",
+        "name": "X-TRAIL ICE",
+        "qaChapters": [
+          "rav4",
+          "crv",
+          "tucson",
+          "outlander",
+          "sportage"
+        ]
+      },
+      {
+        "id": "kicks",
+        "name": "KICKS",
+        "qaChapters": [
+          "kicks-hrv"
+        ]
+      }
+    ],
+    "personas": [
+      {
+        "id": "P-01",
+        "name": "理性分析型",
+        "qaSlots": [
+          9
+        ]
+      },
+      {
+        "id": "P-02",
+        "name": "情感品牌型",
+        "qaSlots": []
+      },
+      {
+        "id": "P-03",
+        "name": "預算敏感型",
+        "qaSlots": [
+          10
+        ]
+      },
+      {
+        "id": "P-04",
+        "name": "猶豫從眾型",
+        "qaSlots": [
+          6,
+          20
+        ]
+      },
+      {
+        "id": "P-05",
+        "name": "深度研究型",
+        "qaSlots": [
+          11
+        ]
+      }
+    ],
+    "ageRanges": [
+      {
+        "id": "20-30",
+        "name": "20–30 歲"
+      },
+      {
+        "id": "30-40",
+        "name": "30–40 歲",
+        "qaSlots": [
+          12
+        ]
+      },
+      {
+        "id": "40-50",
+        "name": "40–50 歲"
+      },
+      {
+        "id": "50+",
+        "name": "50 歲以上",
+        "qaSlots": [
+          13
+        ]
+      }
+    ],
+    "difficulties": [
+      {
+        "id": "beginner",
+        "name": "新手"
+      },
+      {
+        "id": "advanced",
+        "name": "進階"
+      },
+      {
+        "id": "challenge",
+        "name": "挑戰",
+        "qaSlots": [
+          5,
+          16
+        ]
+      }
+    ],
+    "rounds": {
+      "default": 5,
+      "min": 3,
+      "max": 10
+    },
+    "topicCoveragePerChapter": [
+      {
+        "slot": 1,
+        "topic": "綜合比較",
+        "tag": "R1 開場"
+      },
+      {
+        "slot": 2,
+        "topic": "油耗／持有成本",
+        "tag": "油耗／WLTC"
+      },
+      {
+        "slot": 3,
+        "topic": "保養／耐用",
+        "tag": "保養／回廠"
+      },
+      {
+        "slot": 4,
+        "topic": "隔音／質感",
+        "tag": "隔音／玻璃"
+      },
+      {
+        "slot": 5,
+        "topic": "盲操／操作",
+        "tag": "盲操／操作"
+      },
+      {
+        "slot": 6,
+        "topic": "空間／舒適",
+        "tag": "空間／舒適"
+      },
+      {
+        "slot": 7,
+        "topic": "價格／方案",
+        "tag": "價格／方案"
+      },
+      {
+        "slot": 8,
+        "topic": "安全／輔助",
+        "tag": "安全／輔助"
+      },
+      {
+        "slot": 9,
+        "topic": "油耗／持有成本",
+        "tag": "P-01 理性"
+      },
+      {
+        "slot": 10,
+        "topic": "價格／方案",
+        "tag": "P-03 預算"
+      },
+      {
+        "slot": 11,
+        "topic": "保養／耐用",
+        "tag": "P-05 研究"
+      },
+      {
+        "slot": 12,
+        "topic": "空間／舒適",
+        "tag": "30–40 歲"
+      },
+      {
+        "slot": 13,
+        "topic": "安全／輔助",
+        "tag": "50+ 歲"
+      },
+      {
+        "slot": 14,
+        "topic": "銷售策略",
+        "tag": "策略-LINE延後"
+      },
+      {
+        "slot": 15,
+        "topic": "銷售策略",
+        "tag": "策略-試乘延後"
+      },
+      {
+        "slot": 16,
+        "topic": "配備／科技",
+        "tag": "配備／科技"
+      },
+      {
+        "slot": 17,
+        "topic": "配備／科技",
+        "tag": "RAG 事實 1"
+      },
+      {
+        "slot": 18,
+        "topic": "保養／耐用",
+        "tag": "RAG 事實 2"
+      },
+      {
+        "slot": 19,
+        "topic": "綜合比較",
+        "tag": "地雷-競品錨定"
+      },
+      {
+        "slot": 20,
+        "topic": "推進成交",
+        "tag": "成交收尾"
+      }
+    ]
+  },
+  "slotTopicMap": [
+    {
+      "slot": 1,
+      "topic": "綜合比較",
+      "tag": "R1 開場"
+    },
+    {
+      "slot": 2,
+      "topic": "油耗／持有成本",
+      "tag": "油耗／WLTC"
+    },
+    {
+      "slot": 3,
+      "topic": "保養／耐用",
+      "tag": "保養／回廠"
+    },
+    {
+      "slot": 4,
+      "topic": "隔音／質感",
+      "tag": "隔音／玻璃"
+    },
+    {
+      "slot": 5,
+      "topic": "盲操／操作",
+      "tag": "盲操／操作"
+    },
+    {
+      "slot": 6,
+      "topic": "空間／舒適",
+      "tag": "空間／舒適"
+    },
+    {
+      "slot": 7,
+      "topic": "價格／方案",
+      "tag": "價格／方案"
+    },
+    {
+      "slot": 8,
+      "topic": "安全／輔助",
+      "tag": "安全／輔助"
+    },
+    {
+      "slot": 9,
+      "topic": "油耗／持有成本",
+      "tag": "P-01 理性"
+    },
+    {
+      "slot": 10,
+      "topic": "價格／方案",
+      "tag": "P-03 預算"
+    },
+    {
+      "slot": 11,
+      "topic": "保養／耐用",
+      "tag": "P-05 研究"
+    },
+    {
+      "slot": 12,
+      "topic": "空間／舒適",
+      "tag": "30–40 歲"
+    },
+    {
+      "slot": 13,
+      "topic": "安全／輔助",
+      "tag": "50+ 歲"
+    },
+    {
+      "slot": 14,
+      "topic": "銷售策略",
+      "tag": "策略-LINE延後"
+    },
+    {
+      "slot": 15,
+      "topic": "銷售策略",
+      "tag": "策略-試乘延後"
+    },
+    {
+      "slot": 16,
+      "topic": "配備／科技",
+      "tag": "配備／科技"
+    },
+    {
+      "slot": 17,
+      "topic": "配備／科技",
+      "tag": "RAG 事實 1"
+    },
+    {
+      "slot": 18,
+      "topic": "保養／耐用",
+      "tag": "RAG 事實 2"
+    },
+    {
+      "slot": 19,
+      "topic": "綜合比較",
+      "tag": "地雷-競品錨定"
+    },
+    {
+      "slot": 20,
+      "topic": "推進成交",
+      "tag": "成交收尾"
+    }
+  ],
+  "competitorProfiles": {
+    "rav4": {
+      "competitors": "Toyota RAV4",
+      "primaryTopics": [
+        "油耗／持有成本",
+        "WLTC 試算",
+        "安全輔助",
+        "總價差異"
+      ],
+      "openingHint": "RAV4 油耗口碑 vs X-TRAIL 長期成本"
+    },
+    "crv": {
+      "competitors": "Honda CR-V",
+      "primaryTopics": [
+        "油耗數據",
+        "輕油電比較",
+        "空間",
+        "保養"
+      ],
+      "openingHint": "CR-V 與 X-TRAIL 油耗討論、實際數據"
+    },
+    "tucson": {
+      "competitors": "Hyundai Tucson L",
+      "primaryTopics": [
+        "油電定位",
+        "產品差異",
+        "配備",
+        "價格"
+      ],
+      "openingHint": "Tucson L 油電 vs X-TRAIL 怎麼定位"
+    },
+    "outlander": {
+      "competitors": "Mitsubishi Outlander",
+      "primaryTopics": [
+        "通勤油耗",
+        "實際路況",
+        "空間",
+        "持有成本"
+      ],
+      "openingHint": "規格表油耗 vs 實際通勤油錢"
+    },
+    "sportage": {
+      "competitors": "KIA Sportage",
+      "primaryTopics": [
+        "引擎耐用",
+        "積碳／亮燈",
+        "保養",
+        "外型 vs 實用"
+      ],
+      "openingHint": "Sportage 引擎與 Tucson 同款、積碳疑慮"
+    },
+    "kicks-hrv": {
+      "competitors": "Honda HR-V",
+      "primaryTopics": [
+        "促銷方案",
+        "總價",
+        "都會用車",
+        "油耗"
+      ],
+      "openingHint": "HR-V 促銷 vs KICKS 划算程度"
+    }
+  },
+  "chapters": [
+    {
+      "slug": "rav4",
+      "file": "xtrail-rav4.json",
+      "competitor": "Toyota RAV4",
+      "productLine": "xtrail"
+    },
+    {
+      "slug": "crv",
+      "file": "xtrail-crv.json",
+      "competitor": "Honda CR-V",
+      "productLine": "xtrail"
+    },
+    {
+      "slug": "tucson",
+      "file": "xtrail-tucson.json",
+      "competitor": "Hyundai Tucson L",
+      "productLine": "xtrail"
+    },
+    {
+      "slug": "outlander",
+      "file": "xtrail-outlander.json",
+      "competitor": "Mitsubishi Outlander",
+      "productLine": "xtrail"
+    },
+    {
+      "slug": "sportage",
+      "file": "xtrail-sportage.json",
+      "competitor": "KIA Sportage",
+      "productLine": "xtrail"
+    },
+    {
+      "slug": "kicks-hrv",
+      "file": "kicks-hrv.json",
+      "competitor": "KICKS vs HR-V",
+      "productLine": "kicks"
+    }
+  ]
+}

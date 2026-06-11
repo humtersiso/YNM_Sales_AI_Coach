@@ -11,6 +11,12 @@ const LABELS: Record<string, string> = {
   advance: "成交",
 };
 
+/** 首頁雷達均分顯示一位小數 */
+export function formatRadarDimensionScore(score: number): string {
+  const rounded = Math.round(score * 10) / 10;
+  return Number.isInteger(rounded) ? `${rounded}.0` : String(rounded);
+}
+
 function polarToXY(cx: number, cy: number, r: number, angleDeg: number) {
   const rad = ((angleDeg - 90) * Math.PI) / 180;
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
@@ -71,15 +77,15 @@ const SIZES: Record<
     levels: [0.25, 0.5, 0.75, 1],
   },
   overview: {
-    cx: 110,
-    cy: 110,
-    maxR: 68,
-    labelR: 26,
-    labelFontSizePx: "13px",
-    labelFontSizeWithScorePx: "12px",
-    view: "0 0 220 220",
-    height: "aspect-square w-full",
-    maxW: "mx-auto max-w-[210px]",
+    cx: 122,
+    cy: 112,
+    maxR: 54,
+    labelR: 30,
+    labelFontSizePx: "12px",
+    labelFontSizeWithScorePx: "11px",
+    view: "-8 -5 264 234",
+    height: "h-[220px]",
+    maxW: "mx-auto w-full max-w-[292px]",
     levels: [0.25, 0.5, 0.75, 1],
   },
   dense: {
@@ -115,6 +121,8 @@ export function RoleplayRadarChart({
   highlightIds,
   embedded = false,
   showScores = false,
+  /** 軸標籤分數小數位數（首頁均分雷達用 1） */
+  scoreDecimals = 0,
   chartSizePx,
   labelScreenPx = 15,
   labelScreenPxWithScore = 13,
@@ -128,6 +136,7 @@ export function RoleplayRadarChart({
   embedded?: boolean;
   /** 軸標籤附分數，如「同理 16」 */
   showScores?: boolean;
+  scoreDecimals?: 0 | 1;
   /** 實際渲染邊長（px）；傳入後軸標籤依螢幕字級校正 */
   chartSizePx?: number;
   /** 軸標籤目標螢幕字級（px） */
@@ -144,6 +153,9 @@ export function RoleplayRadarChart({
   const maxR = sz.maxR;
   const levels = sz.levels;
   const highlight = new Set(highlightIds ?? []);
+
+  const formatScore = (score: number) =>
+    scoreDecimals === 1 ? formatRadarDimensionScore(score) : String(score);
 
   const angles = sorted.map((_, i) => (360 / sorted.length) * i);
   const dataPoints = sorted.map((d, i) => {
@@ -169,7 +181,13 @@ export function RoleplayRadarChart({
             .map((p) => `${p.x},${p.y}`)
             .join(" ");
           return (
-            <polygon key={lv} points={pts} fill="none" stroke="#d1fae5" strokeWidth={1} />
+            <polygon
+              key={lv}
+              points={pts}
+              fill="none"
+              stroke="var(--chart-radar-grid)"
+              strokeWidth={1}
+            />
           );
         })}
         {sorted.map((d, i) => {
@@ -182,7 +200,7 @@ export function RoleplayRadarChart({
                 y1={cy}
                 x2={outer.x}
                 y2={outer.y}
-                stroke={isHi ? "#34d399" : "#a7f3d0"}
+                stroke={isHi ? "var(--chart-radar-axis-hi)" : "var(--chart-radar-axis)"}
                 strokeWidth={isHi ? 1.5 : 1}
               />
             </g>
@@ -190,8 +208,8 @@ export function RoleplayRadarChart({
         })}
         <polygon
           points={polygon}
-          fill="rgba(16, 185, 129, 0.3)"
-          stroke="#059669"
+          fill="var(--chart-radar-fill)"
+          stroke="var(--chart-radar-stroke)"
           strokeWidth={1.5}
         />
       </svg>
@@ -203,7 +221,13 @@ export function RoleplayRadarChart({
             .map((p) => `${p.x},${p.y}`)
             .join(" ");
           return (
-            <polygon key={lv} points={pts} fill="none" stroke="#d1fae5" strokeWidth={1} />
+            <polygon
+              key={lv}
+              points={pts}
+              fill="none"
+              stroke="var(--chart-radar-grid)"
+              strokeWidth={1}
+            />
           );
         })}
         {sorted.map((d, i) => {
@@ -211,19 +235,26 @@ export function RoleplayRadarChart({
           const label = polarToXY(cx, cy, maxR + sz.labelR, angles[i]);
           return (
             <g key={d.dimensionId}>
-              <line x1={cx} y1={cy} x2={outer.x} y2={outer.y} stroke="#a7f3d0" strokeWidth={1} />
+              <line
+                x1={cx}
+                y1={cy}
+                x2={outer.x}
+                y2={outer.y}
+                stroke="var(--chart-radar-axis)"
+                strokeWidth={1}
+              />
               <text
                 x={label.x}
                 y={label.y}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill="#065f46"
+                fill="var(--chart-radar-label)"
                 fontWeight={500}
                 {...(resolvedLabelFontSize != null
                   ? { fontSize: resolvedLabelFontSize }
                   : {
                       style: {
-                        fill: "#065f46",
+                        fill: "var(--chart-radar-label)",
                         fontWeight: 500,
                         fontSize: showScores
                           ? sz.labelFontSizeWithScorePx
@@ -232,7 +263,7 @@ export function RoleplayRadarChart({
                     })}
               >
                 {showScores
-                  ? `${LABELS[d.dimensionId] ?? d.label} ${d.score}`
+                  ? `${LABELS[d.dimensionId] ?? d.label} ${formatScore(d.score ?? 0)}`
                   : (LABELS[d.dimensionId] ?? d.label)}
               </text>
             </g>
@@ -240,8 +271,8 @@ export function RoleplayRadarChart({
         })}
         <polygon
           points={polygon}
-          fill="rgba(16, 185, 129, 0.35)"
-          stroke="#059669"
+          fill="var(--chart-radar-fill)"
+          stroke="var(--chart-radar-stroke)"
           strokeWidth={variant === "dense" ? 1.5 : variant === "overview" ? 2.5 : 2}
         />
       </svg>

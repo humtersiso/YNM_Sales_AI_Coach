@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AppIcon, type AppIconName } from "@/components/icons/AppIcon";
+import { BrandEasterEgg } from "@/components/theme/BrandEasterEgg";
+import { SakuraHeaderFx } from "@/components/theme/SakuraHeaderFx";
 
 const portals: {
   href: string;
@@ -105,11 +107,14 @@ export default function PortalHomePage() {
   }
 
   return (
-    <div className="portal-shell min-h-dvh bg-[#f3fbf6]">
+    <div className="portal-shell min-h-dvh bg-background">
       <main className="portal-safe-bottom mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 py-8">
-        <header className="mb-10 text-center">
-          <div className="flex items-start justify-between">
-            <p className="text-sm font-medium tracking-wide text-emerald-700">裕日汽車</p>
+        <header className="portal-header-bar relative mb-10 overflow-hidden rounded-2xl px-1 py-2 text-center">
+          <SakuraHeaderFx dense />
+          <div className="relative z-[3] flex items-start justify-between">
+            <BrandEasterEgg className="text-sm font-medium text-emerald-700">
+              裕日汽車
+            </BrandEasterEgg>
             <div className="flex items-center gap-2">
               {roleBadge ? (
                 <span className={`rounded-full px-2.5 py-1 text-sm font-semibold ${roleBadge.className}`}>
@@ -129,8 +134,8 @@ export default function PortalHomePage() {
               ) : null}
             </div>
           </div>
-          <h1 className="mt-6 text-2xl font-semibold text-emerald-950">銷售訓練平台</h1>
-          <p className="mt-2 text-base text-emerald-800/90">請選擇要使用的服務</p>
+          <h1 className="relative z-[3] mt-6 text-2xl font-semibold text-emerald-950">銷售訓練平台</h1>
+          <p className="relative z-[3] mt-2 text-base text-emerald-800/90">請選擇要使用的服務</p>
         </header>
 
         {checkingSession ? (

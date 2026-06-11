@@ -322,6 +322,7 @@ function SetupForm() {
       `roleplay-boot-${data.sessionId}`,
       JSON.stringify({
         customerMessage: data.customerMessage,
+        plannedCustomerOpening: data.customerMessage,
         maxTurns: data.maxTurns,
         turn: data.turn,
         scenarioTitle: data.scenarioTitle,
@@ -477,6 +478,19 @@ function SetupForm() {
         >
           開始演練
         </button>
+
+        <p className="text-center text-xs text-emerald-700">
+          開練前可先練{" "}
+          <a
+            href="/docs/ROLEPLAY_HIGH_SCORE_QA_GUIDE.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-teal-700 underline"
+          >
+            競品高分問答集
+          </a>
+          （每競品 20 題）
+        </p>
       </div>
 
       {modalOpen && options ? (

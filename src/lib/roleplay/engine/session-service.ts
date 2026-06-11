@@ -1,5 +1,6 @@
 import type { SessionUser } from "@/lib/auth/session";
 import {
+  generateCustomerFirstReply,
   generateCustomerOpening,
   generateCustomerReply,
 } from "@/lib/roleplay/engine/customer-agent";
@@ -9,6 +10,7 @@ import {
   parseSessionConfig,
   randomRoleplayConfig,
 } from "@/lib/roleplay/engine/scenario-composer";
+import { finalizeScoreResultForDisplay } from "@/lib/roleplay/roleplay-session-detail";
 import {
   enrichScoreResult,
   scoreRoleplaySession,
@@ -91,7 +93,8 @@ async function createSessionFromScenario(input: {
     username: input.user.username,
     displayName: input.user.displayName,
     branch: input.user.branch ?? "",
-    turns: [{ role: "customer", content: opening, at: now }],
+    turns: [],
+    pendingCustomerOpening: opening,
     agentTurnCount: 0,
     maxTurns: input.scenario.sectionE.maxTurns,
     status: "active",
@@ -173,6 +176,22 @@ export async function startRoleplaySessionWithConfig(input: {
   }
 }
 
+function syncDialoguePhase(session: RoleplaySession): {
+  awaitingAgentClosing: boolean;
+  readyToScore: boolean;
+} {
+  if (session.agentClosingSent) {
+    session.awaitingAgentClosing = false;
+    return { awaitingAgentClosing: false, readyToScore: true };
+  }
+  if (session.agentTurnCount >= session.maxTurns) {
+    session.awaitingAgentClosing = true;
+    return { awaitingAgentClosing: true, readyToScore: false };
+  }
+  session.awaitingAgentClosing = false;
+  return { awaitingAgentClosing: false, readyToScore: false };
+}
+
 export async function submitRoleplayTurn(input: {
   sessionId: string;
   message: string;
@@ -181,6 +200,8 @@ export async function submitRoleplayTurn(input: {
   turn: number;
   maxTurns: number;
   shouldFinish: boolean;
+  awaitingAgentClosing?: boolean;
+  readyToScore?: boolean;
 }> {
   const session = getSession(input.sessionId);
   if (!session) throw new RoleplaySessionError("對練場次不存在或已過期", 404);
@@ -191,28 +212,72 @@ export async function submitRoleplayTurn(input: {
   const text = input.message.trim();
   if (!text) throw new RoleplaySessionError("請輸入回覆內容");
 
-  if (session.agentTurnCount >= session.maxTurns) {
-    throw new RoleplaySessionError("已達最大輪次，請結束並評分", 400);
+  if (session.agentClosingSent) {
+    throw new RoleplaySessionError("已送出收尾致謝，請點「結束評分」", 400);
   }
+
+  syncDialoguePhase(session);
+  saveSession(session);
 
   const now = new Date().toISOString();
-  session.turns.push({ role: "agent", content: text, at: now });
-  session.agentTurnCount += 1;
 
-  const opening = session.turns[0];
-  if (
-    session.agentTurnCount === 1 &&
-    session.turns.length === 2 &&
-    opening?.role === "customer"
-  ) {
+  if (session.awaitingAgentClosing) {
+    session.turns.push({ role: "agent", content: text, at: now });
+    session.awaitingAgentClosing = false;
+    session.agentClosingSent = true;
     saveSession(session);
     return {
-      customerMessage: opening.content,
+      customerMessage: "",
       turn: session.agentTurnCount,
       maxTurns: session.maxTurns,
-      shouldFinish: session.agentTurnCount >= session.maxTurns,
+      shouldFinish: true,
+      awaitingAgentClosing: false,
+      readyToScore: true,
     };
   }
+
+  // 舊版：開局曾把客戶開場寫在 turns[0]，改為業代先、再生成對應首句
+  if (
+    session.agentTurnCount === 0 &&
+    session.turns.length === 1 &&
+    session.turns[0]?.role === "customer"
+  ) {
+    const planned = session.turns[0]!.content;
+    session.turns = [];
+    session.pendingCustomerOpening = planned;
+  }
+
+  const isOpeningTurn =
+    session.agentTurnCount === 0 && !!session.pendingCustomerOpening?.trim();
+
+  if (isOpeningTurn) {
+    session.turns.push({ role: "agent", content: text, at: now });
+    const persona = resolvePersona(session.personaId);
+    const customerReply = await generateCustomerFirstReply({
+      scenario: session.scenario,
+      persona,
+      agentMessage: text,
+      plannedOpening: session.pendingCustomerOpening!,
+    });
+    session.pendingCustomerOpening = undefined;
+    session.turns.push({ role: "customer", content: customerReply, at: new Date().toISOString() });
+    saveSession(session);
+    return {
+      customerMessage: customerReply,
+      turn: 0,
+      maxTurns: session.maxTurns,
+      shouldFinish: false,
+      awaitingAgentClosing: false,
+      readyToScore: false,
+    };
+  }
+
+  if (session.agentTurnCount >= session.maxTurns && !session.awaitingAgentClosing) {
+    throw new RoleplaySessionError("已達對話輪次上限，請先收尾致謝", 400);
+  }
+
+  session.turns.push({ role: "agent", content: text, at: now });
+  session.agentTurnCount += 1;
 
   const persona = resolvePersona(session.personaId);
   const customerReply = await generateCustomerReply({
@@ -226,15 +291,16 @@ export async function submitRoleplayTurn(input: {
   });
   session.followUpIndex += 1;
   session.turns.push({ role: "customer", content: customerReply, at: new Date().toISOString() });
+  const phase = syncDialoguePhase(session);
   saveSession(session);
-
-  const shouldFinish = session.agentTurnCount >= session.maxTurns;
 
   return {
     customerMessage: customerReply,
     turn: session.agentTurnCount,
     maxTurns: session.maxTurns,
-    shouldFinish,
+    shouldFinish: phase.readyToScore,
+    awaitingAgentClosing: phase.awaitingAgentClosing,
+    readyToScore: phase.readyToScore,
   };
 }
 
@@ -245,27 +311,31 @@ export async function finishRoleplaySession(sessionId: string): Promise<{
   const session = getSession(sessionId);
   if (!session) throw new RoleplaySessionError("對練場次不存在或已過期", 404);
   if (session.status === "finished" && session.scoreResult) {
-    return { sessionId, scoreResult: session.scoreResult };
+    return { sessionId, scoreResult: finalizeScoreResultForDisplay(session.scoreResult) };
   }
   if (session.agentTurnCount < 1) {
     throw new RoleplaySessionError("請至少回覆一輪再結束評分", 400);
   }
+  if (!session.agentClosingSent) {
+    throw new RoleplaySessionError("請向客戶收尾致謝後再結束評分", 400);
+  }
 
-  let scoreResult = await enrichScoreResult(
-    session.scenario,
-    session.turns,
+  // scoreRoleplaySession 內已含規則五維評分 + Rubric 修正點，勿再 enrich 以免重複計算
+  const scoreResult = await attachScoreHistory(
+    session.userId,
     await scoreRoleplaySession({
       scenario: session.scenario,
       turns: session.turns,
     }),
+    session.sessionId,
   );
-
-  scoreResult = await attachScoreHistory(session.userId, scoreResult, session.sessionId);
 
   session.status = "finished";
   session.finishedAt = new Date().toISOString();
   session.scoreResult = scoreResult;
   saveSession(session);
+
+  const displayScore = finalizeScoreResultForDisplay(scoreResult);
 
   try {
     await persistRoleplayGate2Completed(session);
@@ -286,7 +356,7 @@ export async function finishRoleplaySession(sessionId: string): Promise<{
     console.warn("[roleplay] dashboard briefing refresh (gate2) failed", e);
   });
 
-  return { sessionId, scoreResult };
+  return { sessionId, scoreResult: displayScore };
 }
 
 export function getRoleplaySessionForUser(
@@ -304,6 +374,10 @@ export async function getRoleplayPracticeBootstrap(sessionId: string, userId: st
   const session = getRoleplaySessionForUser(sessionId, userId);
   if (!session) return null;
 
+  const phase =
+    session.status === "active" ? syncDialoguePhase(session) : { awaitingAgentClosing: false, readyToScore: false };
+  if (session.status === "active") saveSession(session);
+
   return {
     sessionId: session.sessionId,
     status: session.status,
@@ -311,16 +385,23 @@ export async function getRoleplayPracticeBootstrap(sessionId: string, userId: st
     maxTurns: session.maxTurns,
     turn: session.agentTurnCount,
     agentSpeaksFirst:
-      session.agentTurnCount === 0 &&
-      session.turns.length > 0 &&
-      session.turns[0]?.role === "customer",
+      session.agentTurnCount === 0 && !!session.pendingCustomerOpening?.trim(),
+    awaitingAgentClosing: phase.awaitingAgentClosing,
+    agentClosingSent: session.agentClosingSent ?? false,
+    readyToScore: session.agentClosingSent ?? phase.readyToScore,
+    plannedCustomerOpening:
+      session.pendingCustomerOpening?.trim() ||
+      session.scenario.sectionA.openingLine?.trim() ||
+      "",
     messages: session.turns.map((t, i) => ({
       id: `${session.sessionId}-${i}`,
       role: t.role as "customer" | "agent",
       content: t.content,
     })),
     scoreResult: session.scoreResult
-      ? await enrichScoreResult(session.scenario, session.turns, session.scoreResult)
+      ? session.status === "finished"
+        ? finalizeScoreResultForDisplay(session.scoreResult)
+        : await enrichScoreResult(session.scenario, session.turns, session.scoreResult)
       : null,
     coachMaterials: buildCoachMaterials(session.scenario, session.ragCoverage),
     ragCoverage: session.ragCoverage ?? null,

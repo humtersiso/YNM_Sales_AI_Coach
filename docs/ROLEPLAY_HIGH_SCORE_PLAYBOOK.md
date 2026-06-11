@@ -20,7 +20,8 @@
 
 覆蓋率稽核：`npm run audit:roleplay-rag` → 報告見 `docs/ROLEPLAY_RAG_COVERAGE_AUDIT.html`  
 HTML 版攻略：`npm run docs:roleplay-playbook` → `docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.html`  
-本文件競品章節依 `npm run dump:roleplay-rag`（`data/roleplay-rag-playbook-snapshot.json`）實測更新。
+**競品考試問答集**（每競品 20 題，**內容僅來自 Vertex RAG**）：先 `npm run dump:roleplay-rag` → 再 `npm run docs:roleplay-score-guide` → `docs/ROLEPLAY_HIGH_SCORE_QA_GUIDE.html`  
+本文件競品章節亦依 `data/roleplay-rag-playbook-snapshot.json` 實測更新。
 
 ---
 
@@ -245,5 +246,6 @@ HTML 版攻略：`npm run docs:roleplay-playbook` → `docs/ROLEPLAY_HIGH_SCORE_
 - 客戶追問僅能討論本場佐證與 followUps
 - 評分 LLM 與 fallback 皆以本場 sectionC 為 factCheck 依據
 - QA 詳解：`npm run docs:roleplay-qa-drill`（RAG 自動產題）
+- 競品高分問答集：`npm run docs:roleplay-score-guide`（6 競品 × 20 題考試練習）
 
 *對應：`rag-context.ts`、`opening-generator.ts`、`customer-agent.ts`、`scoring-agent.ts`*

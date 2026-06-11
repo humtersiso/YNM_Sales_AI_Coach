@@ -88,7 +88,7 @@ export function RoleplayHomeDashboard() {
         started={stats?.startedSessions ?? 0}
         completed={completed}
         abandoned={abandoned}
-        overallAvg={stats?.overallAvg ?? 0}
+        overallAvg={stats?.radarOverallAvg ?? stats?.overallAvg ?? 0}
         lastScore={stats?.lastScore ?? null}
         hasData={hasData}
         dimensions={dimensions}
@@ -106,9 +106,9 @@ export function RoleplayHomeDashboard() {
                     {d.count > 0 ? `${d.avgScore} 分 · ${d.count} 場` : "尚未練習"}
                   </span>
                 </div>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-emerald-50">
+                <div className="portal-progress-track mt-1 h-1.5 overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"
+                    className="portal-progress-fill h-full rounded-full"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -133,6 +133,7 @@ function emptyStats(): RoleplayDashboardStats {
     completedSessions: 0,
     totalSessions: 0,
     overallAvg: 0,
+    radarOverallAvg: 0,
     lastScore: null,
     byDifficulty: [],
     dimensionAverages: null,

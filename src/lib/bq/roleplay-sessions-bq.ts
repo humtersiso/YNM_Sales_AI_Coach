@@ -2,6 +2,8 @@ import { getBigQueryClient, getBigQueryScriptDrillsConfig } from "@/lib/bq/scrip
 import type { RoleplayDrillDifficulty, RoleplaySessionConfig } from "@/lib/roleplay/scenario-contract";
 import type { RoleplayHistoryItem } from "@/lib/roleplay/roleplay-types-api";
 import { inferCorrectionCategory, normalizeCorrectionPoint } from "@/lib/roleplay/engine/correction-builder";
+import { CORRECTION_RUBRIC_VERSION } from "@/lib/roleplay/engine/correction-version";
+import { splitScenarioFactsForSession } from "@/lib/roleplay/roleplay-rag-filter";
 import { archiveFinishedSession } from "@/lib/roleplay/engine/session-store";
 import { coalesceAdjacentAgentTurns } from "@/lib/roleplay/engine/turn-coalesce";
 import { ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
@@ -129,7 +131,16 @@ export function formatRoleplayTranscript(turns: RoleplayChatTurn[]): string {
 function buildReportJson(
   result: RoleplayScoreResult,
   scenarioFacts?: { label: string; value: string }[],
+  sessionCompetitor?: string,
 ): string {
+  const allFacts = (scenarioFacts ?? []).map((f) => ({
+    label: f.label,
+    value: f.value,
+  }));
+  const factSplit = sessionCompetitor
+    ? splitScenarioFactsForSession(allFacts, sessionCompetitor)
+    : { facts: allFacts, coreFacts: allFacts, competitorFacts: [] as typeof allFacts };
+
   return JSON.stringify({
     summary: result.summary,
     dimensions: result.dimensions,
@@ -141,13 +152,13 @@ function buildReportJson(
       whatYouSaid: p.whatYouSaid,
       correctGuide: p.correctGuide,
     })),
+    rubricVersion: result.rubricVersion ?? CORRECTION_RUBRIC_VERSION,
     unusedStrategies: result.unusedStrategies,
     gradeLabel: result.gradeLabel,
     advice: result.advice,
-    scenarioFacts: (scenarioFacts ?? []).map((f) => ({
-      label: f.label,
-      value: f.value,
-    })),
+    scenarioFacts: factSplit.facts,
+    coreFacts: factSplit.coreFacts,
+    competitorFacts: factSplit.competitorFacts,
   });
 }
 
@@ -164,12 +175,15 @@ function scoreColumnMap(result: RoleplayScoreResult): Record<string, number | nu
   };
 }
 
-function parseReportJson(raw: string | null | undefined): {
+export function parseReportJson(raw: string | null | undefined): {
   summary: string;
   improvementTips: string[];
   correctionPoints: RoleplayCorrectionPoint[];
   unusedStrategies: string[];
   scenarioFacts: { label: string; value: string }[];
+  coreFacts: { label: string; value: string }[];
+  competitorFacts: { label: string; value: string }[];
+  rubricVersion: string | null;
   dimensions: { dimensionId: string; label: string; score: number; comment: string }[];
 } {
   if (!raw?.trim()) {
@@ -179,6 +193,9 @@ function parseReportJson(raw: string | null | undefined): {
       correctionPoints: [],
       unusedStrategies: [],
       scenarioFacts: [],
+      coreFacts: [],
+      competitorFacts: [],
+      rubricVersion: null,
       dimensions: [],
     };
   }
@@ -186,6 +203,7 @@ function parseReportJson(raw: string | null | undefined): {
     const j = JSON.parse(raw) as {
       summary?: string;
       improvementTips?: string[];
+      rubricVersion?: string;
       correctionPoints?: {
         issue?: string;
         category?: string;
@@ -195,8 +213,19 @@ function parseReportJson(raw: string | null | undefined): {
       }[];
       unusedStrategies?: string[];
       scenarioFacts?: { label?: string; value?: string }[];
+      coreFacts?: { label?: string; value?: string }[];
+      competitorFacts?: { label?: string; value?: string }[];
       dimensions?: { dimensionId?: string; label?: string; score?: number; comment?: string }[];
     };
+    const mapFacts = (rows: { label?: string; value?: string }[] | undefined) =>
+      Array.isArray(rows)
+        ? rows
+            .map((f) => ({
+              label: String(f.label ?? "").trim(),
+              value: String(f.value ?? "").trim(),
+            }))
+            .filter((f) => f.label || f.value)
+        : [];
     const correctionPoints = Array.isArray(j.correctionPoints)
       ? j.correctionPoints
           .map((c) =>
@@ -213,19 +242,18 @@ function parseReportJson(raw: string | null | undefined): {
           )
           .filter((c) => c.issue && c.correctGuide)
       : [];
+    const scenarioFacts = mapFacts(j.scenarioFacts);
+    const coreFacts = mapFacts(j.coreFacts);
+    const competitorFacts = mapFacts(j.competitorFacts);
     return {
       summary: String(j.summary ?? "").trim(),
       improvementTips: Array.isArray(j.improvementTips) ? j.improvementTips.map(String) : [],
       correctionPoints,
       unusedStrategies: Array.isArray(j.unusedStrategies) ? j.unusedStrategies.map(String) : [],
-      scenarioFacts: Array.isArray(j.scenarioFacts)
-        ? j.scenarioFacts
-            .map((f) => ({
-              label: String(f.label ?? "").trim(),
-              value: String(f.value ?? "").trim(),
-            }))
-            .filter((f) => f.label || f.value)
-        : [],
+      scenarioFacts: scenarioFacts.length > 0 ? scenarioFacts : [...coreFacts, ...competitorFacts],
+      coreFacts,
+      competitorFacts,
+      rubricVersion: j.rubricVersion?.trim() || null,
       dimensions: (j.dimensions ?? []).map((d) => ({
         dimensionId: String(d.dimensionId ?? ""),
         label: String(d.label ?? DIMENSION_LABELS[d.dimensionId ?? ""] ?? d.dimensionId ?? ""),
@@ -240,6 +268,9 @@ function parseReportJson(raw: string | null | undefined): {
       correctionPoints: [],
       unusedStrategies: [],
       scenarioFacts: [],
+      coreFacts: [],
+      competitorFacts: [],
+      rubricVersion: null,
       dimensions: [],
     };
   }
@@ -505,6 +536,7 @@ async function insertGate2(session: RoleplaySession): Promise<void> {
   const reportJson = buildReportJson(
     session.scoreResult,
     session.scenario.sectionC.facts,
+    dim.competitor,
   );
 
   const record: RoleplaySessionRecord = {

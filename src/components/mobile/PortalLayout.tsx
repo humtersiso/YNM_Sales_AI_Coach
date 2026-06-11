@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { SakuraHeaderFx } from "@/components/theme/SakuraHeaderFx";
 import type { AppRole } from "@/lib/auth/session";
 
 const ROLE_STYLES: Record<AppRole, { label: string; className: string }> = {
@@ -31,12 +32,13 @@ export function PortalLayout({
   const roleMeta = headerUser ? ROLE_STYLES[headerUser.role] : null;
 
   return (
-    <div className="portal-shell min-h-dvh bg-[#f3fbf6] text-zinc-900">
-      <header className="portal-safe-top sticky top-0 z-10 border-b border-emerald-100/80 bg-[#f3fbf6]/95 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-lg items-center gap-3">
+    <div className="portal-shell min-h-dvh bg-background text-zinc-900">
+      <header className="portal-header-bar portal-safe-top sticky top-0 z-10 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur">
+        <SakuraHeaderFx />
+        <div className="relative z-[3] mx-auto flex max-w-lg items-center gap-3">
           <Link
             href={backHref}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-800"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-emerald-800"
             aria-label="返回"
           >
             <AppIcon name="arrow-left" size={18} />

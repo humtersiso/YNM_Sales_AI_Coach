@@ -12,6 +12,7 @@ import {
   buildRuleDashboardBriefing,
 } from "@/lib/roleplay/dashboard-briefing";
 import {
+  buildCorrectionMemoryLinesFromCorrections,
   buildFactMemoryLinesFromCorrections,
   buildStrategyAdviceFromCorrections,
   takeRecentCompletedSessions,
@@ -24,13 +25,30 @@ import type {
   RoleplayDashboardStats,
   RoleplayHistoryItem,
 } from "@/lib/roleplay/roleplay-types-api";
-import { historyItemFromCompletedDetail } from "@/lib/roleplay/roleplay-session-detail";
+import { historyItemFromCompletedDetailSync } from "@/lib/roleplay/roleplay-session-detail";
 import { listArchivedSessionsForUser } from "@/lib/roleplay/engine/session-store";
 import { ROLEPLAY_COMPETITORS_XTRAIL, ROLEPLAY_DIFFICULTIES } from "@/lib/roleplay/catalog";
 import { ROLEPLAY_PERSONA_IDS, ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
 import type { RoleplayScoreResult, RoleplaySession } from "@/lib/roleplay/session-types";
 
 const DIMENSION_IDS = ["empathy", "structure", "factCheck", "strategy", "advance"] as const;
+
+/** 個人首頁雷達圖與「均分」須同一批完賽場次，加總才會一致 */
+export const OVERVIEW_RADAR_LAST_N = 10;
+
+const DIMENSION_SCORE_KEYS = [
+  "scoreEmpathy",
+  "scoreStructure",
+  "scoreFactCheck",
+  "scoreStrategy",
+  "scoreClosing",
+] as const satisfies readonly (keyof RoleplayCompletedDetail)[];
+
+function hasFullDimensionScores(row: RoleplayCompletedDetail): boolean {
+  return DIMENSION_SCORE_KEYS.every(
+    (k) => row[k] != null && Number.isFinite(row[k] as number),
+  );
+}
 
 const DIMENSION_LABELS: Record<string, string> = {
   empathy: "同理承接",
@@ -121,27 +139,36 @@ export function mergeJustFinished(
   return [row, ...rest];
 }
 
+function roundOneDecimal(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
 function avgDimension(
   rows: RoleplayCompletedDetail[],
-  key: keyof Pick<
-    RoleplayCompletedDetail,
-    "scoreEmpathy" | "scoreStructure" | "scoreFactCheck" | "scoreStrategy" | "scoreClosing"
-  >,
+  key: (typeof DIMENSION_SCORE_KEYS)[number],
 ): number | null {
-  const vals = rows.map((r) => r[key]).filter((v): v is number => v != null && Number.isFinite(v));
-  if (vals.length === 0) return null;
-  return Math.round(vals.reduce((s, v) => s + v, 0) / vals.length);
+  if (rows.length === 0) return null;
+  const vals = rows.map((r) => r[key] as number);
+  return roundOneDecimal(vals.reduce((s, v) => s + v, 0) / vals.length);
 }
 
 function buildDimensionAverages(rows: RoleplayCompletedDetail[]): RoleplayDashboardStats["dimensionAverages"] {
-  if (rows.length === 0) return null;
+  const cohort = rows.filter(hasFullDimensionScores);
+  if (cohort.length === 0) return null;
   return {
-    empathy: avgDimension(rows, "scoreEmpathy"),
-    structure: avgDimension(rows, "scoreStructure"),
-    factCheck: avgDimension(rows, "scoreFactCheck"),
-    strategy: avgDimension(rows, "scoreStrategy"),
-    advance: avgDimension(rows, "scoreClosing"),
+    empathy: avgDimension(cohort, "scoreEmpathy"),
+    structure: avgDimension(cohort, "scoreStructure"),
+    factCheck: avgDimension(cohort, "scoreFactCheck"),
+    strategy: avgDimension(cohort, "scoreStrategy"),
+    advance: avgDimension(cohort, "scoreClosing"),
   };
+}
+
+/** 首頁均分＝五維顯示值加總（避免各維四捨五入後與場均分差 0.1） */
+export function radarOverallFromDimensionAverages(
+  avg: NonNullable<RoleplayDashboardStats["dimensionAverages"]>,
+): number {
+  return roundOneDecimal(DIMENSION_IDS.reduce((s, id) => s + (avg[id] ?? 0), 0));
 }
 
 function rankDimensions(
@@ -195,6 +222,7 @@ export function buildDashboardStatsCore(
   startedSessions: number,
 ): Omit<RoleplayDashboardStats, "briefing" | "briefingStale"> {
   const recent5 = takeRecentCompletedSessions(completed);
+  const recentForRadar = takeRecentCompletedSessions(completed, OVERVIEW_RADAR_LAST_N);
   const trendSource = [...recent5]
     .sort((a, b) => String(a.finishedAt).localeCompare(String(b.finishedAt)));
 
@@ -212,8 +240,12 @@ export function buildDashboardStatsCore(
       ? Math.round(completed.reduce((s, r) => s + r.score, 0) / completed.length)
       : 0;
 
-  const dimensionAverages = buildDimensionAverages(recent5);
+  const dimensionAverages = buildDimensionAverages(recentForRadar);
+  const radarOverallAvg = dimensionAverages
+    ? radarOverallFromDimensionAverages(dimensionAverages)
+    : overallAvg;
   const completedSessions = completed.length;
+  const correctionMemoryLines = buildCorrectionMemoryLinesFromCorrections(completed);
   const factMemoryLines = buildFactMemoryLinesFromCorrections(completed);
   const strategyAdviceFromCorrections = buildStrategyAdviceFromCorrections(completed);
 
@@ -222,6 +254,8 @@ export function buildDashboardStatsCore(
     completedSessions,
     totalSessions: completedSessions,
     overallAvg,
+    /** 與首頁雷達同一批近 N 場的均分，五維加總應與此一致 */
+    radarOverallAvg,
     lastScore: completed[0]?.score ?? null,
     byDifficulty,
     dimensionAverages,
@@ -235,6 +269,7 @@ export function buildDashboardStatsCore(
     })),
     suggestions: buildSuggestionsFromDetails(completed),
     knowledgeReminders: buildKnowledgeRemindersFromSessions(recent5),
+    correctionMemoryLines,
     factMemoryLines,
     strategyAdviceFromCorrections,
   };
@@ -336,6 +371,17 @@ export async function getAgentDashboardStats(
   if (briefing) {
     const abandoned = Math.max(0, ctx.core.startedSessions - ctx.core.completedSessions);
     briefing = appendAbandonedReminder(briefing, abandoned);
+    if (briefing.knowledgeLines.length === 0) {
+      const memory =
+        (ctx.core.correctionMemoryLines?.length ?? 0) > 0
+          ? ctx.core.correctionMemoryLines!
+          : (ctx.core.factMemoryLines?.length ?? 0) > 0
+            ? ctx.core.factMemoryLines!
+            : null;
+      if (memory) {
+        briefing = { ...briefing, knowledgeLines: memory };
+      }
+    }
   }
 
   return {
@@ -352,7 +398,7 @@ export async function getAgentStats(userId: string) {
 
 export async function getAgentHistory(userId: string, limit = 20): Promise<RoleplayHistoryItem[]> {
   const details = await listUserSessionsForHistory(userId, limit);
-  return Promise.all(details.map((d) => historyItemFromCompletedDetail(d)));
+  return details.map((d) => historyItemFromCompletedDetailSync(d));
 }
 
 export async function attachScoreHistory(

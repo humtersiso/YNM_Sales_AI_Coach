@@ -1,6 +1,14 @@
 import type { RoleplayCompletedDetail } from "@/lib/bq/roleplay-sessions-bq";
 import { inferCorrectionCategory } from "@/lib/roleplay/engine/correction-utils";
+import { isRawRagDump } from "@/lib/roleplay/engine/correction-builder";
+import {
+  filterFactsForSession,
+  hasNonTaiwanCarTerms,
+  isVagueCorrectGuide,
+  normalizeCompetitorToken,
+} from "@/lib/roleplay/engine/correction-guide";
 import type { RoleplayCorrectionPoint } from "@/lib/roleplay/session-types";
+import { filterDisplayCorrectionPoints } from "@/lib/roleplay/roleplay-session-detail";
 
 export const BRIEFING_LAST_N_SESSIONS = 5;
 
@@ -42,36 +50,119 @@ function parseCorrectionPointsFromReport(
 }
 
 export function correctionPointsFromDetail(d: RoleplayCompletedDetail): RoleplayCorrectionPoint[] {
-  if (d.correctionPoints?.length) return d.correctionPoints;
-  return parseCorrectionPointsFromReport(d.reportJson);
+  const raw = d.correctionPoints?.length
+    ? d.correctionPoints
+    : parseCorrectionPointsFromReport(d.reportJson);
+  return filterDisplayCorrectionPoints(raw);
 }
 
-function extractExamFactLine(guide: string, issue: string, competitor: string): string {
-  const g = guide.trim().replace(/\s+/g, " ");
-  const nums = [...g.matchAll(/\d[\d,.]*(?:\s*(?:萬|公里|km\/L|km|分貝|元|千|%|年))?/gi)].map(
-    (m) => m[0],
-  );
-  if (nums.length === 0) return "";
+/** 從 report_json 解析情境佐證事實 */
+export function parseScenarioFactsFromReport(
+  reportJson: string | null | undefined,
+): { label: string; value: string }[] {
+  if (!reportJson?.trim()) return [];
+  try {
+    const j = JSON.parse(reportJson) as {
+      scenarioFacts?: { label?: string; value?: string }[];
+    };
+    if (!Array.isArray(j.scenarioFacts)) return [];
+    return j.scenarioFacts
+      .map((f) => ({
+        label: String(f.label ?? "").trim(),
+        value: String(f.value ?? "").trim(),
+      }))
+      .filter((f) => f.label || f.value);
+  } catch {
+    return [];
+  }
+}
 
-  const brand =
-    /TUCSON|RAV4|CR-V|Sportage/i.exec(g)?.[0] ??
-    /TUCSON|RAV4|CR-V|Sportage/i.exec(issue)?.[0] ??
-    competitor.split(/\s+/)[0] ??
-    "競品";
+const MEANINGFUL_NUM_RE =
+  /\d{3,}[\d,.]*|\d[\d,.]*(?:萬|元|千|公里|km\/L|km|分貝|%|年)|\d[\d,.]*[～~-]\s*\d/;
 
-  const topic =
-    /定保|保養|回廠/.test(issue + g)
-      ? "定保費用"
-      : /油耗|WLTC|油費|油資/.test(issue + g)
-        ? "油耗／油費"
-        : /隔音|分貝|玻璃/.test(issue + g)
-          ? "隔音數據"
-          : /零件|維修|引擎|CVT/.test(issue + g)
-            ? "維修／耐用"
-            : "關鍵數據";
+function hasMeaningfulNumbers(text: string): boolean {
+  return MEANINGFUL_NUM_RE.test(text);
+}
 
-  const numPart = nums.slice(0, 3).join("、");
-  return `須牢記 ${brand} ${topic}：${numPart}（請對照教材原文，答題須精確）`;
+/** 首頁記憶重點／knowledgeLines 品質門檻（供 Gemini 解析共用） */
+export function isValidFactMemoryLine(line: string): boolean {
+  const t = line.trim();
+  if (t.length < 10) return false;
+  if (/請對照|依教材|重點\s*\d|舊世代\s*HEV|vs\.\s*重點/i.test(t)) return false;
+  if (isRawRagDump(t) || isVagueCorrectGuide(t) || hasNonTaiwanCarTerms(t)) return false;
+  if (!hasMeaningfulNumbers(t)) return false;
+  if (/[：:]\s*\d{1,2}(、\d{1,2})+/.test(t) && !/(元|千|萬|公里|km)/i.test(t)) return false;
+  return true;
+}
+
+function topicHintFromIssue(issue: string): RegExp {
+  if (/定保|保養|回廠/.test(issue)) return /定保|保養|回廠|維修|零件|元|千|萬/;
+  if (/油耗|WLTC|油費|油資/.test(issue)) return /油耗|WLTC|油費|油資|km\/L|萬|公里/;
+  if (/隔音|分貝|玻璃/.test(issue)) return /隔音|分貝|玻璃/;
+  if (/零件|維修|引擎|CVT|電池/.test(issue)) return /零件|維修|引擎|CVT|電池|耐用/;
+  return /./;
+}
+
+function pickNumericSentences(text: string, topicRe: RegExp): string[] {
+  return text
+    .replace(/\s+/g, " ")
+    .split(/[。！？\n；]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 8)
+    .filter((s) => !/重點\s*\d|請對照|依教材/i.test(s))
+    .filter((s) => hasMeaningfulNumbers(s))
+    .filter((s) => topicRe.test(s));
+}
+
+function formatMemoryLine(sentence: string): string {
+  let line = sentence.trim();
+  if (!/^須牢記/.test(line)) {
+    line = `須牢記：${line}`;
+  }
+  if (!/[。！？]$/.test(line)) line += "。";
+  if (line.length > 80) line = `${line.slice(0, 78)}…`;
+  return line;
+}
+
+function scenarioFactsForSession(s: RoleplayCompletedDetail): { label: string; value: string }[] {
+  if (s.scenarioFacts?.length) return s.scenarioFacts;
+  return parseScenarioFactsFromReport(s.reportJson);
+}
+
+function extractExamFactLine(
+  guide: string,
+  issue: string,
+  competitor: string,
+  scenarioFacts: { label: string; value: string }[] = [],
+  customerAsk?: string,
+): string {
+  const shortComp = normalizeCompetitorToken(competitor);
+  const topicRe = topicHintFromIssue(`${issue} ${guide}`);
+
+  if (guide.trim() && !isRawRagDump(guide) && !isVagueCorrectGuide(guide)) {
+    const fromGuide = pickNumericSentences(guide, topicRe);
+    if (fromGuide.length > 0) {
+      const best = fromGuide[0];
+      const withContext =
+        /CR-V|RAV4|Tucson|Sportage|X-TRAIL|竞品|競品/i.test(best) || best.includes(shortComp)
+          ? best
+          : `${shortComp}：${best}`;
+      const formatted = formatMemoryLine(withContext);
+      if (isValidFactMemoryLine(formatted)) return formatted;
+    }
+  }
+
+  const filtered = filterFactsForSession(scenarioFacts, competitor, customerAsk);
+  for (const f of filtered) {
+    const text = `${f.label} ${f.value}`.trim();
+    if (/重點\s*\d|舊世代\s*HEV|Do not use/i.test(text)) continue;
+    for (const s of pickNumericSentences(text, topicRe)) {
+      const formatted = formatMemoryLine(s);
+      if (isValidFactMemoryLine(formatted)) return formatted;
+    }
+  }
+
+  return "";
 }
 
 function simplifyStrategyLine(guide: string, issue: string): string {
@@ -94,9 +185,95 @@ function simplifyStrategyLine(guide: string, issue: string): string {
   return g.length > 60 ? `${g.slice(0, 58)}…` : g;
 }
 
+const MEMORY_CATEGORY_TAG = {
+  fact: "資訊對錯",
+  strategy: "銷售策略",
+} as const;
+
+/** 記憶重點列點品質（資訊須含金額等；策略須為可執行行為） */
+export function isValidCorrectionMemoryLine(line: string): boolean {
+  const t = line.trim();
+  if (t.length < 10 || t.length > 100) return false;
+  if (/請對照|依教材|重點\s*\d/i.test(t)) return false;
+  if (isRawRagDump(t) || hasNonTaiwanCarTerms(t)) return false;
+
+  if (t.startsWith(`【${MEMORY_CATEGORY_TAG.strategy}】`)) {
+    const body = t.slice(`【${MEMORY_CATEGORY_TAG.strategy}】`.length);
+    return body.length >= 8 && !isVagueCorrectGuide(body);
+  }
+  if (t.startsWith(`【${MEMORY_CATEGORY_TAG.fact}】`)) {
+    const body = t.slice(`【${MEMORY_CATEGORY_TAG.fact}】`.length);
+    if (isValidFactMemoryLine(body) || isValidFactMemoryLine(`須牢記：${body}`)) return true;
+    return body.length >= 12 && hasMeaningfulNumbers(body);
+  }
+  return isValidFactMemoryLine(t);
+}
+
 /**
- * 記憶重點：彙整近 N 場「資訊對錯」待加強，像考試必背。
- * 無資料回傳 []（UI 顯示「無」）。
+ * 記憶重點：近 N 場「本場待加強」列點（資訊對錯 + 銷售策略）。
+ * 依完賽時間新→舊走訪，去重後最多 12 條。
+ */
+export function buildCorrectionMemoryLinesFromCorrections(
+  sessions: RoleplayCompletedDetail[],
+): string[] {
+  const recent = takeRecentCompletedSessions(sessions);
+  const lines: string[] = [];
+  const seen = new Set<string>();
+
+  for (const s of recent) {
+    const facts = scenarioFactsForSession(s);
+    for (const p of correctionPointsFromDetail(s)) {
+      const cat = p.category ?? inferCorrectionCategory(p.issue);
+      const tag =
+        cat === "strategy" ? MEMORY_CATEGORY_TAG.strategy : MEMORY_CATEGORY_TAG.fact;
+
+      let line: string | null = null;
+      if (cat === "strategy") {
+        const tip = simplifyStrategyLine(p.correctGuide, p.issue);
+        const issue = p.issue.trim();
+        line = issue.length >= 4 ? `【${tag}】${issue}：${tip}` : `【${tag}】${tip}`;
+      } else {
+        const detail = extractExamFactLine(
+          p.correctGuide,
+          p.issue,
+          s.competitor,
+          facts,
+          p.customerAsk,
+        );
+        if (detail && isValidFactMemoryLine(detail)) {
+          line = `【${tag}】${detail.replace(/^須牢記：?/, "")}`;
+        } else if (
+          p.issue.trim().length >= 4 &&
+          p.correctGuide?.trim() &&
+          !isRawRagDump(p.correctGuide) &&
+          !isVagueCorrectGuide(p.correctGuide)
+        ) {
+          const guide = p.correctGuide.replace(/\s+/g, " ").trim();
+          const short = guide.length > 52 ? `${guide.slice(0, 50)}…` : guide;
+          line = `【${tag}】${p.issue.trim()}：${short}`;
+        } else if (p.issue.trim().length >= 6) {
+          line = `【${tag}】${p.issue.trim()}`;
+        }
+      }
+
+      if (!line) continue;
+      if (!/[。！？]$/.test(line)) line += "。";
+      if (line.length > 96) line = `${line.slice(0, 94)}…`;
+
+      const dedupeKey = `${tag}:${p.issue.slice(0, 28)}`;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
+
+      if (isValidCorrectionMemoryLine(line)) lines.push(line);
+      if (lines.length >= 12) return lines;
+    }
+  }
+  return lines;
+}
+
+/**
+ * 記憶重點（僅資訊對錯、含數字）：供 Gemini 素材與舊版 fallback。
+ * 無合格資料回傳 []（UI 顯示「無」）。
  */
 export function buildFactMemoryLinesFromCorrections(
   sessions: RoleplayCompletedDetail[],
@@ -106,14 +283,21 @@ export function buildFactMemoryLinesFromCorrections(
   const seenGuide = new Set<string>();
 
   for (const s of recent) {
+    const facts = scenarioFactsForSession(s);
     for (const p of correctionPointsFromDetail(s)) {
       const cat = p.category ?? inferCorrectionCategory(p.issue);
       if (cat !== "fact") continue;
-      if (!p.correctGuide || !/\d/.test(p.correctGuide)) continue;
+      if (!p.correctGuide?.trim() && facts.length === 0) continue;
 
-      const line =
-        extractExamFactLine(p.correctGuide, p.issue, s.competitor) ||
-        `須牢記：${p.correctGuide.slice(0, 72)}`;
+      const line = extractExamFactLine(
+        p.correctGuide,
+        p.issue,
+        s.competitor,
+        facts,
+        p.customerAsk,
+      );
+      if (!line || !isValidFactMemoryLine(line)) continue;
+
       const key = line.slice(0, 32);
       if (seenGuide.has(key)) {
         const prev = issueCount.get(key);
@@ -128,7 +312,7 @@ export function buildFactMemoryLinesFromCorrections(
   const sorted = [...issueCount.values()].sort((a, b) => b.count - a.count);
   return sorted.slice(0, 3).map(({ line, count }) => {
     if (count >= 2) {
-      return line.replace(/（請對照.*）$/, "") + `（近${recent.length}場中曾${count}次待加強）`;
+      return `${line.replace(/。$/, "")}（近${recent.length}場中曾${count}次待加強）。`;
     }
     return line;
   });

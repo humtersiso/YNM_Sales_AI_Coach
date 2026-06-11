@@ -46,25 +46,27 @@ export function RoleplayScoreTrend({
           y1={padY + innerH}
           x2={w - padX}
           y2={padY + innerH}
-          stroke="#d1fae5"
+          stroke="var(--chart-track)"
           strokeWidth={1}
         />
         <polyline
           points={polyline}
           fill="none"
-          stroke="#059669"
+          stroke="var(--chart-fill-start)"
           strokeWidth={2}
           strokeLinejoin="round"
           strokeLinecap="round"
         />
         {coords.map((c, i) => (
           <g key={i}>
-            <circle cx={c.x} cy={c.y} r={3.5} fill="#059669" />
+            <circle cx={c.x} cy={c.y} r={3.5} fill="var(--chart-fill-start)" />
             <text
               x={c.x}
               y={c.y - 8}
               textAnchor="middle"
-              className="fill-emerald-800 text-[9px] tabular-nums"
+              fill="var(--chart-radar-label)"
+              fontSize={9}
+              className="tabular-nums"
             >
               {c.score}
             </text>

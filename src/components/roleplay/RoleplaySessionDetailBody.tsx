@@ -25,8 +25,8 @@ function TranscriptBlock({
             key={i}
             className={`rounded-lg px-3 py-2 text-sm ${
               line.role === "customer"
-                ? "bg-slate-50 text-slate-800"
-                : "bg-emerald-50 text-emerald-900"
+                ? "portal-chat-bubble-customer"
+                : "portal-chat-bubble-agent-light"
             }`}
           >
             <p className="text-xs text-emerald-600">

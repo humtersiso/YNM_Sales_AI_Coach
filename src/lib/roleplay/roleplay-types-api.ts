@@ -55,6 +55,8 @@ export type RoleplayDashboardStats = {
   /** @deprecated 同 completedSessions */
   totalSessions: number;
   overallAvg: number;
+  /** 近 N 場五維均分加總（與雷達軸標籤加總一致） */
+  radarOverallAvg: number;
   lastScore: number | null;
   strongestDimensions: string[];
   byDifficulty: {
@@ -79,7 +81,9 @@ export type RoleplayDashboardStats = {
   }[];
   /** 供小結 LLM 使用的待記憶知識點原文（首頁不直接顯示） */
   knowledgeReminders?: string[];
-  /** 近五場「資訊對錯」彙整的記憶重點（規則產出） */
+  /** 近五場「本場待加強」列點（資訊對錯 + 銷售策略，規則產出） */
+  correctionMemoryLines?: string[];
+  /** 近五場僅「資訊對錯」含數字句（供小結 LLM 素材） */
   factMemoryLines?: string[];
   /** 近五場「銷售策略」彙整的建議；無則「無」 */
   strategyAdviceFromCorrections?: string;

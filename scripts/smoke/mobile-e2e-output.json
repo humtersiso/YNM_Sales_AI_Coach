@@ -1,0 +1,56 @@
+﻿?典像?唳?璈?憓葫閰?@ http://localhost:3000
+
+??A-01 [Fail] status=200
+??A-02 [Pass] /sales/login ??307 ??/login
+??A-03 [Pass] 撠毀?頛嚗lient ?? login嚗???A-04 [Fail] status=307 loc=/login
+??A-07 [Pass] admin ?餃 蝟餌絞蝞∠?????E-01 [Pass] portal me admin
+??A-11 [Pass] ?餃 200
+??A-08 [Skip] ?芣?靘?SMOKE_AGENT_USER/PASS嚗assword-flow 撌脤? agent 瘚?嚗???A-05 [Skip] ??汗?刻”?桅?霅???A-06 [Skip] ??汗?刻”?桅?霅???A-09 [Skip] ?閫豢 UI
+??A-10 [Skip] ??汗???u= 瘚?
+??A-12 [Skip] ?撖行?頠????A-13 [Skip] ??汗?刻?????B-01 [Pass] ?芰??sales redirect 307
+??B-04 [Pass] reply=68 citations=0
+??B-09 [Pass] admin ?臬??sales chat API
+??F-03 [Pass] stream status=200
+??B-02 [Skip] ??汗??UI
+??B-03 [Skip] ??汗??UI
+??B-05 [Skip] ??汗??UI
+??B-06 [Skip] ??汗??UI
+??B-07 [Skip] ??汗??UI
+??B-08 [Skip] ?餅??航炊瘜典
+??B-10 [Pass] password-flow smoke 撌脰?????B-11 [Skip] ??汗????B-12 [Skip] ?璈怠?
+??E-03 [Pass] scenarios ?祇? 200
+??E-04 [Pass] ?芰?仿?撅 401
+??C-02 [Pass] hub stats API
+??C-03 [Pass] knowledgeLines=2
+??C-04 [Pass] stats 敹恍???Gate1 ?郊嚗???C-07 [Pass] materials 200
+??C-08 [Pass] test-roleplay-setup-flow 撌脣?鞈???C-10 [Pass] setup-flow 閰? 74
+??C-11 [Pass] briefing ??????C-14 [Pass] admin ?航粥撠毀 API
+??C-01 [Skip] client redirect ??汗????C-05 [Skip] ??汗??setup
+??C-06 [Skip] ??汗????C-09 [Skip] 撌脩 in-memory ?
+??C-12 [Skip] ??汗??history
+??C-13 [Skip] ?蝚砌???UI
+??C-15 [Skip] ??汗?券??
+??C-16 [Skip] ? 360 viewport
+??D-03 [Pass] sales logs=274
+??D-04 [Pass] sessions=44 summaries=7
+??D-06 [Pass] 蝭拚 撠
+??D-07 [Pass] ??44 蝑???D-10 [Pass] /admin/clarification ??home
+??D-11 [Pass] no auth 401
+??D-01 [Pass] L1 撌脤? redirect
+??D-02 [Pass] admin ?餃?舐
+??D-05 [Skip] ??汗??dropdown
+??D-08 [Skip] ??汗?典????D-09 [Skip] ??汗??users UI
+??D-13 [Pass] setup-flow 敺???admin ?湔活
+??D-12 [Skip] ? agent session ??/admin
+??E-02 [Pass] password-flow 撌脤? agent sales session
+??E-05 [Skip] ???皜?cookie
+??F-01 [Skip] ? DevTools 蝭瘚???F-02 [Pass] setup-flow finish ~35s
+??F-04 [Skip] ?撖行? safe-area
+??F-05 [Skip] ?閫豢蝮格
+??F-06 [Skip] ?憌璅∪?
+??F-07 [Skip] ???????G-01 [Fail] bq:verify-env sales_script 銵?404
+??G-02 [Skip] ?瑼Ｚ? knowledge ?詨??澆?
+??G-03 [Skip] 撌脩?
+??G-04 [Skip] ?芾孛?潮?憿?
+--- ?? Pass=31 Fail=3 Blocked=0 Skip=36 ---
+{"summary":{"pass":31,"fail":3,"blocked":0,"skip":36},"results":[{"id":"A-01","status":"Fail","detail":"status=200"},{"id":"A-02","status":"Pass","detail":"/sales/login ??307 ??/login"},{"id":"A-03","status":"Pass","detail":"撠毀?頛嚗lient ?? login嚗?},{"id":"A-04","status":"Fail","detail":"status=307 loc=/login"},{"id":"A-07","status":"Pass","detail":"admin ?餃 蝟餌絞蝞∠???},{"id":"E-01","status":"Pass","detail":"portal me admin"},{"id":"A-11","status":"Pass","detail":"?餃 200"},{"id":"A-08","status":"Skip","detail":"?芣?靘?SMOKE_AGENT_USER/PASS嚗assword-flow 撌脤? agent 瘚?嚗?},{"id":"A-05","status":"Skip","detail":"??汗?刻”?桅?霅?},{"id":"A-06","status":"Skip","detail":"??汗?刻”?桅?霅?},{"id":"A-09","status":"Skip","detail":"?閫豢 UI"},{"id":"A-10","status":"Skip","detail":"??汗???u= 瘚?"},{"id":"A-12","status":"Skip","detail":"?撖行?頠??},{"id":"A-13","status":"Skip","detail":"??汗?刻???},{"id":"B-01","status":"Pass","detail":"?芰??sales redirect 307"},{"id":"B-04","status":"Pass","detail":"reply=68 citations=0"},{"id":"B-09","status":"Pass","detail":"admin ?臬??sales chat API"},{"id":"F-03","status":"Pass","detail":"stream status=200"},{"id":"B-02","status":"Skip","detail":"??汗??UI"},{"id":"B-03","status":"Skip","detail":"??汗??UI"},{"id":"B-05","status":"Skip","detail":"??汗??UI"},{"id":"B-06","status":"Skip","detail":"??汗??UI"},{"id":"B-07","status":"Skip","detail":"??汗??UI"},{"id":"B-08","status":"Skip","detail":"?餅??航炊瘜典"},{"id":"B-10","status":"Pass","detail":"password-flow smoke 撌脰???},{"id":"B-11","status":"Skip","detail":"??汗??},{"id":"B-12","status":"Skip","detail":"?璈怠?"},{"id":"E-03","status":"Pass","detail":"scenarios ?祇? 200"},{"id":"E-04","status":"Pass","detail":"?芰?仿?撅 401"},{"id":"C-02","status":"Pass","detail":"hub stats API"},{"id":"C-03","status":"Pass","detail":"knowledgeLines=2"},{"id":"C-04","status":"Pass","detail":"stats 敹恍???Gate1 ?郊嚗?},{"id":"C-07","status":"Pass","detail":"materials 200"},{"id":"C-08","status":"Pass","detail":"test-roleplay-setup-flow 撌脣?鞈?},{"id":"C-10","status":"Pass","detail":"setup-flow 閰? 74"},{"id":"C-11","status":"Pass","detail":"briefing ????},{"id":"C-14","status":"Pass","detail":"admin ?航粥撠毀 API"},{"id":"C-01","status":"Skip","detail":"client redirect ??汗??},{"id":"C-05","status":"Skip","detail":"??汗??setup"},{"id":"C-06","status":"Skip","detail":"??汗??},{"id":"C-09","status":"Skip","detail":"撌脩 in-memory ?"},{"id":"C-12","status":"Skip","detail":"??汗??history"},{"id":"C-13","status":"Skip","detail":"?蝚砌???UI"},{"id":"C-15","status":"Skip","detail":"??汗?券??"},{"id":"C-16","status":"Skip","detail":"? 360 viewport"},{"id":"D-03","status":"Pass","detail":"sales logs=274"},{"id":"D-04","status":"Pass","detail":"sessions=44 summaries=7"},{"id":"D-06","status":"Pass","detail":"蝭拚 撠"},{"id":"D-07","status":"Pass","detail":"??44 蝑?},{"id":"D-10","status":"Pass","detail":"/admin/clarification ??home"},{"id":"D-11","status":"Pass","detail":"no auth 401"},{"id":"D-01","status":"Pass","detail":"L1 撌脤? redirect"},{"id":"D-02","status":"Pass","detail":"admin ?餃?舐"},{"id":"D-05","status":"Skip","detail":"??汗??dropdown"},{"id":"D-08","status":"Skip","detail":"??汗?典??},{"id":"D-09","status":"Skip","detail":"??汗??users UI"},{"id":"D-13","status":"Pass","detail":"setup-flow 敺???admin ?湔活"},{"id":"D-12","status":"Skip","detail":"? agent session ??/admin"},{"id":"E-02","status":"Pass","detail":"password-flow 撌脤? agent sales session"},{"id":"E-05","status":"Skip","detail":"???皜?cookie"},{"id":"F-01","status":"Skip","detail":"? DevTools 蝭瘚?},{"id":"F-02","status":"Pass","detail":"setup-flow finish ~35s"},{"id":"F-04","status":"Skip","detail":"?撖行? safe-area"},{"id":"F-05","status":"Skip","detail":"?閫豢蝮格"},{"id":"F-06","status":"Skip","detail":"?憌璅∪?"},{"id":"F-07","status":"Skip","detail":"?????},{"id":"G-01","status":"Fail","detail":"bq:verify-env sales_script 銵?404"},{"id":"G-02","status":"Skip","detail":"?瑼Ｚ? knowledge ?詨??澆?"},{"id":"G-03","status":"Skip","detail":"撌脩?"},{"id":"G-04","status":"Skip","detail":"?芾孛?潮?憿?}]}

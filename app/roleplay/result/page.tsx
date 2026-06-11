@@ -27,6 +27,30 @@ function ResultContent() {
       setLoading(false);
       return;
     }
+
+    const cacheKey = `roleplay-result-${sessionId}`;
+    const cachedRaw = sessionStorage.getItem(cacheKey);
+    if (cachedRaw) {
+      try {
+        const cached = JSON.parse(cachedRaw) as {
+          scenarioTitle?: string;
+          scoreResult?: RoleplayScoreResult;
+        };
+        if (cached.scoreResult) {
+          setScenarioTitle(cached.scenarioTitle ?? "");
+          setScoreResult(cached.scoreResult);
+          setLoading(false);
+          sessionStorage.removeItem(cacheKey);
+          void fetch("/api/roleplay/me/stats")
+            .then((r) => (r.ok ? r.json() : null))
+            .then((s) => s && setStats(s as AgentStats));
+          return;
+        }
+      } catch {
+        sessionStorage.removeItem(cacheKey);
+      }
+    }
+
     void (async () => {
       const [sessRes, statsRes] = await Promise.all([
         fetch(`/api/roleplay/sessions/${encodeURIComponent(sessionId)}`),

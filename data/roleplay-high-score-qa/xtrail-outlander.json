@@ -1,0 +1,505 @@
+{
+  "slug": "outlander",
+  "competitor": "Mitsubishi Outlander",
+  "short": "Outlander",
+  "productLine": "xtrail",
+  "product": "X-TRAIL ICE",
+  "issue": "空間／舒適（vs Outlander）",
+  "themes": [
+    "持有成本",
+    "空間",
+    "實際路況",
+    "通勤油耗",
+    "油耗／持有成本",
+    "隔音／質感",
+    "空間／舒適",
+    "安全／輔助"
+  ],
+  "questions": [
+    {
+      "slot": 1,
+      "tags": [
+        "R1 開場",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "綜合比較",
+      "q": "「我最近在比 X-TRAIL ICE 跟 Outlander，我最近在看休旅車，網路上看規格表 X-TRAIL 輕油電的平均油耗數據好像還可以，但實際開起來真的有差這麼多嗎？因為我住比較遠，每天通勤加載家人，油錢算下來也是一筆開銷。你們值得考慮嗎？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您每天通勤載家人，對於油耗表現與長期開銷的精打細算\">＿＿＿</span>，這確實是購車時非常關鍵的考量。<br/><br/><span class=\"blank\" data-answer=\"X-TRAIL ICE 搭載的輕油電系統，在動力輸出與油耗平衡上表現優異，實際駕駛的扭力回饋與節能感受，與規格數據相當一致\">＿＿＿</span>，能有效減輕您長途通勤的負擔。<br/><br/>與其看著規格表比較，<span class=\"blank\" data-answer=\"我更建議您直接帶家人來試乘，親自感受一下這套系統在實際路況下的動力表現，我們現場也能為您進行更精確的油耗試算\">＿＿＿</span>，讓您買得更安心。",
+      "full": "我非常理解您每天通勤載家人，對於油耗表現與長期開銷的精打細算，這確實是購車時非常關鍵的考量。<br/><br/>X-TRAIL ICE 搭載的輕油電系統，在動力輸出與油耗平衡上表現優異，實際駕駛的扭力回饋與節能感受，與規格數據相當一致，能有效減輕您長途通勤的負擔。<br/><br/>與其看著規格表比較，我更建議您直接帶家人來試乘，親自感受一下這套系統在實際路況下的動力表現，我們現場也能為您進行更精確的油耗試算，讓您買得更安心。",
+      "score": "同理+事實 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-01"
+    },
+    {
+      "slot": 2,
+      "tags": [
+        "油耗／WLTC",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "油耗／持有成本",
+      "q": "「Outlander 官網油耗我都看過了，你們教材怎麼說？WLTC 跟實際差很多吧？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對官方油耗數據與實際駕駛落差的顧慮\">＿＿＿</span>，畢竟路況與駕駛習慣確實會影響表現。<br/><br/>其實數據僅是參考基準，<span class=\"blank\" data-answer=\"X-Trail ICE 在動力、油耗與扭力的調校上，實際駕駛的感受與數據表現非常接近\">＿＿＿</span>，這也是我們對這款車非常有信心的原因。<br/><br/>與其看著規格表猜測，我<span class=\"blank\" data-answer=\"誠摯邀請您現在就進行一場實際試駕，親自感受它在不同路況下的動力輸出與節能表現\">＿＿＿</span>，這樣您心裡就會更有底了！",
+      "full": "我非常理解您對官方油耗數據與實際駕駛落差的顧慮，畢竟路況與駕駛習慣確實會影響表現。<br/><br/>其實數據僅是參考基準，X-Trail ICE 在動力、油耗與扭力的調校上，實際駕駛的感受與數據表現非常接近，這也是我們對這款車非常有信心的原因。<br/><br/>與其看著規格表猜測，我誠摯邀請您現在就進行一場實際試駕，親自感受它在不同路況下的動力輸出與節能表現，這樣您心裡就會更有底了！",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-02"
+    },
+    {
+      "slot": 3,
+      "tags": [
+        "保養／回廠",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "保養／耐用",
+      "q": "「Outlander 聽說保養便宜，X-TRAIL ICE 回廠費用跟耐用度教材怎麼說？」",
+      "blank": "我非常理解您在評估車輛時，會將後續的保養成本與耐用度納入考量，這確實是<span class=\"blank\" data-answer=\"精打細算的表現\">＿＿＿</span>。<br/><br/>關於保養與耐用度，數據往往僅供參考，實際的駕駛感受與車輛品質才是最真實的指標。X-TRAIL ICE 在<span class=\"blank\" data-answer=\"動力輸出、油耗表現以及扭力調校上，都經過嚴謹的工程設計\">＿＿＿</span>，能提供您更優質的駕馭體驗。<br/><br/>與其單看帳面數字，我更<span class=\"blank\" data-answer=\"建議您親自來試乘體驗\">＿＿＿</span>，感受一下 X-TRAIL ICE 的實際操控感與行路質感，相信您親自開過後，就能感受到它在耐用度與駕駛樂趣上的核心優勢。",
+      "full": "我非常理解您在評估車輛時，會將後續的保養成本與耐用度納入考量，這確實是精打細算的表現。<br/><br/>關於保養與耐用度，數據往往僅供參考，實際的駕駛感受與車輛品質才是最真實的指標。X-TRAIL ICE 在動力輸出、油耗表現以及扭力調校上，都經過嚴謹的工程設計，能提供您更優質的駕馭體驗。<br/><br/>與其單看帳面數字，我更建議您親自來試乘體驗，感受一下 X-TRAIL ICE 的實際操控感與行路質感，相信您親自開過後，就能感受到它在耐用度與駕駛樂趣上的核心優勢。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-03"
+    },
+    {
+      "slot": 4,
+      "tags": [
+        "隔音／玻璃",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "隔音／質感",
+      "q": "「我家人在意隔音，Outlander 跟 X-TRAIL ICE 玻璃、NVH 教材有數據嗎？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對家人乘坐舒適度的重視\">＿＿＿</span>，畢竟車室內的寧靜度直接影響到長途駕駛的品質。<br/><br/>關於隔音規格，<span class=\"blank\" data-answer=\"由於各家車廠的測試環境與標準不同，單看帳面數據其實很難直接反映出實際的體感差異\">＿＿＿</span>。X-TRAIL ICE 在 NVH 工程上投入了相當多心力，旨在提供更優質的靜謐座艙體驗。<br/><br/>與其比較規格表上的數字，<span class=\"blank\" data-answer=\"我更建議您帶家人一起來試乘，親自感受一下我們在行駛過程中的隔音表現\">＿＿＿</span>，這絕對會比數據更能讓您放心。",
+      "full": "我非常理解您對家人乘坐舒適度的重視，畢竟車室內的寧靜度直接影響到長途駕駛的品質。<br/><br/>關於隔音規格，由於各家車廠的測試環境與標準不同，單看帳面數據其實很難直接反映出實際的體感差異。X-TRAIL ICE 在 NVH 工程上投入了相當多心力，旨在提供更優質的靜謐座艙體驗。<br/><br/>與其比較規格表上的數字，我更建議您帶家人一起來試乘，親自感受一下我們在行駛過程中的隔音表現，這絕對會比數據更能讓您放心。",
+      "score": "factCheck+同理 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-04"
+    },
+    {
+      "slot": 5,
+      "tags": [
+        "盲操／操作",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "盲操／操作",
+      "q": "「Outlander 中控都是螢幕，X-TRAIL ICE 冷氣旋鈕／盲操教材怎麼說？」",
+      "blank": "我非常理解您對於中控螢幕科技感的重視，這確實是現代車款常見的設計趨勢。<br/><br/>不過，X-TRAIL ICE 在設計上特別<span class=\"blank\" data-answer=\"保留了實體旋鈕\">＿＿＿</span>，是為了<span class=\"blank\" data-answer=\"讓駕駛在行駛過程中，能更直覺地進行盲操調整\">＿＿＿</span>，確保視線專注於前方路況，提升行車安全。<br/><br/><span class=\"blank\" data-answer=\"建議您現在就親自試駕體驗看看\">＿＿＿</span>，透過實際操作感受這種直覺設計帶來的便利性，相信您會對這種兼顧安全與實用性的配置有更深刻的體會。",
+      "full": "我非常理解您對於中控螢幕科技感的重視，這確實是現代車款常見的設計趨勢。<br/><br/>不過，X-TRAIL ICE 在設計上特別保留了實體旋鈕，是為了讓駕駛在行駛過程中，能更直覺地進行盲操調整，確保視線專注於前方路況，提升行車安全。<br/><br/>建議您現在就親自試駕體驗看看，透過實際操作感受這種直覺設計帶來的便利性，相信您會對這種兼顧安全與實用性的配置有更深刻的體會。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-05"
+    },
+    {
+      "slot": 6,
+      "tags": [
+        "空間／舒適",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "空間／舒適",
+      "q": "「我們家有小孩，Outlander 跟 X-TRAIL ICE 後座空間、行李廂教材怎麼比？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對家庭用車空間的重視\">＿＿＿</span>，畢竟載著小孩，舒適度與實用性絕對是首要考量。<br/><br/>關於空間表現，<span class=\"blank\" data-answer=\"數據往往只能呈現一部分，實際的乘坐感受與行李廂的靈活運用，還是建議您帶家人親自到展間體驗\">＿＿＿</span>，透過實際操作與試乘，才能最準確地感受兩款車在空間規劃上的差異。<br/><br/><span class=\"blank\" data-answer=\"我們現在就安排一場試乘，讓您與家人親自感受 X-TRAIL ICE 的座椅舒適度與空間配置\">＿＿＿</span>，看看哪一款車最符合您們全家人的需求，好嗎？",
+      "full": "我非常理解您對家庭用車空間的重視，畢竟載著小孩，舒適度與實用性絕對是首要考量。<br/><br/>關於空間表現，數據往往只能呈現一部分，實際的乘坐感受與行李廂的靈活運用，還是建議您帶家人親自到展間體驗，透過實際操作與試乘，才能最準確地感受兩款車在空間規劃上的差異。<br/><br/>我們現在就安排一場試乘，讓您與家人親自感受 X-TRAIL ICE 的座椅舒適度與空間配置，看看哪一款車最符合您們全家人的需求，好嗎？",
+      "score": "策略+事實 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-06"
+    },
+    {
+      "slot": 7,
+      "tags": [
+        "價格／方案",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "價格／方案",
+      "q": "「Outlander 現在促銷很大，X-TRAIL ICE 總價跟方案教材怎麼說？」",
+      "blank": "我<span class=\"blank\" data-answer=\"非常理解您在比較車款時，會優先考量價格與促銷方案的心情\">＿＿＿</span>。<br/><br/>雖然競品目前有促銷活動，但 <span class=\"blank\" data-answer=\"X-TRAIL ICE 的核心優勢在於實際駕駛的動力輸出、油耗表現與扭力調校\">＿＿＿</span>，這些數據在實際行駛的感官體驗上，往往能帶給駕駛更細膩且紮實的回饋，這也是許多車主選擇我們的關鍵。<br/><br/>與其單看帳面數字，我<span class=\"blank\" data-answer=\"誠摯邀請您現在就進行一場實際試乘，親自感受 X-TRAIL ICE 在路感與操控上的優異表現\">＿＿＿</span>，我再為您詳細規劃最適合您的購車方案。",
+      "full": "我非常理解您在比較車款時，會優先考量價格與促銷方案的心情。<br/><br/>雖然競品目前有促銷活動，但 X-TRAIL ICE 的核心優勢在於實際駕駛的動力輸出、油耗表現與扭力調校，這些數據在實際行駛的感官體驗上，往往能帶給駕駛更細膩且紮實的回饋，這也是許多車主選擇我們的關鍵。<br/><br/>與其單看帳面數字，我誠摯邀請您現在就進行一場實際試乘，親自感受 X-TRAIL ICE 在路感與操控上的優異表現，我再為您詳細規劃最適合您的購車方案。",
+      "score": "factCheck+成交 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-07"
+    },
+    {
+      "slot": 8,
+      "tags": [
+        "安全／輔助",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "安全／輔助",
+      "q": "「Outlander 輔助駕駛很強，X-TRAIL ICE ProPILOT／安全配備教材怎麼比？」",
+      "blank": "我完全理解您對輔助駕駛系統的重視，畢竟安全是購車時最重要的考量。<br/><br/>關於 ProPILOT 智行安全系統與競品的差異，<span class=\"blank\" data-answer=\"數據上的規格各有千秋\">＿＿＿</span>，但<span class=\"blank\" data-answer=\"實際駕駛時的細膩度與介入感受，往往才是決定舒適度的關鍵\">＿＿＿</span>。<br/><br/><span class=\"blank\" data-answer=\"建議您今天直接安排一場試乘，親自體驗 X-TRAIL ICE 在路況應對上的平順感\">＿＿＿</span>，感受我們在動力與安全輔助上的實際表現，這絕對比單看規格表更能讓您安心。",
+      "full": "我完全理解您對輔助駕駛系統的重視，畢竟安全是購車時最重要的考量。<br/><br/>關於 ProPILOT 智行安全系統與競品的差異，數據上的規格各有千秋，但實際駕駛時的細膩度與介入感受，往往才是決定舒適度的關鍵。<br/><br/>建議您今天直接安排一場試乘，親自體驗 X-TRAIL ICE 在路況應對上的平順感，感受我們在動力與安全輔助上的實際表現，這絕對比單看規格表更能讓您安心。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-08"
+    },
+    {
+      "slot": 9,
+      "tags": [
+        "P-01",
+        "P-01 理性",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "油耗／持有成本",
+      "q": "「我是 理性分析型，請把 Outlander 跟 X-TRAIL ICE 的 WLTC 條件跟試算依據講清楚。」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您作為理性買家，對於油耗數據與持有成本的精確要求\">＿＿＿</span>。<br/><br/>關於 X-TRAIL ICE 與 Outlander 的油耗表現，由於各家車廠測試環境與條件不同，數據僅供參考，建議您以實際試駕的感受為準。我們在動力、油耗及扭力的調校上，追求的是實際駕駛時的線性與節能表現，這與帳面數據的差異非常小。<br/><br/>與其單看數據，我更<span class=\"blank\" data-answer=\"建議您親自試駕，體驗 X-TRAIL ICE 在實際路況下的油耗與動力回饋\">＿＿＿</span>，這才是最符合您用車習慣的真實數據。",
+      "full": "我非常理解您作為理性買家，對於油耗數據與持有成本的精確要求。<br/><br/>關於 X-TRAIL ICE 與 Outlander 的油耗表現，由於各家車廠測試環境與條件不同，數據僅供參考，建議您以實際試駕的感受為準。我們在動力、油耗及扭力的調校上，追求的是實際駕駛時的線性與節能表現，這與帳面數據的差異非常小。<br/><br/>與其單看數據，我更建議您親自試駕，體驗 X-TRAIL ICE 在實際路況下的油耗與動力回饋，這才是最符合您用車習慣的真實數據。",
+      "score": "數據、WLTC、試算公式 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-09"
+    },
+    {
+      "slot": 10,
+      "tags": [
+        "P-03",
+        "P-03 預算",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "價格／方案",
+      "q": "「我預算緊，Outlander 促銷那麼兇，X-TRAIL ICE 總成本教材怎麼說？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在購車時對預算與促銷方案的考量\">＿＿＿</span>，畢竟每一分錢都要花在刀口上。<br/><br/>雖然競品目前有促銷活動，但建議您將目光放在長期的持有成本與駕駛體驗上。X-TRAIL ICE 在<span class=\"blank\" data-answer=\"動力輸出、油耗表現與扭力調校上，實際駕駛的感受非常優異\">＿＿＿</span>，這些細節往往是帳面數字無法完全呈現的價值。<br/><br/>與其單看促銷方案，不如<span class=\"blank\" data-answer=\"邀請您親自來試駕體驗，感受一下兩者在動力與操控上的差異，我也可以現場為您針對總持有成本進行詳細試算\">＿＿＿</span>，讓您買得更安心。",
+      "full": "我非常理解您在購車時對預算與促銷方案的考量，畢竟每一分錢都要花在刀口上。<br/><br/>雖然競品目前有促銷活動，但建議您將目光放在長期的持有成本與駕駛體驗上。X-TRAIL ICE 在動力輸出、油耗表現與扭力調校上，實際駕駛的感受非常優異，這些細節往往是帳面數字無法完全呈現的價值。<br/><br/>與其單看促銷方案，不如邀請您親自來試駕體驗，感受一下兩者在動力與操控上的差異，我也可以現場為您針對總持有成本進行詳細試算，讓您買得更安心。",
+      "score": "總價、月供、促銷 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-10"
+    },
+    {
+      "slot": 11,
+      "tags": [
+        "P-05",
+        "P-05 研究",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "保養／耐用",
+      "q": "「論壇上 Outlander 引擎／耐用討論很多，你們教材數據來源哪裡來？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在網路上看到不同討論時會產生的疑慮\">＿＿＿</span>，畢竟買車是大事，謹慎一點絕對是正確的。<br/><br/>關於車輛的耐用度與動力表現，與其參考網路上的各類說法，我更建議您親自體驗看看。因為<span class=\"blank\" data-answer=\"數據呈現的是靜態規格，但實際駕駛時的動力輸出、油耗表現以及整體的操控感，才是最真實的感受\">＿＿＿</span>。<br/><br/><span class=\"blank\" data-answer=\"現在就邀請您直接試駕 X-TRAIL ICE，透過實際的駕駛感官，您就能親自驗證\">＿＿＿</span>這台車在動力與耐用度上，是否符合您對理想座駕的期待。",
+      "full": "我非常理解您在網路上看到不同討論時會產生的疑慮，畢竟買車是大事，謹慎一點絕對是正確的。<br/><br/>關於車輛的耐用度與動力表現，與其參考網路上的各類說法，我更建議您親自體驗看看。因為數據呈現的是靜態規格，但實際駕駛時的動力輸出、油耗表現以及整體的操控感，才是最真實的感受。<br/><br/>現在就邀請您直接試駕 X-TRAIL ICE，透過實際的駕駛感官，您就能親自驗證這台車在動力與耐用度上，是否符合您對理想座駕的期待。",
+      "score": "論壇質疑、耐用與來源 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-11"
+    },
+    {
+      "slot": 12,
+      "tags": [
+        "30-40",
+        "30–40 歲",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "空間／舒適",
+      "q": "【30–40 歲客戶】「Outlander 跟 X-TRAIL ICE，家庭用車、比較理性，空間跟安全怎麼選？」",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您在為家庭挑選車輛時，對於空間與安全性的重視\">＿＿＿</span>，畢竟這兩點直接影響到全家人的乘車品質。<br/><br/>針對空間與舒適度，數據往往只能呈現一部分，<span class=\"blank\" data-answer=\"實際的乘坐感受才是最準確的基準，建議您可以親自帶家人來試乘\">＿＿＿</span>，體驗 X-TRAIL ICE 在實際駕駛中的動力與舒適表現。<br/><br/><span class=\"blank\" data-answer=\"我們現在就安排一趟試駕，讓您親自感受這台車在空間規劃與行路質感上，是否能滿足您對家庭用車的期待\">＿＿＿</span>。",
+      "full": "我非常理解您在為家庭挑選車輛時，對於空間與安全性的重視，畢竟這兩點直接影響到全家人的乘車品質。<br/><br/>針對空間與舒適度，數據往往只能呈現一部分，實際的乘坐感受才是最準確的基準，建議您可以親自帶家人來試乘，體驗 X-TRAIL ICE 在實際駕駛中的動力與舒適表現。<br/><br/>我們現在就安排一趟試駕，讓您親自感受這台車在空間規劃與行路質感上，是否能滿足您對家庭用車的期待。",
+      "score": "同理+事實 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-12"
+    },
+    {
+      "slot": 13,
+      "tags": [
+        "50+",
+        "50+ 歲",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "安全／輔助",
+      "q": "【50 歲以上客戶】「Outlander 跟 X-TRAIL ICE，重視可靠與好上手，哪台比較好開、比較省心？」",
+      "blank": "大哥您好，<span class=\"blank\" data-answer=\"完全理解您在這個年紀買車，最在意的就是開起來順手、用起來省心\">＿＿＿</span>，這確實是購車時最重要的考量。<br/><br/>其實車輛的動力、油耗與扭力表現，在帳面數據之外，實際開起來的感受才是最準確的。X-TRAIL ICE 在設計上非常強調駕駛的直覺性與舒適度，這些細節往往需要親自體驗才能感受到差異。<br/><br/>與其看規格表上的數據，<span class=\"blank\" data-answer=\"我非常建議您今天就直接安排試乘，親自感受一下 X-TRAIL ICE 的好上手程度\">＿＿＿</span>，相信您開過之後，就能體會到它在可靠與省心方面的優勢。",
+      "full": "大哥您好，完全理解您在這個年紀買車，最在意的就是開起來順手、用起來省心，這確實是購車時最重要的考量。<br/><br/>其實車輛的動力、油耗與扭力表現，在帳面數據之外，實際開起來的感受才是最準確的。X-TRAIL ICE 在設計上非常強調駕駛的直覺性與舒適度，這些細節往往需要親自體驗才能感受到差異。<br/><br/>與其看規格表上的數據，我非常建議您今天就直接安排試乘，親自感受一下 X-TRAIL ICE 的好上手程度，相信您開過之後，就能體會到它在可靠與省心方面的優勢。",
+      "score": "同理 · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-13"
+    },
+    {
+      "slot": 14,
+      "tags": [
+        "策略-LINE延後",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "銷售策略",
+      "q": "【情境】客戶問隔音數據，業代：「加 LINE 我傳表。」你該怎麼答？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對隔音數據的重視\">＿＿＿</span>，畢竟這直接影響到長途駕駛的舒適度。<br/><br/>其實<span class=\"blank\" data-answer=\"數據往往只能呈現靜態的參考，實際的隔音效果會受到路況與車速影響\">＿＿＿</span>，與其看規格表，<span class=\"blank\" data-answer=\"不如邀請您現在就親自試駕體驗\">＿＿＿</span>。<br/><br/>透過實際駕駛，您可以直接感受 X-TRAIL 在動力、油耗與靜肅性上的真實表現，這種感官體驗會比單看數據更能讓您放心。",
+      "full": "我非常理解您對隔音數據的重視，畢竟這直接影響到長途駕駛的舒適度。<br/><br/>其實數據往往只能呈現靜態的參考，實際的隔音效果會受到路況與車速影響，與其看規格表，不如邀請您現在就親自試駕體驗。<br/><br/>透過實際駕駛，您可以直接感受 X-TRAIL 在動力、油耗與靜肅性上的真實表現，這種感官體驗會比單看數據更能讓您放心。",
+      "score": "strategy · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-14"
+    },
+    {
+      "slot": 15,
+      "tags": [
+        "策略-試乘延後",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "銷售策略",
+      "q": "【情境】業代只說試乘才準，未當場講保養費用。你該怎麼答？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對保養成本的考量\">＿＿＿</span>，這確實是購車時很重要的評估指標。<br/><br/>其實數據只是參考，<span class=\"blank\" data-answer=\"X-TRAIL ICE 的動力、油耗與扭力表現，在實際駕駛的感官體驗上，與帳面數據非常一致\">＿＿＿</span>，這也是我們對產品非常有信心的原因。<br/><br/>與其單看數字，不如現在就邀請您親自試駕，感受一下實際的操控質感，試乘後我會為您詳細整理一份完整的養車成本試算表，讓您評估得更精準。",
+      "full": "我非常理解您對保養成本的考量，這確實是購車時很重要的評估指標。<br/><br/>其實數據只是參考，X-TRAIL ICE 的動力、油耗與扭力表現，在實際駕駛的感官體驗上，與帳面數據非常一致，這也是我們對產品非常有信心的原因。<br/><br/>與其單看數字，不如現在就邀請您親自試駕，感受一下實際的操控質感，試乘後我會為您詳細整理一份完整的養車成本試算表，讓您評估得更精準。",
+      "score": "strategy · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-15"
+    },
+    {
+      "slot": 16,
+      "tags": [
+        "配備／科技",
+        "Outlander",
+        "挑戰",
+        "RAG"
+      ],
+      "topic": "配備／科技",
+      "q": "「你們講半天都沒具體配備，Outlander 科技功能教材差在哪？」",
+      "blank": "我非常理解您對科技配備的重視，畢竟車輛的<span class=\"blank\" data-answer=\"實際操作體驗\">＿＿＿</span>才是最關鍵的。<br/><br/>關於 X-TRAIL ICE 與 Outlander 在科技與動力上的差異，數據往往只能呈現一部分，實際駕駛時的<span class=\"blank\" data-answer=\"動力輸出、油耗表現以及扭力回饋\">＿＿＿</span>，才是決定駕馭感受的核心。<br/><br/>與其單看規格表，我更建議您<span class=\"blank\" data-answer=\"直接安排一場試乘，親自感受\">＿＿＿</span>兩者在實際路況下的細膩差異，相信這會比單純比較數據更能讓您做出最適合的選擇。",
+      "full": "我非常理解您對科技配備的重視，畢竟車輛的實際操作體驗才是最關鍵的。<br/><br/>關於 X-TRAIL ICE 與 Outlander 在科技與動力上的差異，數據往往只能呈現一部分，實際駕駛時的動力輸出、油耗表現以及扭力回饋，才是決定駕馭感受的核心。<br/><br/>與其單看規格表，我更建議您直接安排一場試乘，親自感受兩者在實際路況下的細膩差異，相信這會比單純比較數據更能讓您做出最適合的選擇。",
+      "score": "factCheck+advance · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-16"
+    },
+    {
+      "slot": 17,
+      "tags": [
+        "RAG 事實 1",
+        "Outlander"
+      ],
+      "topic": "配備／科技",
+      "q": "【RAG 事實 1】客戶：「你剛說的配備依據是什麼？」（Outlander）",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您對於規格數據的謹慎\">＿＿＿</span>，畢竟買車是大事，配備的實際表現確實需要親自感受才準確。<br/><br/>針對您提到的 Outlander 與 X-TRAIL ICE 的配備差異，數據往往只能呈現一部分，實際的動力輸出、油耗表現以及扭力感受，還是要透過親自駕駛才能體會到兩者在細節上的不同。<br/><br/>與其單看規格表，我<span class=\"blank\" data-answer=\"誠摯邀請您現在就進行試駕\">＿＿＿</span>，讓我們一起在實際路況中體驗 X-TRAIL ICE 的操控優勢，感受數據背後的真實駕馭樂趣。",
+      "full": "我非常理解您對於規格數據的謹慎，畢竟買車是大事，配備的實際表現確實需要親自感受才準確。<br/><br/>針對您提到的 Outlander 與 X-TRAIL ICE 的配備差異，數據往往只能呈現一部分，實際的動力輸出、油耗表現以及扭力感受，還是要透過親自駕駛才能體會到兩者在細節上的不同。<br/><br/>與其單看規格表，我誠摯邀請您現在就進行試駕，讓我們一起在實際路況中體驗 X-TRAIL ICE 的操控優勢，感受數據背後的真實駕馭樂趣。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-17"
+    },
+    {
+      "slot": 18,
+      "tags": [
+        "RAG 事實 2",
+        "Outlander"
+      ],
+      "topic": "保養／耐用",
+      "q": "【RAG 事實 2】客戶追問耐用／回廠（Outlander）",
+      "blank": "我非常理解您在購車時，對於車輛長期耐用度與後續保養頻率的考量，這確實是精打細算的車主最關心的重點。<br/><br/>關於車輛的實際表現，與其單看規格數據，我更建議您親自體驗 X-TRAIL ICE 的駕駛感受。<span class=\"blank\" data-answer=\"透過實際試駕，您能直接感受到我們在動力輸出、油耗表現以及扭力調校上的優勢\">＿＿＿</span>，這些細膩的駕駛感官體驗，往往比紙面上的數據更能反映車輛的真實品質。<br/><br/><span class=\"blank\" data-answer=\"誠摯邀請您現在就安排一場試乘，讓我們一起在道路上親自驗證\">＿＿＿</span> X-TRAIL ICE 的耐用與操控表現，相信這會是您做決定時最關鍵的參考依據。",
+      "full": "我非常理解您在購車時，對於車輛長期耐用度與後續保養頻率的考量，這確實是精打細算的車主最關心的重點。<br/><br/>關於車輛的實際表現，與其單看規格數據，我更建議您親自體驗 X-TRAIL ICE 的駕駛感受。透過實際試駕，您能直接感受到我們在動力輸出、油耗表現以及扭力調校上的優勢，這些細膩的駕駛感官體驗，往往比紙面上的數據更能反映車輛的真實品質。<br/><br/>誠摯邀請您現在就安排一場試乘，讓我們一起在道路上親自驗證 X-TRAIL ICE 的耐用與操控表現，相信這會是您做決定時最關鍵的參考依據。",
+      "score": "factCheck · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-18"
+    },
+    {
+      "slot": 19,
+      "tags": [
+        "地雷-競品錨定",
+        "Outlander",
+        "競品錨定",
+        "RAG"
+      ],
+      "topic": "綜合比較",
+      "q": "【錯誤】業代拿 RAV4 來比（客戶在看 Outlander）。你該怎麼拉回？",
+      "blank": "<span class=\"blank\" data-answer=\"我完全理解您在比較 Outlander 時，會希望找到最符合需求的車款\">＿＿＿</span>，這確實是非常謹慎的考量。<br/><br/>其實數據只是參考，車輛的<span class=\"blank\" data-answer=\"動力輸出、油耗表現與扭力反應，在實際駕駛時的感受才是最真實的\">＿＿＿</span>。與其單看規格表，我更建議您親自體驗 X-TRAIL ICE 的操駕感。<br/><br/><span class=\"blank\" data-answer=\"現在就邀請您進行一場深度試乘，讓我們一起感受它在實際路況下的動力表現\">＿＿＿</span>，相信您親自開過後，就能體會到它與其他車款在駕駛感官上的差異。",
+      "full": "我完全理解您在比較 Outlander 時，會希望找到最符合需求的車款，這確實是非常謹慎的考量。<br/><br/>其實數據只是參考，車輛的動力輸出、油耗表現與扭力反應，在實際駕駛時的感受才是最真實的。與其單看規格表，我更建議您親自體驗 X-TRAIL ICE 的操駕感。<br/><br/>現在就邀請您進行一場深度試乘，讓我們一起感受它在實際路況下的動力表現，相信您親自開過後，就能體會到它與其他車款在駕駛感官上的差異。",
+      "score": "strategy+factCheck · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-19"
+    },
+    {
+      "slot": 20,
+      "tags": [
+        "成交收尾",
+        "Outlander",
+        "RAG"
+      ],
+      "topic": "推進成交",
+      "q": "【最後一輪】客戶要回去跟家人討論，業代怎麼收尾？",
+      "blank": "<span class=\"blank\" data-answer=\"我非常理解您需要與家人討論\">＿＿＿</span>，畢竟買車是家中的大事，確實需要多方評估。<br/><br/>其實數據往往只能呈現一部分，X-TRAIL ICE 的<span class=\"blank\" data-answer=\"動力、油耗與扭力表現，在實際駕駛時的感受非常直接且出色\">＿＿＿</span>，這也是許多車主選擇它的關鍵。<br/><br/><span class=\"blank\" data-answer=\"不如我們現在就安排一場試乘，讓您親自體驗看看\">＿＿＿</span>，這樣回家跟家人分享時，也能更有底氣地描述實際的駕駛感受，您看這週末還是平日方便呢？",
+      "full": "我非常理解您需要與家人討論，畢竟買車是家中的大事，確實需要多方評估。<br/><br/>其實數據往往只能呈現一部分，X-TRAIL ICE 的動力、油耗與扭力表現，在實際駕駛時的感受非常直接且出色，這也是許多車主選擇它的關鍵。<br/><br/>不如我們現在就安排一場試乘，讓您親自體驗看看，這樣回家跟家人分享時，也能更有底氣地描述實際的駕駛感受，您看這週末還是平日方便呢？",
+      "score": "advance · RAG核對",
+      "ragSources": [
+        "T33_ICE_Q&A - 工作表1.pdf (page 4)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 3-5)",
+        "TERRITORY FORD Territory_對戰話術_20260327.pdf (page 7-13)",
+        "T33_ICE_Q&A - 工作表1.pdf (page 3-4)",
+        "Carture 你是忘記了，還是拒絕想起Nissan X-Trail的好？ · X-TRAIL 媒體報導彙整_202602.pdf (page 1-4)",
+        " 常有人問，引擎是COLT PLUS的引擎嗎？XFORCE 採用的4A91引擎是2026年式且經日本三菱團隊特別調校過 · XFORCE_媒體赴日資料.pdf (page 4-9)",
+        "X-TRAIL 媒體報導彙整_202602.pdf (page 4-6)"
+      ],
+      "id": "XT-OUTLANDER-20"
+    }
+  ]
+}

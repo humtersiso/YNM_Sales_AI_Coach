@@ -14,6 +14,7 @@ import {
   normalizeReplyLine,
   finalizeGroundedClientReply,
   sanitizeReplyCitationMarkers,
+  outOfScopeKnowledgeMessage,
   type ScriptCitation,
 } from "@/lib/gemini/reply-format";
 import {
@@ -38,6 +39,7 @@ import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
 import {
   classifySalesQuestion,
   extractMentionedCompetitor,
+  isSpecQuestion,
 } from "@/lib/gemini/sales-question-profile";
 import { RagSearchError } from "@/lib/rag/discovery-engine-search";
 import {
@@ -57,6 +59,7 @@ import {
   extractRagChunkSourceMeta,
   parseAugmentFactsFromResponse,
 } from "@/lib/rag/vertex-rag-chunk-parse";
+import { assessSalesQueryAnswerability } from "@/lib/gemini/query-relevance-guard";
 
 export type GroundedChatResult = {
   intro: string;
@@ -316,6 +319,37 @@ function parseAndSanitizeGroundedReply(
   maxDocId: number,
 ): { intro: string; bullets: string[] } {
   return finalizeGroundedClientReply(rawText, maxDocId);
+}
+
+function groundedGuardRejectReply(
+  message: string,
+  citations: ScriptCitation[],
+  profile: SalesQuestionProfile,
+): string | null {
+  const answerability = assessSalesQueryAnswerability(message, citations, {
+    questionCategory: profile.category,
+  });
+  if (!answerability.ok && !isSpecQuestion(message, profile)) {
+    return answerability.userReply ?? outOfScopeKnowledgeMessage();
+  }
+  return null;
+}
+
+function groundedGuardRejectStreamDone(
+  message: string,
+  reply: string,
+): SalesChatStreamEvent {
+  return {
+    type: "done",
+    result: {
+      reply,
+      bullets: [],
+      citations: [],
+      inQuestionBank: false,
+      allowAddRequest: true,
+      question: message,
+    },
+  };
 }
 
 function vertexRagStorePayload(ragCorpus: string, retrievalConfig: Record<string, unknown>) {
@@ -738,6 +772,12 @@ export async function* streamVertexRagGroundedChat(
         return;
       }
 
+      const guardReply = groundedGuardRejectReply(message, grounded.citations, resolved);
+      if (guardReply) {
+        yield groundedGuardRejectStreamDone(message, guardReply);
+        return;
+      }
+
       const prep = prepareCitationCards(grounded.citations);
       yield {
         type: "citations_ready",
@@ -801,6 +841,12 @@ export async function* streamVertexRagGroundedChat(
   }
 
   const citations = chunksToCitations(message, facts);
+  const guardReply = groundedGuardRejectReply(message, citations, resolved);
+  if (guardReply) {
+    yield groundedGuardRejectStreamDone(message, guardReply);
+    return;
+  }
+
   const prep = prepareCitationCards(citations);
   yield {
     type: "citations_ready",

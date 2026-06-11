@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppIcon, type AppIconName } from "@/components/icons/AppIcon";
+import { SakuraHeaderFx } from "@/components/theme/SakuraHeaderFx";
 
 const navItems: { href: string; label: string; icon: AppIconName }[] = [
   { href: "/admin/home", label: "主頁", icon: "home" },
@@ -36,8 +37,10 @@ export function AppShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#f5faf7] text-zinc-900">
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-emerald-100 bg-white/95 px-3 py-3 backdrop-blur">
+    <div className="min-h-screen bg-background text-zinc-900">
+      <header className="portal-header-bar sticky top-0 z-30 border-b border-border bg-card/95 px-3 py-3 backdrop-blur">
+        <SakuraHeaderFx />
+        <div className="relative z-[3] flex items-center justify-between">
         <div className="min-w-0">
           <h1 className="text-lg font-semibold text-emerald-950">YNM 管理</h1>
           <p className="truncate text-sm text-emerald-700">{displayName}</p>
@@ -59,12 +62,13 @@ export function AppShell({
             登出
           </button>
         </div>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-lg px-3 py-4 pb-24">{children}</main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-emerald-100 bg-white/95 backdrop-blur"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur"
         aria-label="管理後台導航"
       >
         <div className="mx-auto flex max-w-lg">
