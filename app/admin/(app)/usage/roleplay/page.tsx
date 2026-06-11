@@ -8,6 +8,8 @@ import {
   RoleplaySessionCardList,
 } from "@/components/mobile/RoleplaySessionCard";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { formatRadarDimensionScore } from "@/components/roleplay/RoleplayRadarChart";
+import { OVERVIEW_RADAR_LAST_N } from "@/lib/roleplay/radar-stats";
 import type {
   AgentNameOption,
   RoleplayAdminSession,
@@ -152,8 +154,8 @@ export default function AdminRoleplayUsagePage() {
         />
         <StatCard
           label="平均分數"
-          value={kpis.avgScore ?? "—"}
-          hint="僅計完賽"
+          value={kpis.avgScore != null ? formatRadarDimensionScore(kpis.avgScore) : "—"}
+          hint={`近 ${OVERVIEW_RADAR_LAST_N} 場五維均分 · 僅計完賽`}
           compact
         />
       </div>
@@ -161,7 +163,9 @@ export default function AdminRoleplayUsagePage() {
       <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white">
         <div className="border-b border-emerald-100 bg-emerald-50/50 px-4 py-3">
           <p className="text-sm font-medium text-emerald-800">業代對練概況</p>
-          <p className="mt-0.5 text-sm text-emerald-700">完賽場次與平均分（可點列篩選）</p>
+          <p className="mt-0.5 text-sm text-emerald-700">
+            完賽場次與近 10 場五維均分（可點列篩選）
+          </p>
         </div>
         <RoleplayAgentSummaryTable
           summaries={summaries}

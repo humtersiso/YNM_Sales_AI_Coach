@@ -6,6 +6,7 @@ import { AppIcon } from "@/components/icons/AppIcon";
 import type { RoleplayAdminSession } from "@/lib/analytics/types";
 import type { RoleplaySessionDetailView } from "@/lib/roleplay/roleplay-session-detail";
 import { formatAskedAtZhTw } from "@/lib/datetime/asked-at";
+import { formatRadarDimensionScore } from "@/components/roleplay/RoleplayRadarChart";
 
 function sessionRowKey(row: RoleplayAdminSession): string {
   const when = row.finishedAt ?? row.startedAt;
@@ -144,7 +145,7 @@ export function RoleplayAgentSummaryTable({
                 <td className="px-3 py-2.5 text-emerald-800">{a.branch}</td>
                 <td className="px-3 py-2.5 text-right tabular-nums">{a.completedCount}</td>
                 <td className="px-3 py-2.5 text-right tabular-nums">
-                  {a.avgScore != null ? `${a.avgScore} 分` : "—"}
+                  {a.avgScore != null ? `${formatRadarDimensionScore(a.avgScore)} 分` : "—"}
                 </td>
               </tr>
             );

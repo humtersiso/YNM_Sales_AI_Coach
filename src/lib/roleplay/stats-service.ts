@@ -30,25 +30,19 @@ import { listArchivedSessionsForUser } from "@/lib/roleplay/engine/session-store
 import { ROLEPLAY_COMPETITORS_XTRAIL, ROLEPLAY_DIFFICULTIES } from "@/lib/roleplay/catalog";
 import { ROLEPLAY_PERSONA_IDS, ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
 import type { RoleplayScoreResult, RoleplaySession } from "@/lib/roleplay/session-types";
+import {
+  buildDimensionAverages,
+  OVERVIEW_RADAR_LAST_N,
+  radarOverallFromDimensionAverages,
+} from "@/lib/roleplay/radar-stats";
+
+export {
+  computeRadarAvgFromCompletedDetails,
+  OVERVIEW_RADAR_LAST_N,
+  radarOverallFromDimensionAverages,
+} from "@/lib/roleplay/radar-stats";
 
 const DIMENSION_IDS = ["empathy", "structure", "factCheck", "strategy", "advance"] as const;
-
-/** 個人首頁雷達圖與「均分」須同一批完賽場次，加總才會一致 */
-export const OVERVIEW_RADAR_LAST_N = 10;
-
-const DIMENSION_SCORE_KEYS = [
-  "scoreEmpathy",
-  "scoreStructure",
-  "scoreFactCheck",
-  "scoreStrategy",
-  "scoreClosing",
-] as const satisfies readonly (keyof RoleplayCompletedDetail)[];
-
-function hasFullDimensionScores(row: RoleplayCompletedDetail): boolean {
-  return DIMENSION_SCORE_KEYS.every(
-    (k) => row[k] != null && Number.isFinite(row[k] as number),
-  );
-}
 
 const DIMENSION_LABELS: Record<string, string> = {
   empathy: "同理承接",
@@ -137,38 +131,6 @@ export function mergeJustFinished(
   if (!row) return completed;
   const rest = completed.filter((c) => c.sessionId !== session.sessionId);
   return [row, ...rest];
-}
-
-function roundOneDecimal(n: number): number {
-  return Math.round(n * 10) / 10;
-}
-
-function avgDimension(
-  rows: RoleplayCompletedDetail[],
-  key: (typeof DIMENSION_SCORE_KEYS)[number],
-): number | null {
-  if (rows.length === 0) return null;
-  const vals = rows.map((r) => r[key] as number);
-  return roundOneDecimal(vals.reduce((s, v) => s + v, 0) / vals.length);
-}
-
-function buildDimensionAverages(rows: RoleplayCompletedDetail[]): RoleplayDashboardStats["dimensionAverages"] {
-  const cohort = rows.filter(hasFullDimensionScores);
-  if (cohort.length === 0) return null;
-  return {
-    empathy: avgDimension(cohort, "scoreEmpathy"),
-    structure: avgDimension(cohort, "scoreStructure"),
-    factCheck: avgDimension(cohort, "scoreFactCheck"),
-    strategy: avgDimension(cohort, "scoreStrategy"),
-    advance: avgDimension(cohort, "scoreClosing"),
-  };
-}
-
-/** 首頁均分＝五維顯示值加總（避免各維四捨五入後與場均分差 0.1） */
-export function radarOverallFromDimensionAverages(
-  avg: NonNullable<RoleplayDashboardStats["dimensionAverages"]>,
-): number {
-  return roundOneDecimal(DIMENSION_IDS.reduce((s, id) => s + (avg[id] ?? 0), 0));
 }
 
 function rankDimensions(

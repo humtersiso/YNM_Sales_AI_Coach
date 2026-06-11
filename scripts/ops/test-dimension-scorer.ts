@@ -206,10 +206,10 @@ const sessionD: RoleplayChatTurn[] = [
   { role: "agent", content: "今天感謝您的時間，有任何問題歡迎再聯絡。", at: "10" },
 ];
 
-printSession("A 答非所問嚴重場", sessionA, 63, 72);
-printSession("B 多數有答有試算", sessionB, 85, 92);
-printSession("C 全亂答", sessionC, 15, 40);
-printSession("D 全場不知道", sessionD, 15, 40);
+printSession("A 答非所問嚴重場", sessionA, 66, 76);
+printSession("B 多數有答有試算", sessionB, 88, 96);
+printSession("C 全亂答", sessionC, 18, 45);
+printSession("D 全場不知道", sessionD, 18, 45);
 
 const dCandidates = detectCorrectionCandidates(scenario, sessionD);
 assert.ok(dCandidates.length >= 1, `D: expected correction candidates, got ${dCandidates.length}`);

@@ -62,9 +62,9 @@ export function strongFactualTier(
   maxTurns: number,
 ): 0 | 1 | 2 | 3 {
   const r = strongFactualRatio(strongCount, maxTurns);
-  if (r >= 0.5) return 3;
-  if (r >= 1 / 3) return 2;
-  if (r >= 0.25) return 1;
+  if (r >= 0.42) return 3;
+  if (r >= 0.28) return 2;
+  if (r >= 0.2) return 1;
   return 0;
 }
 
@@ -196,11 +196,12 @@ function scoreEmpathy(
   }
 
   const coverageGaps = Math.max(topicMisses, factGaps);
-  let score = 14;
+  let score = 15;
   const empathetic = hasEmpathyCue(joined);
   if (empathetic) score += 2;
   if (coverageGaps <= 1 && empathetic) score += 1;
-  if (coverageGaps >= 2) score -= 2;
+  if (coverageGaps >= 3) score -= 2;
+  else if (coverageGaps >= 2) score -= 1;
 
   const comment =
     coverageGaps >= 2 && empathetic
@@ -241,9 +242,11 @@ function scoreStructure(
   const garbageRatio = agentGarbageRatio(agentTexts);
   let gaps = Math.max(factGaps, Math.floor(topicMisses * 0.6));
   if (garbageRatio >= 0.6) gaps = Math.max(gaps, Math.ceil(substantiveAgentTexts(agentTexts).length * 0.75));
-  let score = clampDimension(Math.round(20 - gaps * 2.5));
-  if (factGaps >= 2) score = Math.min(score, 15);
+  let score = clampDimension(Math.round(20 - gaps * 2));
+  if (factGaps >= 3) score = Math.min(score, 16);
+  else if (factGaps >= 2) score = Math.min(score, 17);
   if (factGaps <= 1 && gaps <= 1) score = Math.max(score, 18);
+  if (gaps <= 2 && garbageRatio < 0.4) score = Math.max(score, 15);
 
   const comment =
     gaps === 0
@@ -271,9 +274,9 @@ function scoreFactCheck(
   if (factGaps >= 4 && tier > 1) tier = (tier - 1) as 0 | 1 | 2 | 3;
 
   const tierBase: Record<0 | 1 | 2 | 3, [number, number]> = {
-    0: [3, 7],
-    1: [11, 15],
-    2: [15, 18],
+    0: [5, 9],
+    1: [12, 16],
+    2: [16, 19],
     3: [18, 20],
   };
   const [lo, hi] = tierBase[tier];
@@ -283,19 +286,19 @@ function scoreFactCheck(
       ? lo + Math.round(ratio * tierSpan * 4)
       : lo + Math.round(Math.min(1, ratio / (tier === 1 ? 0.25 : tier === 2 ? 0.34 : 0.5)) * tierSpan);
 
-  const coverageMisses = Math.max(factGaps, Math.floor(topicMisses * 0.6));
-  const factDeduct = Math.min(5, Math.max(0, coverageMisses - 1));
+  const coverageMisses = Math.max(factGaps, Math.floor(topicMisses * 0.5));
+  const factDeduct = Math.min(4, Math.max(0, coverageMisses - 1));
   let score = clampDimension(withinTier - factDeduct);
-  if (coverageMisses >= 1 && tier >= 3) score = Math.min(score, 18);
-  if (coverageMisses >= 1 && deflect >= 0.35) score = Math.min(score, 17);
-  if (coverageMisses >= 2 && tier <= 2) score = Math.min(score, 15);
-  if (coverageMisses >= 3) score = Math.min(score, 13);
-  if (coverageMisses >= 4) score = Math.min(score, 11);
+  if (coverageMisses >= 2 && tier >= 3) score = Math.min(score, 18);
+  if (coverageMisses >= 2 && deflect >= 0.4) score = Math.min(score, 17);
+  if (coverageMisses >= 3 && tier <= 2) score = Math.min(score, 16);
+  if (coverageMisses >= 4) score = Math.min(score, 14);
+  if (coverageMisses >= 5) score = Math.min(score, 12);
 
-  if (strong < 2) score = Math.min(score, 15);
-  if (deflect >= 0.35) score = Math.min(score, 14);
-  if (strong >= 3 && factGaps <= 1 && deflect < 0.3) score = Math.max(score, 19);
-  if (strong >= 2 && factGaps <= 1 && deflect < 0.25) score = Math.max(score, 18);
+  if (strong < 1) score = Math.min(score, 14);
+  if (deflect >= 0.45) score = Math.min(score, 15);
+  if (strong >= 3 && factGaps <= 1 && deflect < 0.35) score = Math.max(score, 19);
+  if (strong >= 2 && factGaps <= 2 && deflect < 0.3) score = Math.max(score, 18);
 
   const tierComment: Record<0 | 1 | 2 | 3, string> = {
     0: "較少引用具體試算或產品數字。",
@@ -316,9 +319,9 @@ function scoreStrategy(
   let score = 0;
 
   if (hasPoliteOpening(agentTexts) && hasPoliteClosing(agentTexts)) {
-    score = 13;
+    score = 14;
   } else if (hasPoliteOpening(agentTexts) || hasPoliteClosing(agentTexts)) {
-    score = 10;
+    score = 11;
   }
 
   const keyHits = scenario.sectionD.keyPoints.filter((kp) => keyPointHit(joined, kp)).length;
@@ -327,10 +330,10 @@ function scoreStrategy(
   const forbiddenHits = scenario.sectionD.forbidden.filter((f) => forbiddenHit(joined, f)).length;
   score -= forbiddenHits * 5;
 
-  score -= Math.min(3, strategyGaps);
+  score -= Math.min(2, strategyGaps);
 
   const deferCount = agentTexts.filter((t) => isAgentStrategyDeferReply(t)).length;
-  score -= Math.min(2, deferCount);
+  score -= Math.min(1, deferCount);
 
   const rudeCount = agentTexts.filter((t) => isRudeInvite(t)).length;
   score -= rudeCount * 5;
@@ -350,9 +353,9 @@ function scoreStrategy(
           : "基本禮貌到位，可再對準 Section D 重點。";
 
   if (garbageRatio >= 0.6) {
-    score = Math.min(score, garbageRatio >= 0.8 ? 5 : 8);
+    score = Math.min(score, garbageRatio >= 0.8 ? 6 : 10);
   }
-  return { score: clampDimension(Math.max(8, score)), comment };
+  return { score: clampDimension(Math.max(10, score)), comment };
 }
 
 function scoreAdvance(agentTexts: string[]): { score: number; comment: string } {
@@ -362,9 +365,9 @@ function scoreAdvance(agentTexts: string[]): { score: number; comment: string } 
     return { score: 3, comment: "收尾未邀請試乘、試算或下一步。" };
   }
 
-  let score = garbageRatio >= 0.6 ? 8 : 13;
+  let score = garbageRatio >= 0.6 ? 10 : 14;
   const deflect = deflectingRatio(agentTexts);
-  if (SPECIFIC_TIME_INVITE.test(joined) && deflect < 0.25 && garbageRatio < 0.6) score += 2;
+  if (SPECIFIC_TIME_INVITE.test(joined) && deflect < 0.3 && garbageRatio < 0.6) score += 2;
   if (
     (/試算表|試算.*帶|帶回.*討論|成本表/.test(joined) ||
       (/加總|十年.*萬|30\s*幾萬/.test(joined) && /試算|車價|稅金/.test(joined))) &&
@@ -372,7 +375,7 @@ function scoreAdvance(agentTexts: string[]): { score: number; comment: string } 
   ) {
     score += 2;
   }
-  if (deflect >= 0.25) score = Math.min(score, 13);
+  if (deflect >= 0.35) score = Math.min(score, 14);
   return {
     score: clampDimension(score),
     comment:

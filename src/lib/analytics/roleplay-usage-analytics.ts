@@ -6,6 +6,10 @@ import type {
 } from "@/lib/analytics/types";
 import type { RoleplayCompletedDetail } from "@/lib/bq/roleplay-sessions-bq";
 import type { PlatformUser } from "@/lib/bq/users";
+import {
+  computeRadarAvgFromCompletedDetails,
+  OVERVIEW_RADAR_LAST_N,
+} from "@/lib/roleplay/radar-stats";
 
 function durationMin(startedAt: string, finishedAt: string | null): number | null {
   if (!finishedAt?.trim()) return null;
@@ -61,15 +65,34 @@ export function filterRoleplaySessions(
   });
 }
 
-export function computeRoleplayKpis(sessions: RoleplayAdminSession[]): RoleplayUsageKpis {
+export function filterRoleplayDetails(
+  rows: RoleplayCompletedDetail[],
+  opts: { branch?: string; agentUserId?: string },
+): RoleplayCompletedDetail[] {
+  return rows.filter((r) => {
+    const branch = r.branch || "—";
+    if (opts.branch && opts.branch !== "all" && branch !== opts.branch) return false;
+    if (opts.agentUserId && opts.agentUserId !== "all" && r.userId !== opts.agentUserId) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function avgFromSummaries(summaries: RoleplayAgentSummary[]): number | null {
+  const avgs = summaries.map((s) => s.avgScore).filter((n): n is number => n != null);
+  if (avgs.length === 0) return null;
+  return Math.round((avgs.reduce((a, b) => a + b, 0) / avgs.length) * 10) / 10;
+}
+
+export function computeRoleplayKpis(
+  sessions: RoleplayAdminSession[],
+  summaries?: RoleplayAgentSummary[],
+): RoleplayUsageKpis {
   const agents = new Set(sessions.map((s) => s.userId));
   const completed = sessions.filter((s) => s.status === "COMPLETED");
   const startedOnly = sessions.filter((s) => s.status === "STARTED");
-  const scores = completed.map((s) => s.score).filter((n): n is number => n != null);
-  const avgScore =
-    scores.length > 0
-      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-      : null;
+  const avgScore = summaries ? avgFromSummaries(summaries) : null;
   return {
     activeAgents: agents.size,
     completedSessions: completed.length,
@@ -79,7 +102,8 @@ export function computeRoleplayKpis(sessions: RoleplayAdminSession[]): RoleplayU
 }
 
 export function computeRoleplayAgentSummaries(
-  sessions: RoleplayAdminSession[],
+  rows: RoleplayCompletedDetail[],
+  userMap: Map<string, PlatformUser>,
 ): RoleplayAgentSummary[] {
   const byUser = new Map<
     string,
@@ -87,31 +111,29 @@ export function computeRoleplayAgentSummaries(
       displayName: string;
       username: string;
       branch: string;
-      completed: RoleplayAdminSession[];
+      completed: RoleplayCompletedDetail[];
       started: number;
     }
   >();
 
-  for (const s of sessions) {
-    const cur = byUser.get(s.userId) ?? {
-      displayName: s.displayName,
-      username: s.username,
-      branch: s.branch,
+  for (const r of rows) {
+    const branch = r.branch || "—";
+    const displayName = resolveDisplayName(r.userId, r.username, userMap);
+    const cur = byUser.get(r.userId) ?? {
+      displayName,
+      username: r.username,
+      branch,
       completed: [],
       started: 0,
     };
-    if (s.status === "COMPLETED") cur.completed.push(s);
+    if (r.status === "COMPLETED") cur.completed.push(r);
     else cur.started += 1;
-    byUser.set(s.userId, cur);
+    byUser.set(r.userId, cur);
   }
 
   return [...byUser.entries()]
     .map(([userId, v]) => {
-      const scores = v.completed.map((c) => c.score).filter((n): n is number => n != null);
-      const avgScore =
-        scores.length > 0
-          ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-          : null;
+      const avgScore = computeRadarAvgFromCompletedDetails(v.completed, OVERVIEW_RADAR_LAST_N);
       const lastCompletedAt =
         v.completed.length > 0
           ? v.completed

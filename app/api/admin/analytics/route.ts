@@ -16,6 +16,7 @@ import {
   buildAgentNameOptions,
   computeRoleplayAgentSummaries,
   computeRoleplayKpis,
+  filterRoleplayDetails,
   filterRoleplaySessions,
   toRoleplayAdminSessions,
 } from "@/lib/analytics/roleplay-usage-analytics";
@@ -65,21 +66,24 @@ export async function GET(request: NextRequest) {
     const allSessions = toRoleplayAdminSessions(rawSessions, userMap);
     const agentNames = buildAgentNameOptions(allSessions, users);
     const branches = [...new Set(allSessions.map((s) => s.branch).filter(Boolean))].sort();
+    const branchFilter = branch === "all" ? undefined : branch;
     const filtered = filterRoleplaySessions(allSessions, {
-      branch: branch === "all" ? undefined : branch,
+      branch: branchFilter,
       agentUserId: filters.agentUserId,
     });
     const agentSummaries = computeRoleplayAgentSummaries(
-      filterRoleplaySessions(allSessions, {
-        branch: branch === "all" ? undefined : branch,
-      }),
+      filterRoleplayDetails(rawSessions, { branch: branchFilter }),
+      userMap,
     );
+    const kpiSummaries = filters.agentUserId
+      ? agentSummaries.filter((s) => s.userId === filters.agentUserId)
+      : agentSummaries;
 
     return NextResponse.json({
       assistantType: "roleplay",
       branches,
       agentNames,
-      kpis: computeRoleplayKpis(filtered),
+      kpis: computeRoleplayKpis(filtered, kpiSummaries),
       agentSummaries,
       sessions: filtered,
     });

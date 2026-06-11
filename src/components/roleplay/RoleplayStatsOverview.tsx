@@ -64,7 +64,7 @@ export function RoleplayStatsOverview({
             embedded
             showScores
             scoreDecimals={1}
-            chartSizePx={272}
+            chartSizePx={292}
             labelScreenPxWithScore={11}
           />
           <p className="mt-1 text-center text-[10px] text-emerald-500">近 10 場完賽均分 · 各維 0–20</p>

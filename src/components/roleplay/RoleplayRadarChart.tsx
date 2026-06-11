@@ -84,7 +84,7 @@ const SIZES: Record<
     labelFontSizePx: "12px",
     labelFontSizeWithScorePx: "11px",
     view: "-8 -5 264 234",
-    height: "h-[220px]",
+    height: "h-[236px]",
     maxW: "mx-auto w-full max-w-[292px]",
     levels: [0.25, 0.5, 0.75, 1],
   },
