@@ -92,7 +92,8 @@ function collectThemes(rag: RoleplayRagBundle): string[] {
   if (found.size === 0) return [pickRandom(CONCERN_ANGLES)];
 
   const ordered = CONCERN_ANGLES.filter((t) => found.has(t));
-  const extras = [...found].filter((t) => !ordered.includes(t));
+  const orderedSet = new Set<string>(ordered);
+  const extras = [...found].filter((t) => !orderedSet.has(t));
   return [...ordered, ...extras];
 }
 

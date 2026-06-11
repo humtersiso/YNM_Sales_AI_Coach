@@ -391,7 +391,7 @@ export async function getRoleplayPracticeBootstrap(sessionId: string, userId: st
     readyToScore: session.agentClosingSent ?? phase.readyToScore,
     plannedCustomerOpening:
       session.pendingCustomerOpening?.trim() ||
-      session.scenario.sectionA.openingLine?.trim() ||
+      session.scenario.sectionB.openingLine?.trim() ||
       "",
     messages: session.turns.map((t, i) => ({
       id: `${session.sessionId}-${i}`,

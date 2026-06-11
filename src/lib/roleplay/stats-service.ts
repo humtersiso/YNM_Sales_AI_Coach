@@ -371,7 +371,7 @@ export async function getAgentDashboardStats(
   if (briefing) {
     const abandoned = Math.max(0, ctx.core.startedSessions - ctx.core.completedSessions);
     briefing = appendAbandonedReminder(briefing, abandoned);
-    if (briefing.knowledgeLines.length === 0) {
+    if ((briefing.knowledgeLines?.length ?? 0) === 0) {
       const memory =
         (ctx.core.correctionMemoryLines?.length ?? 0) > 0
           ? ctx.core.correctionMemoryLines!
