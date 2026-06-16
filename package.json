@@ -114,6 +114,7 @@
   },
   "dependencies": {
     "@google-cloud/bigquery": "^7.9.4",
+    "@hono/node-server": "^2.0.5",
     "@ynm/contracts": "*",
     "@ynm/platform-core": "*",
     "bcryptjs": "^3.0.3",
