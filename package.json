@@ -117,6 +117,8 @@
     "@hono/node-server": "^2.0.5",
     "@ynm/contracts": "*",
     "@ynm/platform-core": "*",
+    "@ynm/roleplay-core": "^1.0.0",
+    "@ynm/sales-core": "^1.0.0",
     "bcryptjs": "^3.0.3",
     "google-auth-library": "^9.15.1",
     "hono": "^4.12.25",
