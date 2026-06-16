@@ -297,4 +297,20 @@ assert.ok(
 );
 console.log(`\n=== F 灌水 vs 貼題 ===\n灌水：${fOff.total}，貼題：${fOn.total}`);
 
+/** G. 同一內容下，maxTurns=7 應比 maxTurns=5 更嚴格（事實維度分母要跟輪數走） */
+const scenario7: RoleplayScenario = {
+  ...scenario,
+  sectionE: { ...scenario.sectionE, maxTurns: 7 },
+};
+const g5 = computeDimensionScores(scenario, sessionFOnTopic);
+const g7 = computeDimensionScores(scenario7, sessionFOnTopic);
+assert.ok(
+  g7.dimensions.find((d) => d.dimensionId === "factCheck")!.score <
+    g5.dimensions.find((d) => d.dimensionId === "factCheck")!.score,
+  "G: maxTurns=7 的事實維度應低於 maxTurns=5（同樣強事實輪次）",
+);
+console.log(
+  `\n=== G 輪數分母檢查 ===\nmaxTurns=5 factCheck=${g5.dimensions.find((d) => d.dimensionId === "factCheck")!.score}，maxTurns=7 factCheck=${g7.dimensions.find((d) => d.dimensionId === "factCheck")!.score}`,
+);
+
 console.log("\ntest-dimension-scorer: OK");

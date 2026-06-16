@@ -57,6 +57,22 @@ function cleanCustomerLine(text: string, fallback: string): string {
   return sanitizeCustomerUtterance(text) || fallback;
 }
 
+const EARLY_CLOSING_RE =
+  /今天先了解到這裡|先到這裡|先這樣|先不談了|先不考慮|改天再|之後再聯絡|有需要再聯絡|再看看就好|先回去討論/i;
+
+function normalizeEarlyClosingReply(
+  text: string,
+  opts: { isFinalAgentTurn: boolean; fallback: string },
+): string {
+  const cleaned = cleanCustomerLine(text, "");
+  if (!cleaned) return "";
+  if (opts.isFinalAgentTurn) return cleaned;
+  if (EARLY_CLOSING_RE.test(cleaned)) {
+    return cleanCustomerLine(opts.fallback, opts.fallback);
+  }
+  return cleaned;
+}
+
 type DrillDifficulty = ReturnType<typeof normalizeDrillDifficulty>;
 
 /** 業代消極、敷衍或未正面回應時，客戶應先表達感受而非直接跳題 */
@@ -263,6 +279,7 @@ ${
       ? "業代下一輪將是最後一次回覆，可簡短補充一點疑慮，但勿連續追殺。"
       : ""
 }
+${!isFinalAgentTurn ? "【禁止提前收尾】現在還不是最後一輪，禁止說「今天先到這裡、之後再聯絡、先回去考慮」這類結束語，請持續針對本輪內容追問或釐清。" : ""}
 ${deferAgentPromptBlock(agentMessage, diff)}
 ${passiveAgentPromptBlock(agentMessage, diff)}
 ${competitorGuardrail}
@@ -281,12 +298,18 @@ ${
 
   const text = raw?.trim();
   if (text && text.length >= 4) {
-    const cleaned = cleanCustomerLine(text, "");
+    const cleaned = normalizeEarlyClosingReply(text, {
+      isFinalAgentTurn,
+      fallback: fallbackCustomerReply(scenario, followUpIndex),
+    });
     if (cleaned) return cleaned;
   }
 
   const ultimateFallback = deferAgent
     ? deferAgentScriptedFallback(diff)
     : "我了解了，不過我還是覺得需要再比較一下。";
-  return cleanCustomerLine(scriptedFallback, ultimateFallback);
+  return normalizeEarlyClosingReply(scriptedFallback, {
+    isFinalAgentTurn,
+    fallback: ultimateFallback,
+  });
 }
