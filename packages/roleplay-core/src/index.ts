@@ -1,24 +1,24 @@
 import type { ApiUser, RoleplayStartBody, RoleplayTurnBody } from "@ynm/contracts";
 import { toSessionUser } from "@ynm/platform-core";
 
-type SessionService = typeof import("../../../src/lib/roleplay/engine/session-service.ts");
+type SessionService = typeof import("../../../src/lib/roleplay/engine/session-service");
 
 let sessionServicePromise: Promise<SessionService> | null = null;
 function loadSessionService() {
-  sessionServicePromise ??= import("../../../src/lib/roleplay/engine/session-service.ts");
+  sessionServicePromise ??= import("../../../src/lib/roleplay/engine/session-service");
   return sessionServicePromise;
 }
 
 async function loadCatalog() {
-  return import("../../../src/lib/roleplay/catalog.ts");
+  return import("../../../src/lib/roleplay/catalog");
 }
 
 async function loadScenarioRepository() {
-  return import("../../../src/lib/roleplay/scenario-repository.ts");
+  return import("../../../src/lib/roleplay/scenario-repository");
 }
 
 async function loadRoleplayLog() {
-  return import("../../../src/lib/roleplay/log-roleplay-event.ts");
+  return import("../../../src/lib/roleplay/log-roleplay-event");
 }
 
 function isRoleplaySessionError(e: unknown): e is Error & { status: number } {

@@ -3,23 +3,23 @@ import type { SalesChatResult } from "../../../src/lib/gemini/sales-chat-types";
 import type { MaterialCategory } from "../../../src/lib/ingest/contracts/material-category-contract";
 
 async function loadKnowledgeScope() {
-  return import("../../../src/lib/knowledge/search-scope.ts");
+  return import("../../../src/lib/knowledge/search-scope");
 }
 
 async function loadMaterialCategory() {
-  return import("../../../src/lib/ingest/contracts/material-category-contract.ts");
+  return import("../../../src/lib/ingest/contracts/material-category-contract");
 }
 
 async function loadSalesChat() {
-  return import("../../../src/lib/gemini/conversational-analytics.ts");
+  return import("../../../src/lib/gemini/conversational-analytics");
 }
 
 async function loadUsage() {
-  return import("../../../src/lib/bq/usage-events.ts");
+  return import("../../../src/lib/bq/usage-events");
 }
 
 async function loadReplyFormat() {
-  return import("../../../src/lib/analytics/reply-log-format.ts");
+  return import("../../../src/lib/analytics/reply-log-format");
 }
 
 async function parseScope(body: SalesChatRequestBody) {
