@@ -113,11 +113,12 @@
     "docs:pdf": "node scripts/export-scope-pdf.cjs"
   },
   "dependencies": {
+    "@google-cloud/bigquery": "^7.9.4",
     "@ynm/contracts": "*",
     "@ynm/platform-core": "*",
-    "@google-cloud/bigquery": "^7.9.4",
     "bcryptjs": "^3.0.3",
     "google-auth-library": "^9.15.1",
+    "hono": "^4.12.25",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
