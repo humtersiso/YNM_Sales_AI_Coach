@@ -29,12 +29,17 @@ import { resolvePersona } from "@/lib/roleplay/scenario-repository";
 
 export function randomRoleplayConfig(
   partial?: Partial<RoleplaySessionConfig>,
+  allowedCompetitors?: readonly string[],
 ): RoleplaySessionConfig {
+  const pool =
+    allowedCompetitors && allowedCompetitors.length > 0
+      ? allowedCompetitors
+      : ROLEPLAY_COMPETITORS_XTRAIL;
   return {
     productLine: partial?.productLine ?? "xtrail-ice",
     personaId: partial?.personaId ?? pickRandom(ROLEPLAY_PERSONA_IDS),
     ageRange: partial?.ageRange ?? pickRandom(ROLEPLAY_AGE_RANGES).id,
-    competitor: partial?.competitor ?? pickRandom(ROLEPLAY_COMPETITORS_XTRAIL),
+    competitor: partial?.competitor ?? pickRandom(pool),
     maxTurns: clampTurns(partial?.maxTurns ?? 5),
     difficulty: partial?.difficulty ?? pickRandom(ROLEPLAY_DIFFICULTIES).id,
   };

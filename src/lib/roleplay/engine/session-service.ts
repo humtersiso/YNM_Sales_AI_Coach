@@ -11,6 +11,7 @@ import {
   randomRoleplayConfig,
 } from "@/lib/roleplay/engine/scenario-composer";
 import { finalizeScoreResultForDisplay } from "@/lib/roleplay/roleplay-session-detail";
+import { turnsToUiMessages } from "@/lib/roleplay/roleplay-message-rounds";
 import {
   enrichScoreResult,
   scoreRoleplaySession,
@@ -24,6 +25,8 @@ import {
   logRoleplayGate1Started,
   persistRoleplayGate2Completed,
 } from "@/lib/bq/roleplay-sessions-bq";
+import { roleplaySessionConfigFromParts } from "@/lib/roleplay/roleplay-session-config";
+import { listRagReadyCompetitors } from "@/lib/roleplay/roleplay-competitor-rag";
 import {
   getRoleplayScenario,
   resolvePersona,
@@ -154,10 +157,20 @@ export async function startRoleplaySessionWithConfig(input: {
 }) {
   let config: RoleplaySessionConfig;
   try {
-    config =
-      input.mode === "random"
-        ? randomRoleplayConfig(input.config)
-        : parseSessionConfig((input.config ?? {}) as Record<string, unknown>);
+    if (input.mode === "random") {
+      const partial = (input.config ?? {}) as Partial<RoleplaySessionConfig>;
+      const productLine = String(partial.productLine ?? "xtrail-ice").trim();
+      const ready = await listRagReadyCompetitors(productLine);
+      if (ready.length === 0) {
+        throw new RoleplaySessionError(
+          "此車型尚無 RAG 就緒的競品教材，請先匯入對戰語料",
+          400,
+        );
+      }
+      config = randomRoleplayConfig(partial, ready);
+    } else {
+      config = parseSessionConfig((input.config ?? {}) as Record<string, unknown>);
+    }
   } catch (e) {
     throw new RoleplaySessionError(
       e instanceof Error ? e.message : "設定無效",
@@ -347,14 +360,16 @@ export async function finishRoleplaySession(sessionId: string): Promise<{
     );
   }
 
-  // 首頁小結更新改背景執行，避免使用者等第二次 Gemini
-  void refreshAgentDashboardBriefing(
-    session.userId,
-    { trigger: "gate2", sessionId: session.sessionId },
-    session,
-  ).catch((e) => {
+  // 首頁小結：完賽時同步寫入 BQ，避免首頁長期停在「小結更新中…」
+  try {
+    await refreshAgentDashboardBriefing(
+      session.userId,
+      { trigger: "gate2", sessionId: session.sessionId },
+      session,
+    );
+  } catch (e) {
     console.warn("[roleplay] dashboard briefing refresh (gate2) failed", e);
-  });
+  }
 
   return { sessionId, scoreResult: displayScore };
 }
@@ -384,6 +399,17 @@ export async function getRoleplayPracticeBootstrap(sessionId: string, userId: st
     scenarioTitle: session.scenario.sectionA.title,
     maxTurns: session.maxTurns,
     turn: session.agentTurnCount,
+    sessionConfig:
+      session.config ??
+      roleplaySessionConfigFromParts({
+        productLine: session.scenario.sectionA.productLine,
+        targetModel: session.scenario.sectionA.productDisplayName,
+        personaId: session.personaId,
+        ageRange: session.scenario.sectionE.ageRange ?? "30-40",
+        competitor: session.scenario.sectionA.competitor,
+        maxTurns: session.maxTurns,
+        difficulty: String(session.scenario.sectionE.difficulty ?? "advanced"),
+      }),
     agentSpeaksFirst:
       session.agentTurnCount === 0 && !!session.pendingCustomerOpening?.trim(),
     awaitingAgentClosing: phase.awaitingAgentClosing,
@@ -393,11 +419,9 @@ export async function getRoleplayPracticeBootstrap(sessionId: string, userId: st
       session.pendingCustomerOpening?.trim() ||
       session.scenario.sectionB.openingLine?.trim() ||
       "",
-    messages: session.turns.map((t, i) => ({
-      id: `${session.sessionId}-${i}`,
-      role: t.role as "customer" | "agent",
-      content: t.content,
-    })),
+    messages: turnsToUiMessages(session.sessionId, session.turns, {
+      agentClosingSent: session.agentClosingSent ?? false,
+    }),
     scoreResult: session.scoreResult
       ? session.status === "finished"
         ? finalizeScoreResultForDisplay(session.scoreResult)

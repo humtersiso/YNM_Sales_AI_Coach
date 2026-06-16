@@ -8,6 +8,8 @@ import {
 import {
   filterRoleplayRagHits,
   splitScenarioFactsForSession,
+  countCompetitorBattleHits,
+  MIN_COMPETITOR_RAG_HITS,
 } from "@/lib/roleplay/roleplay-rag-filter";
 import type { RagChunkHit } from "@/lib/rag/discovery-engine-search";
 import { getRagCorpusForCategory } from "@/lib/rag/rag-engine-config";
@@ -25,6 +27,8 @@ export type RoleplayRagBundle = {
   strategyIds: string[];
   coverageOk: boolean;
   validFactCount: number;
+  competitorHitCount: number;
+  competitorCoverageOk: boolean;
 };
 
 export type RoleplayRagCoverage = {
@@ -57,7 +61,9 @@ export function buildRagCoverageSummary(bundle: RoleplayRagBundle): RoleplayRagC
 }
 
 export class RoleplayRagCoverageError extends Error {
-  constructor(message = "此車型與競品組合暫無足夠教材，請先在銷售助手查詢相關知識") {
+  constructor(
+    message = "此競品尚無 RAG 對戰教材，請改選其他競品或先匯入語料",
+  ) {
     super(message);
     this.name = "RoleplayRagCoverageError";
   }
@@ -135,25 +141,27 @@ export async function fetchRoleplayRagContext(
 ): Promise<RoleplayRagBundle> {
   const query = buildSearchQuery(config);
   const topK = Number(process.env.ROLEPLAY_RAG_TOP_K ?? "8") || 8;
-  const allHits: RagChunkHit[] = [];
 
   const categories = ["product_info", "competitor_compare", "sales_script"] as const;
+  const searchResults = await Promise.all(
+    categories.map(async (cat) => {
+      const cfg = getRagCorpusForCategory(cat);
+      if (!cfg?.ragCorpusResource.includes("/ragCorpora/")) return [] as RagChunkHit[];
+      try {
+        return await searchVertexRagCorpus(
+          cfg.ragCorpusResource,
+          query,
+          cfg.materialCategory,
+          topK,
+        );
+      } catch (e) {
+        console.warn("[roleplay] RAG search failed", cat, e);
+        return [] as RagChunkHit[];
+      }
+    }),
+  );
 
-  for (const cat of categories) {
-    const cfg = getRagCorpusForCategory(cat);
-    if (!cfg?.ragCorpusResource.includes("/ragCorpora/")) continue;
-    try {
-      const hits = await searchVertexRagCorpus(
-        cfg.ragCorpusResource,
-        query,
-        cfg.materialCategory,
-        topK,
-      );
-      allHits.push(...hits);
-    } catch (e) {
-      console.warn("[roleplay] RAG search failed", cat, e);
-    }
-  }
+  const allHits = searchResults.flat();
 
   const sorted = dedupeHits([...allHits]).sort(
     (a, b) => (b.relevance ?? 0) - (a.relevance ?? 0),
@@ -167,7 +175,10 @@ export async function fetchRoleplayRagContext(
   const facts = (split.facts.length > 0 ? split.facts : rawFacts).slice(0, 10);
   const strategies = extractStrategies(top);
   const validFactCount = facts.length;
-  const coverageOk = validFactCount >= MIN_RAG_FACTS;
+  const competitorHitCount = countCompetitorBattleHits(top, config.competitor);
+  const competitorCoverageOk = competitorHitCount >= MIN_COMPETITOR_RAG_HITS;
+  const coverageOk =
+    validFactCount >= MIN_RAG_FACTS && competitorCoverageOk;
 
   return {
     hits: top,
@@ -175,5 +186,7 @@ export async function fetchRoleplayRagContext(
     ...strategies,
     coverageOk,
     validFactCount,
+    competitorHitCount,
+    competitorCoverageOk,
   };
 }

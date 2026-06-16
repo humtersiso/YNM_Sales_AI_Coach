@@ -1,4 +1,4 @@
-import type { RoleplayDrillDifficulty } from "@/lib/roleplay/scenario-contract";
+import type { RoleplayDrillDifficulty, RoleplaySessionConfig } from "@/lib/roleplay/scenario-contract";
 import type { RoleplayCorrectionPoint, RoleplayDimensionScore } from "@/lib/roleplay/session-types";
 
 export type RoleplayDimensionAverages = {
@@ -36,6 +36,8 @@ export type RoleplayHistoryItem = {
   improvementTips: string[];
   correctionPoints: RoleplayCorrectionPoint[];
   unusedStrategies: string[];
+  /** 開局設定（完賽後供「同情境再練」） */
+  sessionConfig?: RoleplaySessionConfig;
 };
 
 export type RoleplayDashboardBriefing = {

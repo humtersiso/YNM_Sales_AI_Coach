@@ -19,8 +19,10 @@ import {
 } from "@/lib/gemini/reply-format";
 import {
   buildCompetitorDefenseRules,
+  buildGroundedSynthesisRules,
   SALES_DIRECT_REPLY_RULES,
 } from "@/lib/gemini/sales-reply-directives";
+import { isCostDetailQuery } from "@/lib/gemini/cost-query-expand";
 import {
   buildCitationMarkerHardLimit,
   buildCitationMarkerRules,
@@ -59,6 +61,7 @@ import {
   extractRagChunkSourceMeta,
   parseAugmentFactsFromResponse,
 } from "@/lib/rag/vertex-rag-chunk-parse";
+import { resolveInactiveProductBlock } from "@/lib/gemini/inactive-product-guard";
 import { assessSalesQueryAnswerability } from "@/lib/gemini/query-relevance-guard";
 
 export type GroundedChatResult = {
@@ -245,6 +248,8 @@ function buildGroundedGenPrompt(
   const docCount = cards.length;
   const markerRules = buildCitationMarkerRules(docCount);
   const markerHardLimit = buildCitationMarkerHardLimit(docCount);
+  const synthesis = buildGroundedSynthesisRules(userQuestion, profile);
+  const extra = [extraInstruction, synthesis].filter(Boolean).join("\n");
   return [
     buildSystemInstruction(profile, userQuestion),
     "",
@@ -261,7 +266,7 @@ function buildGroundedGenPrompt(
     SALES_GROUNDED_REPLY_LENGTH_HINT,
     "手機現場查閱：先一句結論，列點最多 3 條、每條精簡可複誦，勿長篇展開。",
     "輸出結構（必守）：第一行一句結論（可含 [n]）；空一行；最多 3 行，每行以「建議可強調／重點在於／可回覆客戶」等開頭，勿用 - 或 * 列點符號，勿寫長段落。",
-    extraInstruction,
+    extra,
     "",
     markerHardLimit,
   ]
@@ -299,7 +304,9 @@ export async function retrieveGroundedFacts(
 
   if (
     profile &&
-    (isDualChannelComparison(message, profile) || isSpecRetrievalRoute(message, profile))
+    (isDualChannelComparison(message, profile) ||
+      isSpecRetrievalRoute(message, profile) ||
+      (isCostDetailQuery(message) && extractMentionedCompetitor(message)))
   ) {
     const perChannel = isSpecRetrievalRoute(message, profile)
       ? Number(process.env.RAG_SPEC_RETRIEVAL_TOP_K ?? "6") || 6
@@ -325,11 +332,16 @@ function groundedGuardRejectReply(
   message: string,
   citations: ScriptCitation[],
   profile: SalesQuestionProfile,
+  scope?: { productLine?: string },
 ): string | null {
+  const inactiveReply = resolveInactiveProductBlock(message, scope ?? {});
+  if (inactiveReply) return inactiveReply;
+
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
+    scope,
   });
-  if (!answerability.ok && !isSpecQuestion(message, profile)) {
+  if (!answerability.ok && !isSpecQuestion(message, profile) && !isCostDetailQuery(message)) {
     return answerability.userReply ?? outOfScopeKnowledgeMessage();
   }
   return null;
@@ -404,9 +416,15 @@ async function chatWithMergedFactsGrounding(
 ): Promise<GroundedChatResult> {
   const citations = chunksToCitations(originalMessage, facts);
   const cards = prepareCitationCards(citations).cards;
-  const extra = isDualChannelComparison(originalMessage, profile)
-    ? "比較題需同時引用本品與競品片段。"
-    : "";
+  const synthesis = buildGroundedSynthesisRules(originalMessage, profile);
+  const extra = [
+    isDualChannelComparison(originalMessage, profile)
+      ? "比較題需同時引用本品與競品片段，並統整成對照結論。"
+      : "",
+    synthesis,
+  ]
+    .filter(Boolean)
+    .join("\n");
   const genPrompt = buildGroundedGenPrompt(profile, cards, originalMessage, extra);
 
   const rawText =
@@ -641,7 +659,9 @@ export async function chatWithVertexRagGrounding(
 
   if (
     profile &&
-    (isDualChannelComparison(message, profile) || isSpecRetrievalRoute(message, profile))
+    (isDualChannelComparison(message, profile) ||
+      isSpecRetrievalRoute(message, profile) ||
+      (isCostDetailQuery(message) && extractMentionedCompetitor(message)))
   ) {
     try {
       const perChannel = isSpecRetrievalRoute(message, profile)

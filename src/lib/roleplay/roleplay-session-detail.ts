@@ -13,6 +13,7 @@ import {
 import { needsCorrectionRebuild } from "@/lib/roleplay/engine/correction-version";
 import type { RoleplayCorrectionPoint } from "@/lib/roleplay/session-types";
 import type { RoleplayScoreResult } from "@/lib/roleplay/session-types";
+import type { RoleplaySessionConfig } from "@/lib/roleplay/scenario-contract";
 import type { RoleplayHistoryItem } from "@/lib/roleplay/roleplay-types-api";
 
 /** 與評分報告頁 enrichScoreResult 相同過濾，避免紀錄詳情與剛結束報告不一致 */
@@ -48,6 +49,7 @@ export type RoleplaySessionDetailView = {
   displayName?: string;
   historyItem: RoleplayHistoryItem | null;
   transcriptLines: RoleplayTranscriptLine[];
+  sessionConfig?: RoleplaySessionConfig;
 };
 
 export type HistoryItemOptions = {
@@ -115,6 +117,7 @@ export async function buildRoleplaySessionDetail(
     displayName: meta?.displayName,
     historyItem,
     transcriptLines: parseRoleplayTranscriptLines(d.transcript),
+    sessionConfig: historyItem?.sessionConfig,
   };
 }
 

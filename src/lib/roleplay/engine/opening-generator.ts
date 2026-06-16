@@ -142,8 +142,8 @@ export function deriveBriefFromRag(
 }
 
 function useLlmOpening(): boolean {
-  const raw = (process.env.ROLEPLAY_OPENING_USE_LLM ?? "true").trim().toLowerCase();
-  return raw !== "false" && raw !== "0";
+  const raw = (process.env.ROLEPLAY_OPENING_USE_LLM ?? "false").trim().toLowerCase();
+  return raw === "true" || raw === "1";
 }
 
 function finalizeBrief(brief: RoleplayOpeningBrief): RoleplayOpeningBrief {

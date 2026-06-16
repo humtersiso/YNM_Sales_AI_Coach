@@ -99,6 +99,7 @@ export function routeByRules(message: string, mergedScope: KnowledgeSearchScope)
     if (/sportage/i.test(t) && !/territory|福特|ford/i.test(t)) extra.push("SPORTAGE", "對戰");
     if (/tucson/i.test(t)) extra.push("TUCSON");
     if (/rav4/i.test(t)) extra.push("RAV4");
+    if (/cr-?v/i.test(t)) extra.push("CR-V");
     return {
       intent: "knowledge",
       scope: mergeScope(scope, { materialCategory: "competitor_compare" as MaterialCategory }),
@@ -130,7 +131,9 @@ export function routeByRules(message: string, mergedScope: KnowledgeSearchScope)
 
   if (/持有成本|用車成本|長期成本|詳細數字|試算/i.test(t)) {
     const extra = [...hints, "長期持有成本", "用車成本", "8萬公里", "16萬公里"];
-    if (/tucson|途勝/i.test(t)) extra.push("TUCSON");
+    if (/tucson|途勝/i.test(t)) extra.push("TUCSON L");
+    if (/cr-?v/i.test(t)) extra.push("CR-V");
+    if (/rav4/i.test(t)) extra.push("RAV4");
     return {
       intent: "knowledge",
       scope: mergeScope(scope, { materialCategory: "competitor_compare" as MaterialCategory }),

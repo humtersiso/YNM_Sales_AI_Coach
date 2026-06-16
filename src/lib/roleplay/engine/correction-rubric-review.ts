@@ -208,7 +208,7 @@ export async function buildCorrectionsViaRubricReview(
 
 【審查清單 — 請逐項檢查並反映在 correctionPoints】
 1. 車型一致性：客戶若提及 ${shortComp}，業代是否在下一輪內切換至 ${shortComp} 知識？若持續講其他車（如 RAV4）→ 必列一項，issue 須寫明「比錯競品／未對準 ${shortComp}」
-2. 答所問：客戶問保養／回廠／高里程預算時，業代是否給定保金額或頻率？若改講無關稅金或其他車款 → 必列
+2. 答所問：客戶問保養／回廠／高里程預算時，業代是否給定保金額或頻率？若改講無關稅金或其他車款 → 必列，issue 須以「答非所問：」開頭
 3. 策略執行：客戶要求當場試算或具體數字時，業代是否只延後到 LINE／內部確認？→ 列為 strategy
 4. 內容重複：相同賣點（雙層玻璃、稅金、TNCAP）是否連續多輪重複而未回應客戶新問題？→ 合併為一項「避重就輕／重複話術」
 5. 收尾：客戶已表示失望或要離開時，業代是否仍空泛邀約而未先回應疑慮？→ 最多列一項
@@ -223,7 +223,7 @@ ${transcript}
 - 請直接輸出 JSON 字串，嚴禁包含任何 Markdown 標記（如 \`\`\`json）、前言或後記；確保回傳內容可直接被系統 JSON.parse()。
 - 格式：{ "correctionPoints": [ ... ] }
 - 列 0～5 項；僅列有明確事實或策略失誤者，無失誤則 correctionPoints: []
-- 每項欄位：issue（標題）、category（fact 或 strategy）、customerAsk（客戶原話摘要）、whatYouSaid（業代原話摘要）、correctGuide（2～4 句口語，業代可直接對客戶重答；須含具體數字；必須針對 ${shortComp}）
+- 每項欄位：issue（標題，答非所問類須以「答非所問：」開頭）、category（fact 或 strategy）、customerAsk（客戶原話摘要）、whatYouSaid（業代原話摘要）、correctGuide（2～4 句口語，業代可直接對客戶重答；須含具體數字；必須針對 ${shortComp}）
 - correctGuide 必須完全符合台灣汽車業代日常口語習慣（例如：使用「保養、規格配備、CP值、交車、回廠定保」；嚴禁出現「售後、配置、性價比、提車、保養週期」等非台灣本土用語）
 - correctGuide 禁止：PDF 標題、重點 1/2/3/4、依教材、請參考 RAG、只寫試乘邀約而忽略客戶問題
 - 相同建議話術不可重複出現兩次

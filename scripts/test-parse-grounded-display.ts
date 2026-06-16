@@ -5,7 +5,10 @@
 import {
   finalizeGroundedClientReply,
   formatGroundedReplyForLog,
+  isTruncatedGroundedBullet,
   parseGroundedReplyDisplay,
+  polishGroundedSalesReply,
+  polishSalesReply,
 } from "../src/lib/gemini/reply-format";
 
 const morningXforce = `XFORCE 的特色在於針對日常駕駛情境進行引擎與變速箱調校，強調起步與中速域的輕快反應，並具備優異的油耗表現 [2][3][4]。
@@ -48,7 +51,7 @@ function assertCase(name: string, raw: string, expectIntro: RegExp, expectBullet
 
 let allOk = true;
 allOk =
-  assertCase("morning-style", morningXforce, /XFORCE 的特色/, 3) && allOk;
+  assertCase("morning-style", morningXforce, /XFORCE 的特色/, 4) && allOk;
 allOk =
   assertCase("markdown", markdownBullets, /XFORCE 主打/, 3) && allOk;
 allOk =
@@ -72,6 +75,53 @@ if (!logText.includes("小結") || !logText.includes("列點")) {
   allOk = false;
 } else {
   console.log("OK [client=log format] bullets:", client.bullets.length);
+}
+
+const longConjunctionBullet =
+  `${"X-TRAIL ICE 在日常駕駛具備輕快加速與優異油耗，".repeat(4)}並搭載 AYC 主動式彎道動態控制系統提升過彎穩定性，且後座膝部空間較競品多出約 4.2 公分`;
+const polished = polishGroundedSalesReply("", [longConjunctionBullet]);
+if (polished.bullets.some((b) => /，並$/.test(b) || /並…$/.test(b))) {
+  console.error("FAIL [trim-grounded]: 不應在「並」前截斷");
+  allOk = false;
+} else {
+  console.log("OK [trim-grounded] 連接詞前不截斷");
+}
+if (!isTruncatedGroundedBullet("可回覆客戶空間較大，並")) {
+  console.error("FAIL [truncated-detect]: 應偵測「，並」殘句");
+  allOk = false;
+} else {
+  console.log("OK [truncated-detect] 連接詞殘句");
+}
+
+const commaEndingBullet =
+  "強調每個人對聲音與音頻的感受各異，應親自確認異音是否真的影響行車，並可參考專業測試影片，";
+if (!isTruncatedGroundedBullet(commaEndingBullet)) {
+  console.error("FAIL [comma-ending-detect]: 應偵測以「影片，」結尾的殘句");
+  allOk = false;
+} else {
+  console.log("OK [comma-ending-detect] 逗號結尾殘句");
+}
+if (polishGroundedSalesReply("", [commaEndingBullet]).bullets.length > 0) {
+  console.error("FAIL [comma-ending-filter]: 以逗號結尾列點應被過濾");
+  allOk = false;
+} else {
+  console.log("OK [comma-ending-filter] 逗號結尾列點已過濾");
+}
+if (polishSalesReply("", [commaEndingBullet]).bullets.length > 0) {
+  console.error("FAIL [comma-ending-filter-sales]: polishSalesReply 應過濾逗號結尾列點");
+  allOk = false;
+} else {
+  console.log("OK [comma-ending-filter-sales] polishSalesReply 已過濾");
+}
+
+const longNoCommaTrunc =
+  `${"強調每個人對聲音與音頻的感受各異，".repeat(8)}並可參考專業測試影片完成確認。`;
+const trimmedLong = polishGroundedSalesReply("", [longNoCommaTrunc]);
+if (trimmedLong.bullets.some((b) => /[，,、]$/.test(b))) {
+  console.error("FAIL [no-comma-trunc]: 超長列點不應在逗號處截斷");
+  allOk = false;
+} else {
+  console.log("OK [no-comma-trunc] 僅在句號處截斷");
 }
 
 process.exit(allOk ? 0 : 1);

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "paths": {
+      "@ynm/contracts": ["../../packages/contracts/src"],
+      "@ynm/platform-core": ["../../packages/platform-core/src"],
+      "@ynm/sales-core": ["../../packages/sales-core/src"],
+      "@ynm/roleplay-core": ["../../packages/roleplay-core/src"],
+      "@/*": ["../../src/*"]
+    }
+  },
+  "include": ["src/**/*", "../../packages/**/*", "../../src/lib/**/*"]
+}

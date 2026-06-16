@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { RoleplaySessionDetailModal } from "@/components/roleplay/RoleplaySessionDetailModal";
 import type { RoleplayHistoryItem } from "@/lib/roleplay/roleplay-types-api";
 import type { RoleplaySessionDetailView } from "@/lib/roleplay/roleplay-session-detail";
+import { retrySameRoleplayScenario } from "@/lib/roleplay/start-roleplay-session";
 
 function formatDateTime(iso: string | null | undefined): string {
   if (!iso?.trim()) return "—";
@@ -21,22 +23,12 @@ function formatDateTime(iso: string | null | undefined): string {
   });
 }
 
-function buildSetupHref(item: RoleplayHistoryItem): string {
-  const q = new URLSearchParams({
-    productLine: "xtrail-ice",
-    personaId: item.customerType,
-    ageRange: item.ageRange,
-    competitor: item.competitor,
-    difficulty: String(item.difficulty),
-    maxTurns: "5",
-  });
-  return `/roleplay/setup?${q.toString()}`;
-}
-
 export function RoleplayHistoryList({ items }: { items: RoleplayHistoryItem[] }) {
+  const router = useRouter();
   const [modalItem, setModalItem] = useState<RoleplayHistoryItem | null>(null);
   const [modalDetail, setModalDetail] = useState<RoleplaySessionDetailView | null>(null);
   const [loading, setLoading] = useState(false);
+  const [retryPending, setRetryPending] = useState(false);
   const [error, setError] = useState("");
 
   async function openModal(item: RoleplayHistoryItem) {
@@ -67,6 +59,21 @@ export function RoleplayHistoryList({ items }: { items: RoleplayHistoryItem[] })
     setModalDetail(null);
     setError("");
     setLoading(false);
+    setRetryPending(false);
+  }
+
+  async function handleRetrySame() {
+    const config = modalDetail?.sessionConfig ?? modalItem?.sessionConfig;
+    if (!config || retryPending) return;
+    setRetryPending(true);
+    setError("");
+    const result = await retrySameRoleplayScenario(config, router);
+    if (!result.ok) {
+      setError(result.error);
+      setRetryPending(false);
+      return;
+    }
+    closeModal();
   }
 
   if (items.length === 0) {
@@ -136,15 +143,24 @@ export function RoleplayHistoryList({ items }: { items: RoleplayHistoryItem[] })
         error={error}
         onClose={closeModal}
         footer={
-          modalItem ? (
+          modalItem && (modalDetail?.sessionConfig ?? modalItem.sessionConfig) ? (
+            <button
+              type="button"
+              disabled={retryPending}
+              onClick={() => void handleRetrySame()}
+              className="block w-full text-center text-sm font-medium text-teal-700 underline disabled:opacity-60"
+            >
+              {retryPending ? "情境建立中…" : "同情境再練一次"}
+            </button>
+          ) : (
             <Link
-              href={buildSetupHref(modalItem)}
+              href="/roleplay/setup"
               className="block text-center text-sm font-medium text-teal-700 underline"
               onClick={closeModal}
             >
-              用相似設定再練
+              前往情境設定
             </Link>
-          ) : null
+          )
         }
       />
     </>

@@ -86,7 +86,6 @@ export default function SalesChatPage() {
                   citations: data.citations,
                   citationsOverflow: data.citationsOverflow,
                   allowAddRequest: data.allowAddRequest,
-                  questionForAdd: data.allowAddRequest ? (data.question ?? text) : undefined,
                 }
               : x,
           ),
@@ -190,7 +189,6 @@ export default function SalesChatPage() {
                       citations: r.citations,
                       citationsOverflow: r.citationsOverflow,
                       allowAddRequest: r.allowAddRequest,
-                      questionForAdd: r.allowAddRequest ? (r.question ?? text) : undefined,
                       pending: false,
                     }
                   : x,
@@ -208,27 +206,6 @@ export default function SalesChatPage() {
     } finally {
       setBusy(false);
     }
-  }
-
-  async function handleAddToBank(messageId: string, question: string) {
-    if (!session) return;
-    const res = await fetch("/api/sales/question-requests", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question,
-        city: session.branch,
-        agentName: session.displayName,
-      }),
-    });
-    const data = (await res.json().catch(() => ({}))) as { error?: string };
-    if (!res.ok) {
-      setError(data.error ?? "無法加入待新增清單，請稍後再試");
-      return;
-    }
-    setMessages((m) =>
-      m.map((x) => (x.id === messageId ? { ...x, addRequestSubmitted: true } : x)),
-    );
   }
 
   async function logout() {
@@ -268,7 +245,7 @@ export default function SalesChatPage() {
       </header>
 
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col overflow-hidden px-3">
-        <ChatThread messages={messages} onAddToBank={handleAddToBank} />
+        <ChatThread messages={messages} />
         <div ref={bottomRef} aria-hidden />
         {error ? <p className="px-1 pb-1 text-center text-xs text-red-600">{error}</p> : null}
       </div>

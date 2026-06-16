@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chatWithDataAgent } from "@/lib/gemini/conversational-analytics";
 import { getDefaultSalesProductLine } from "@/lib/knowledge/search-scope";
-import { readSalesSession, readSession } from "@/lib/auth/session";
+import { readAssistantApiUser } from "@/lib/auth/api-auth";
 import { formatSalesReplyForUsageLog } from "@/lib/analytics/reply-log-format";
 import { insertUsageEvent } from "@/lib/bq/usage-events";
 import type { MaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
 import { normalizeMaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
 
 export async function POST(request: NextRequest) {
-  const session = (await readSalesSession()) ?? (await readSession());
+  const session = await readAssistantApiUser();
   if (!session) {
     return NextResponse.json({ error: "未登入" }, { status: 401 });
   }

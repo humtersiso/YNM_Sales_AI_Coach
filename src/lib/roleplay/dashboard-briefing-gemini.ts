@@ -1,6 +1,11 @@
 import { geminiGenerateText } from "@/lib/gemini/gemini-client";
 import {
   abandonedSessionMin,
+  BRIEFING_ADVICE_LINE_MAX_CHARS,
+  BRIEFING_DIM_LINE_MAX_CHARS,
+  BRIEFING_KNOWLEDGE_LINE_MAX_CHARS,
+  BRIEFING_TREND_LINE_MAX_CHARS,
+  trimBriefingLine,
 } from "@/lib/roleplay/dashboard-briefing-cache";
 import {
   buildRuleDashboardBriefing,
@@ -79,17 +84,11 @@ export function buildBriefingPayload(
   };
 }
 
-function trimLine(s: unknown, fallback: string, max = 48): string {
-  const t = String(s ?? "").trim().replace(/\s+/g, " ");
-  const out = t.length > max ? `${t.slice(0, max - 1)}…` : t;
-  return out || fallback;
-}
-
 function parseKnowledgeLines(raw: unknown, fallback: string[]): string[] {
   const validFallback = fallback.filter((l) => isValidCorrectionMemoryLine(l));
   if (!Array.isArray(raw)) return validFallback.slice(0, 12);
   const lines = raw
-    .map((x) => trimLine(x, "", 120))
+    .map((x) => trimBriefingLine(x, "", BRIEFING_KNOWLEDGE_LINE_MAX_CHARS))
     .filter(Boolean)
     .filter((l) => isValidCorrectionMemoryLine(l));
   if (lines.length > 0) return lines.slice(0, 12);
@@ -104,10 +103,26 @@ function parseBriefingJsonResponse(
   try {
     const j = JSON.parse(raw) as Partial<RoleplayDashboardBriefing>;
     return normalizeBriefingLines({
-      strengthLine: trimLine(j.strengthLine, fallback.strengthLine),
-      weaknessLine: trimLine(j.weaknessLine, fallback.weaknessLine),
-      trendLine: trimLine(j.trendLine, fallback.trendLine),
-      adviceLine: trimLine(j.adviceLine, fallback.adviceLine),
+      strengthLine: trimBriefingLine(
+        j.strengthLine,
+        fallback.strengthLine,
+        BRIEFING_DIM_LINE_MAX_CHARS,
+      ),
+      weaknessLine: trimBriefingLine(
+        j.weaknessLine,
+        fallback.weaknessLine,
+        BRIEFING_DIM_LINE_MAX_CHARS,
+      ),
+      trendLine: trimBriefingLine(
+        j.trendLine,
+        fallback.trendLine,
+        BRIEFING_TREND_LINE_MAX_CHARS,
+      ),
+      adviceLine: trimBriefingLine(
+        j.adviceLine,
+        fallback.adviceLine,
+        BRIEFING_ADVICE_LINE_MAX_CHARS,
+      ),
       knowledgeLines: parseKnowledgeLines(
         j.knowledgeLines,
         fallback.knowledgeLines ?? [],
@@ -133,22 +148,23 @@ export async function generateFullDashboardBriefing(
 
   const memoryNote =
     payload.correctionMemoryLines.length > 0
-      ? `\n【近五場本場待加強｜記憶重點素材】（請改寫進 knowledgeLines，保留【資訊對錯】【銷售策略】標籤）\n${payload.correctionMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
+      ? `\n【近五場須記數字｜記憶重點素材】（僅改寫進 knowledgeLines，保留【資訊對錯】標籤，須含金額／油耗等數字）\n${payload.correctionMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
       : payload.factMemoryLines.length > 0
-        ? `\n【近五場資訊對錯素材】\n${payload.factMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
-        : "\n【近五場待加強】無紀錄 → knowledgeLines 請回傳空陣列 []。\n";
+        ? `\n【近五場資訊對錯素材】（僅含金額／油耗等數字，改寫進 knowledgeLines）\n${payload.factMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
+        : "\n【近五場須記數字】無紀錄 → knowledgeLines 請回傳空陣列 []。\n";
 
   const strategyNote =
     payload.strategyAdviceFromCorrections !== "無"
-      ? `\n【銷售策略摘要】（可濃縮進 adviceLine，≤36字）\n- ${payload.strategyAdviceFromCorrections}\n`
-      : "\n【銷售策略摘要】無 → adviceLine 可填「無」。\n";
+      ? `\n【近五場銷售策略待加強】（描述性建議，請濃縮進 adviceLine，勿放入 knowledgeLines，≤${BRIEFING_ADVICE_LINE_MAX_CHARS}字）\n- ${payload.strategyAdviceFromCorrections}\n`
+      : "\n【近五場銷售策略待加強】無 → adviceLine 可填維度練習方向或「無」。\n";
 
   const prompt = `你是汽車銷售對練教練。依下列戰績 JSON 產出「首頁小結」，繁體中文、口語精簡。
 ${BRIEFING_LLM_NUMERAL_RULE}
 資料範圍：僅近 ${payload.last5Scores.length} 場完賽。
-欄位：strengthLine（最強維度，≤36字）、weaknessLine（待加強維度，≤36字）、trendLine（近場分數走勢，≤36字）。
-adviceLine：一語總結練習方向或未完賽提醒，≤36字；無特別建議填「無」。
-knowledgeLines：彙整近五場「本場待加強」列點；每條以【資訊對錯】或【銷售策略】開頭；資訊類須含金額／油耗等數字；策略類寫可執行行為；每條≤80字；最多12條；無素材則 []。
+欄位：strengthLine（最強維度，≤${BRIEFING_DIM_LINE_MAX_CHARS}字，須完整句、句尾須有「。」）、weaknessLine（待加強維度，≤${BRIEFING_DIM_LINE_MAX_CHARS}字，須完整句、句尾須有「。」）。
+trendLine：累計場次、整體均分與近 5 場分數序列（如 15→41→59），並一句話描述走勢；≤${BRIEFING_TREND_LINE_MAX_CHARS}字，須寫完整句、句尾須有「。」，勿以逗號結尾。
+adviceLine：一語總結練習方向、銷售策略待加強或未完賽提醒，≤${BRIEFING_ADVICE_LINE_MAX_CHARS}字，須完整句、句尾須有「。」；策略類描述性建議放此欄，無特別建議填「無」。
+knowledgeLines：僅彙整須記住的數字事實（金額、油耗、里程等）；每條以【資訊對錯】開頭；不得放銷售策略或行為建議；每條≤${BRIEFING_KNOWLEDGE_LINE_MAX_CHARS}字、須完整句；最多12條；無素材則 []。
 ${abandonedPromptNote(payload.abandonedSessions)}${memoryNote}${strategyNote}
 僅回傳 JSON：{"strengthLine":"","weaknessLine":"","trendLine":"","adviceLine":"","knowledgeLines":["",""]}
 
@@ -178,21 +194,22 @@ export async function mergeDashboardBriefing(
 
   const memoryNote =
     payload.correctionMemoryLines.length > 0
-      ? `\n【近五場本場待加強｜記憶重點】\n${payload.correctionMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
+      ? `\n【近五場須記數字｜記憶重點】（僅改寫進 knowledgeLines）\n${payload.correctionMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
       : payload.factMemoryLines.length > 0
-        ? `\n【近五場資訊對錯】\n${payload.factMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
-        : "\n【近五場待加強】無 → knowledgeLines 為 []。\n";
+        ? `\n【近五場資訊對錯】（僅數字事實）\n${payload.factMemoryLines.map((x) => `- ${x}`).join("\n")}\n`
+        : "\n【近五場須記數字】無 → knowledgeLines 為 []。\n";
 
   const strategyNote =
     payload.strategyAdviceFromCorrections !== "無"
-      ? `\n【銷售策略摘要】\n- ${payload.strategyAdviceFromCorrections}\n`
-      : "\n【銷售策略摘要】無。\n";
+      ? `\n【近五場銷售策略待加強】（描述性建議，請濃縮進 adviceLine，勿放入 knowledgeLines）\n- ${payload.strategyAdviceFromCorrections}\n`
+      : "\n【近五場銷售策略待加強】無。\n";
 
   const prompt = `你是汽車銷售對練教練。請在「先前首頁小結」基礎上，融入最新演練，產出更新版小結（繁體中文）。
 ${BRIEFING_LLM_NUMERAL_RULE}
 資料範圍：近 ${payload.last5Scores.length} 場完賽。
-adviceLine：練習方向或未完賽提醒，≤36字；無則「無」。
-knowledgeLines：近五場待加強列點；每條以【資訊對錯】或【銷售策略】開頭；每條≤80字；最多12條；無則 []。
+adviceLine：練習方向、銷售策略待加強或未完賽提醒，≤${BRIEFING_ADVICE_LINE_MAX_CHARS}字，須完整句、句尾須有「。」；無則「無」。
+trendLine：可含累計場次、均分與近 5 場分數序列，≤${BRIEFING_TREND_LINE_MAX_CHARS}字，須完整句、句尾須有「。」。
+knowledgeLines：僅須記住的數字事實；每條以【資訊對錯】開頭；不得放銷售策略；每條≤${BRIEFING_KNOWLEDGE_LINE_MAX_CHARS}字、須完整句；最多12條；無則 []。
 ${abandonedPromptNote(payload.abandonedSessions)}${memoryNote}${strategyNote}
 
 【先前小結】
@@ -204,7 +221,7 @@ ${JSON.stringify(payload)}
 【本次變化】
 ${JSON.stringify(delta)}
 
-規則：保留先前小結中仍成立的重點；分數走勢、強弱項、未完成提醒需反映最新數據；knowledgeLines 可保留舊條目並替換已掌握的。
+規則：保留先前小結中仍成立的數字重點；分數走勢、強弱項、未完成提醒需反映最新數據；knowledgeLines 僅保留仍須記住的數字事實，策略描述一律放 adviceLine。
 僅回傳 JSON：{"strengthLine":"","weaknessLine":"","trendLine":"","adviceLine":"","knowledgeLines":["",""]}`;
 
   try {

@@ -38,9 +38,9 @@ export function notInQuestionBankMessage(): string {
 export function outOfScopeKnowledgeMessage(unknownTerms?: string[]): string {
   const list = unknownTerms?.filter(Boolean).join("、");
   if (list) {
-    return `目前知識庫沒有「${list}」的標準話術，無法依建檔資料回答。請改問 X-TRAIL、KICKS 或已收錄競品；若應納入題庫，可加入「待新增題庫清單」。`;
+    return `目前知識庫沒有「${list}」的標準話術，無法依建檔資料回答。請改問 X-TRAIL、KICKS 或已收錄競品。`;
   }
-  return "此問題與目前話術知識庫內容不符，無法依建檔資料回答，請換個方式提問，或加入「待新增題庫清單」。";
+  return "此問題與目前話術知識庫內容不符，無法依建檔資料回答，請換個方式提問。";
 }
 
 const META_SENTENCE =
@@ -79,13 +79,13 @@ export function stripMarkdownArtifacts(text: string): string {
 }
 
 function trimBullet(text: string): string {
-  let s = normalizeReplyLine(text).replace(/。$/, "");
-  if (s.length > MAX_BULLET_CHARS) {
-    const cut = s.slice(0, MAX_BULLET_CHARS);
-    const pause = Math.max(cut.lastIndexOf("，"), cut.lastIndexOf("、"));
-    s = (pause > 80 ? cut.slice(0, pause) : cut).trim() + "…";
-  }
-  return s;
+  const s = normalizeReplyLine(text);
+  return trimAtSentence(s, MAX_BULLET_CHARS);
+}
+
+function trimGroundedBullet(text: string): string {
+  const s = normalizeReplyLine(text);
+  return trimAtSentence(s, SALES_GROUNDED_BULLET_MAX_CHARS);
 }
 
 function trimAtSentence(text: string, maxLen: number): string {
@@ -280,7 +280,7 @@ export function polishSalesReply(intro: string, bullets: string[]): { intro: str
     return true;
   });
 
-  cleanedBullets = cleanedBullets.slice(0, MAX_BULLETS);
+  cleanedBullets = dropTruncatedGroundedBullets(cleanedBullets).slice(0, MAX_BULLETS);
 
   let cleanedIntro = normalizeReplyLine(intro);
   if (cleanedIntro.includes("\n")) {
@@ -295,9 +295,7 @@ export function polishSalesReply(intro: string, bullets: string[]): { intro: str
   }
 
   if (cleanedIntro.length > MAX_INTRO_CHARS) {
-    const cut = cleanedIntro.slice(0, MAX_INTRO_CHARS);
-    const pause = Math.max(cut.lastIndexOf("，"), cut.lastIndexOf("、"));
-    cleanedIntro = (pause > 20 ? cut.slice(0, pause) : cut).trim();
+    cleanedIntro = trimAtSentence(cleanedIntro, MAX_INTRO_CHARS).replace(/…$/, "");
   }
 
   if (cleanedIntro && cleanedBullets.length > 0 && isNearDuplicate(cleanedIntro, cleanedBullets[0])) {
@@ -313,8 +311,62 @@ export function polishSalesReply(intro: string, bullets: string[]): { intro: str
   return { intro: cleanedIntro, bullets: cleanedBullets };
 }
 
+/** Grounded 回覆：較長列點、較寬 intro，避免在連接詞前截斷 */
+export function polishGroundedSalesReply(
+  intro: string,
+  bullets: string[],
+): { intro: string; bullets: string[] } {
+  let cleanedBullets = splitMergedBullets(bullets)
+    .map(trimGroundedBullet)
+    .filter((b) => b.length >= 6 && !isMetaSentence(b));
+
+  const seen = new Set<string>();
+  cleanedBullets = cleanedBullets.filter((b) => {
+    const key = b.slice(0, 24);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  cleanedBullets = dropTruncatedGroundedBullets(cleanedBullets).slice(0, MAX_BULLETS);
+
+  let cleanedIntro = normalizeReplyLine(intro);
+  if (cleanedIntro.includes("\n")) {
+    cleanedIntro = cleanedIntro.split(/\n+/).map((p) => p.trim()).filter(Boolean)[0] ?? "";
+  }
+  if (isMetaSentence(cleanedIntro)) cleanedIntro = "";
+
+  if (!cleanedIntro && cleanedBullets.length > 0) {
+    const first = cleanedBullets[0];
+    const clause =
+      first.match(/^(.{12,88}?)([，,；]|$)/)?.[1] ?? first.slice(0, SALES_GROUNDED_INTRO_MAX_CHARS);
+    if (!isMetaSentence(clause)) cleanedIntro = clause.trim();
+  }
+
+  if (cleanedIntro.length > SALES_GROUNDED_INTRO_MAX_CHARS) {
+    cleanedIntro = trimAtSentence(cleanedIntro, SALES_GROUNDED_INTRO_MAX_CHARS).replace(/…$/, "");
+  }
+
+  if (cleanedIntro && cleanedBullets.length > 0 && isNearDuplicate(cleanedIntro, cleanedBullets[0])) {
+    if (cleanedBullets[0].length >= cleanedIntro.length) {
+      cleanedBullets = cleanedBullets.slice(1);
+    } else {
+      cleanedIntro = "";
+    }
+  }
+
+  cleanedBullets = cleanedBullets.filter((b) => !isNearDuplicate(cleanedIntro, b));
+  return { intro: cleanedIntro, bullets: cleanedBullets };
+}
+
 /** 將話術／AI 回覆整理為列點（建議、強調、說明等） */
-export function extractBulletPoints(text: string, maxBullets = MAX_BULLETS): string[] {
+export function extractBulletPoints(
+  text: string,
+  maxBullets = MAX_BULLETS,
+  options?: { grounded?: boolean },
+): string[] {
+  const trimFn = options?.grounded ? trimGroundedBullet : trimBullet;
+  const polishFn = options?.grounded ? polishGroundedSalesReply : polishSalesReply;
   const normalized = stripMarkdownArtifacts(text.replace(/\n+/g, "\n"));
   if (!normalized) return [];
 
@@ -324,30 +376,31 @@ export function extractBulletPoints(text: string, maxBullets = MAX_BULLETS): str
     .filter((c) => c.length > 8);
 
   if (numbered.length >= 2) {
-    return polishSalesReply("", numbered).bullets.slice(0, maxBullets);
+    return polishFn("", numbered).bullets.slice(0, maxBullets);
   }
 
   const byKeyword = normalized
     .split(/(?=(?:建議|強調|說明|可強調|可回覆|重點在於|重點是|最後|應將|可再以|亦可|重申))/g)
     .map((c) => c.trim())
     .filter((c) => c.length > 8)
-    .map(trimBullet);
+    .map(trimFn);
 
   if (byKeyword.length >= 2) {
-    return polishSalesReply("", byKeyword).bullets.slice(0, maxBullets);
+    return polishFn("", byKeyword).bullets.slice(0, maxBullets);
   }
 
   const sentences = normalized
     .split(/(?<=[。；])/)
     .map((s) => normalizeReplyLine(s.trim()))
     .filter((s) => s.replace(/。$/, "").length > 8 && !isJunkFragment(s))
-    .map((s) => trimBullet(s.replace(/。$/, "")));
+    .map((s) => trimFn(s.replace(/。$/, "")));
 
   if (sentences.length >= 1) {
-    return polishSalesReply("", sentences).bullets.slice(0, maxBullets);
+    return polishFn("", sentences).bullets.slice(0, maxBullets);
   }
 
-  const single = trimBullet(normalized.slice(0, MAX_BULLET_CHARS));
+  const maxChars = options?.grounded ? SALES_GROUNDED_BULLET_MAX_CHARS : MAX_BULLET_CHARS;
+  const single = trimFn(normalized.slice(0, maxChars));
   return isMetaSentence(single) ? [] : [single];
 }
 
@@ -410,10 +463,14 @@ export function buildBulletReplyFromCitations(citations: ScriptCitation[]): {
 }
 
 /** 自 Gemini 或長文本產生列點 */
-export function buildBulletReplyFromText(text: string): { intro: string; bullets: string[] } {
-  const bullets = extractBulletPoints(text);
+export function buildBulletReplyFromText(
+  text: string,
+  options?: { grounded?: boolean },
+): { intro: string; bullets: string[] } {
+  const grounded = options?.grounded ?? false;
+  const bullets = extractBulletPoints(text, MAX_BULLETS, { grounded });
   const intro = pickIntroFromText(text, bullets);
-  return polishSalesReply(intro, bullets);
+  return grounded ? polishGroundedSalesReply(intro, bullets) : polishSalesReply(intro, bullets);
 }
 
 /**
@@ -560,14 +617,15 @@ export function extractIntroBeforeBullets(
   return "";
 }
 
-/** 模型因 maxOutputTokens 截斷時，末尾常殘留「競品雖」等半句 */
+/** 列點／小結末尾殘留半句（模型截斷或逗號裁切） */
 export function isTruncatedGroundedBullet(text: string): boolean {
   const t = text.trim();
   if (t.length < 10) return true;
-  if (/[。！？；.!?]$/.test(t)) return false;
-  if (t.length >= SALES_GROUNDED_BULLET_MAX_CHARS - 8) return false;
-  if (/[，,](雖|但|若|與|且|或|為)$/.test(t)) return true;
-  if (/(雖|但|若|與|為|宣稱|主打)$/.test(t)) return true;
+  if (/[。！？.!?]$/.test(t)) return false;
+  if (/…$/.test(t)) return true;
+  if (/[，,、；]$/.test(t)) return true;
+  if (/[，,](雖|但|若|與|且|或|為|並|而|及)$/.test(t)) return true;
+  if (/(雖|但|若|與|為|宣稱|主打|並|且|而|或|及)$/.test(t)) return true;
   return false;
 }
 
@@ -658,11 +716,11 @@ export function parseGroundedReplyDisplay(raw: string): { intro: string; bullets
     };
   }
 
-  const fromKeywords = buildBulletReplyFromText(text);
+  const fromKeywords = buildBulletReplyFromText(text, { grounded: true });
   if (fromKeywords.bullets.length >= 2) {
     return {
       intro: introFromFirstLine || fromKeywords.intro.trim(),
-      bullets: fromKeywords.bullets,
+      bullets: mergeGroundedBullets(fromKeywords.bullets, orphanBullets),
     };
   }
 

@@ -10,10 +10,7 @@ import {
 } from "@/lib/gemini/sales-intent-router";
 import type { SalesQuestionProfile } from "@/lib/gemini/sales-question-profile";
 import type { SalesChatResult, SalesChatStreamEvent } from "@/lib/gemini/sales-chat-types";
-import {
-  detectInactiveProductLine,
-  inactiveProductLineMessage,
-} from "@/lib/gemini/inactive-product-guard";
+import { resolveInactiveProductBlock } from "@/lib/gemini/inactive-product-guard";
 import { assessSalesQueryAnswerability } from "@/lib/gemini/query-relevance-guard";
 import { isSpecQuestion } from "@/lib/gemini/sales-question-profile";
 import { outOfScopeKnowledgeMessage } from "@/lib/gemini/reply-format";
@@ -59,14 +56,14 @@ export async function chatWithSalesAgent(
   message: string,
   scope: KnowledgeSearchScope = {},
 ): Promise<SalesChatResult> {
-  const inactiveProduct = detectInactiveProductLine(message, scope);
-  if (inactiveProduct) {
-    return { ...noMatch(message), reply: inactiveProductLineMessage(inactiveProduct) };
+  const inactiveReply = resolveInactiveProductBlock(message, scope);
+  if (inactiveReply) {
+    return { ...noMatch(message), reply: inactiveReply };
   }
 
   const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
 
-  const preCheck = assessSalesQueryAnswerability(message, []);
+  const preCheck = assessSalesQueryAnswerability(message, [], { scope });
   if (!preCheck.ok && preCheck.userReply) {
     return {
       reply: preCheck.userReply,
@@ -101,6 +98,7 @@ export async function chatWithSalesAgent(
 
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
+    scope,
   });
   if (!answerability.ok && !isSpecQuestion(message, profile)) {
     return {
@@ -135,18 +133,18 @@ export async function* streamSalesAgentChat(
 ): AsyncGenerator<SalesChatStreamEvent> {
   yield { type: "status", text: "正在理解問題…" };
 
-  const inactiveProduct = detectInactiveProductLine(message, scope);
-  if (inactiveProduct) {
+  const inactiveReply = resolveInactiveProductBlock(message, scope);
+  if (inactiveReply) {
     yield {
       type: "done",
-      result: { ...noMatch(message), reply: inactiveProductLineMessage(inactiveProduct) },
+      result: { ...noMatch(message), reply: inactiveReply },
     };
     return;
   }
 
   const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
 
-  const preCheck = assessSalesQueryAnswerability(message, []);
+  const preCheck = assessSalesQueryAnswerability(message, [], { scope });
   if (!preCheck.ok && preCheck.userReply) {
     yield {
       type: "done",
@@ -195,6 +193,7 @@ export async function* streamSalesAgentChat(
 
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
+    scope,
   });
   if (!answerability.ok && !isSpecQuestion(message, profile)) {
     yield {

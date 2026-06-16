@@ -6,7 +6,7 @@ import {
   type RoleplayCompletedDetail,
 } from "@/lib/bq/roleplay-sessions-bq";
 import { getAgentDashboardRow } from "@/lib/bq/roleplay-agent-dashboard-bq";
-import { backfillAgentDashboardBriefingIfMissing } from "@/lib/roleplay/agent-dashboard-briefing-service";
+import { backfillAgentDashboardBriefingIfMissing, refreshAgentDashboardBriefing } from "@/lib/roleplay/agent-dashboard-briefing-service";
 import {
   appendAbandonedReminder,
   buildRuleDashboardBriefing,
@@ -291,6 +291,36 @@ function resolveBriefingFromAgentDashboard(
   };
 }
 
+const staleBriefingRefresh = new Map<string, Promise<void>>();
+
+async function syncStaleDashboardBriefing(
+  userId: string,
+  ctx: AgentDashboardStatsContext,
+): Promise<void> {
+  if (ctx.core.completedSessions === 0) return;
+
+  const lastSessionId =
+    ctx.core.scoreTrend[ctx.core.scoreTrend.length - 1]?.sessionId ??
+    ctx.lastStartedSessionId ??
+    "sync";
+
+  const inFlight = staleBriefingRefresh.get(userId);
+  if (inFlight) {
+    await inFlight;
+    return;
+  }
+
+  const job = refreshAgentDashboardBriefing(userId, {
+    trigger: "gate2",
+    sessionId: lastSessionId,
+  }).finally(() => {
+    staleBriefingRefresh.delete(userId);
+  });
+
+  staleBriefingRefresh.set(userId, job);
+  await job;
+}
+
 export async function getAgentDashboardStats(
   userId: string,
   opts?: { syncBackfillIfMissing?: boolean },
@@ -320,6 +350,20 @@ export async function getAgentDashboardStats(
     ctx.lastStartedSessionId,
     row,
   );
+
+  if (briefingStale && ctx.core.completedSessions > 0) {
+    try {
+      await syncStaleDashboardBriefing(userId, ctx);
+      row = await getAgentDashboardRow(userId);
+      ({ briefing, briefingStale } = resolveBriefingFromAgentDashboard(
+        ctx.core,
+        ctx.lastStartedSessionId,
+        row,
+      ));
+    } catch (e) {
+      console.warn("[roleplay] stale briefing sync refresh failed", e);
+    }
+  }
 
   if (!briefing && ctx.core.completedSessions > 0) {
     briefing = buildRuleDashboardBriefing({

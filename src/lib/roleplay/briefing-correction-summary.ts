@@ -1,6 +1,6 @@
 import type { RoleplayCompletedDetail } from "@/lib/bq/roleplay-sessions-bq";
 import { inferCorrectionCategory } from "@/lib/roleplay/engine/correction-utils";
-import { isRawRagDump } from "@/lib/roleplay/engine/correction-builder";
+import { isGarbageIssue, isRawRagDump } from "@/lib/roleplay/engine/correction-builder";
 import {
   filterFactsForSession,
   hasNonTaiwanCarTerms,
@@ -56,6 +56,14 @@ export function correctionPointsFromDetail(d: RoleplayCompletedDetail): Roleplay
   return filterDisplayCorrectionPoints(raw);
 }
 
+/** 小結／記憶用：保留 issue 有效的待加強，即使 correctGuide 為 RAG 片段（可改從 scenarioFacts 取數字） */
+function correctionPointsForBriefing(d: RoleplayCompletedDetail): RoleplayCorrectionPoint[] {
+  const raw = d.correctionPoints?.length
+    ? d.correctionPoints
+    : parseCorrectionPointsFromReport(d.reportJson);
+  return raw.filter((p) => !isGarbageIssue(p.issue) && p.issue.trim().length >= 4);
+}
+
 /** 從 report_json 解析情境佐證事實 */
 export function parseScenarioFactsFromReport(
   reportJson: string | null | undefined,
@@ -78,7 +86,7 @@ export function parseScenarioFactsFromReport(
 }
 
 const MEANINGFUL_NUM_RE =
-  /\d{3,}[\d,.]*|\d[\d,.]*(?:萬|元|千|公里|km\/L|km|分貝|%|年)|\d[\d,.]*[～~-]\s*\d/;
+  /\d{3,}[\d,.]*|\d[\d,.]*\s*(?:萬|元|千|公里|km\/L|km|分貝|%|年)|\d[\d,.]*[～~-]\s*\d/;
 
 function hasMeaningfulNumbers(text: string): boolean {
   return MEANINGFUL_NUM_RE.test(text);
@@ -190,28 +198,62 @@ const MEMORY_CATEGORY_TAG = {
   strategy: "銷售策略",
 } as const;
 
-/** 記憶重點列點品質（資訊須含金額等；策略須為可執行行為） */
+/** 記憶重點列點品質（僅資訊對錯、須含金額／油耗等數字） */
 export function isValidCorrectionMemoryLine(line: string): boolean {
   const t = line.trim();
   if (t.length < 10 || t.length > 100) return false;
   if (/請對照|依教材|重點\s*\d/i.test(t)) return false;
   if (isRawRagDump(t) || hasNonTaiwanCarTerms(t)) return false;
+  if (t.startsWith(`【${MEMORY_CATEGORY_TAG.strategy}】`)) return false;
 
-  if (t.startsWith(`【${MEMORY_CATEGORY_TAG.strategy}】`)) {
-    const body = t.slice(`【${MEMORY_CATEGORY_TAG.strategy}】`.length);
-    return body.length >= 8 && !isVagueCorrectGuide(body);
+  const body = t.startsWith(`【${MEMORY_CATEGORY_TAG.fact}】`)
+    ? t.slice(`【${MEMORY_CATEGORY_TAG.fact}】`.length)
+    : t;
+  if (!hasMeaningfulNumbers(body)) return false;
+  return isValidFactMemoryLine(body) || isValidFactMemoryLine(`須牢記：${body}`);
+}
+
+/** 從單筆待加強抽出記憶重點列點（fact／strategy 皆可，須含合格數字） */
+function memoryLineFromCorrection(
+  p: RoleplayCorrectionPoint,
+  session: RoleplayCompletedDetail,
+  scenarioFacts: { label: string; value: string }[],
+): string | null {
+  const tag = MEMORY_CATEGORY_TAG.fact;
+  const detail = extractExamFactLine(
+    p.correctGuide,
+    p.issue,
+    session.competitor,
+    scenarioFacts,
+    p.customerAsk,
+  );
+  if (detail && isValidFactMemoryLine(detail)) {
+    return `【${tag}】${detail.replace(/^須牢記：?/, "")}`;
   }
-  if (t.startsWith(`【${MEMORY_CATEGORY_TAG.fact}】`)) {
-    const body = t.slice(`【${MEMORY_CATEGORY_TAG.fact}】`.length);
-    if (isValidFactMemoryLine(body) || isValidFactMemoryLine(`須牢記：${body}`)) return true;
-    return body.length >= 12 && hasMeaningfulNumbers(body);
+  if (
+    p.issue.trim().length >= 4 &&
+    p.correctGuide?.trim() &&
+    !isRawRagDump(p.correctGuide) &&
+    !isVagueCorrectGuide(p.correctGuide) &&
+    hasMeaningfulNumbers(p.correctGuide)
+  ) {
+    const guide = p.correctGuide.replace(/\s+/g, " ").trim();
+    const short = guide.length > 52 ? `${guide.slice(0, 50)}…` : guide;
+    return `【${tag}】${p.issue.trim()}：${short}`;
   }
-  return isValidFactMemoryLine(t);
+  return null;
+}
+
+function finalizeMemoryLine(line: string): string {
+  let out = line;
+  if (!/[。！？]$/.test(out)) out += "。";
+  if (out.length > 96) out = `${out.slice(0, 94)}…`;
+  return out;
 }
 
 /**
- * 記憶重點：近 N 場「本場待加強」列點（資訊對錯 + 銷售策略）。
- * 依完賽時間新→舊走訪，去重後最多 12 條。
+ * 記憶重點：近 N 場待加強中須記住的數字（金額、油耗等）。
+ * 資訊對錯全收；銷售策略僅抽出 correctGuide 內的合格數字，策略描述仍見 buildStrategyAdviceFromCorrections。
  */
 export function buildCorrectionMemoryLinesFromCorrections(
   sessions: RoleplayCompletedDetail[],
@@ -222,45 +264,12 @@ export function buildCorrectionMemoryLinesFromCorrections(
 
   for (const s of recent) {
     const facts = scenarioFactsForSession(s);
-    for (const p of correctionPointsFromDetail(s)) {
-      const cat = p.category ?? inferCorrectionCategory(p.issue);
-      const tag =
-        cat === "strategy" ? MEMORY_CATEGORY_TAG.strategy : MEMORY_CATEGORY_TAG.fact;
+    for (const p of correctionPointsForBriefing(s)) {
+      const raw = memoryLineFromCorrection(p, s, facts);
+      if (!raw) continue;
 
-      let line: string | null = null;
-      if (cat === "strategy") {
-        const tip = simplifyStrategyLine(p.correctGuide, p.issue);
-        const issue = p.issue.trim();
-        line = issue.length >= 4 ? `【${tag}】${issue}：${tip}` : `【${tag}】${tip}`;
-      } else {
-        const detail = extractExamFactLine(
-          p.correctGuide,
-          p.issue,
-          s.competitor,
-          facts,
-          p.customerAsk,
-        );
-        if (detail && isValidFactMemoryLine(detail)) {
-          line = `【${tag}】${detail.replace(/^須牢記：?/, "")}`;
-        } else if (
-          p.issue.trim().length >= 4 &&
-          p.correctGuide?.trim() &&
-          !isRawRagDump(p.correctGuide) &&
-          !isVagueCorrectGuide(p.correctGuide)
-        ) {
-          const guide = p.correctGuide.replace(/\s+/g, " ").trim();
-          const short = guide.length > 52 ? `${guide.slice(0, 50)}…` : guide;
-          line = `【${tag}】${p.issue.trim()}：${short}`;
-        } else if (p.issue.trim().length >= 6) {
-          line = `【${tag}】${p.issue.trim()}`;
-        }
-      }
-
-      if (!line) continue;
-      if (!/[。！？]$/.test(line)) line += "。";
-      if (line.length > 96) line = `${line.slice(0, 94)}…`;
-
-      const dedupeKey = `${tag}:${p.issue.slice(0, 28)}`;
+      const line = finalizeMemoryLine(raw);
+      const dedupeKey = line.replace(/^【資訊對錯】/, "").slice(0, 36);
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
@@ -284,19 +293,15 @@ export function buildFactMemoryLinesFromCorrections(
 
   for (const s of recent) {
     const facts = scenarioFactsForSession(s);
-    for (const p of correctionPointsFromDetail(s)) {
-      const cat = p.category ?? inferCorrectionCategory(p.issue);
-      if (cat !== "fact") continue;
+    for (const p of correctionPointsForBriefing(s)) {
       if (!p.correctGuide?.trim() && facts.length === 0) continue;
 
-      const line = extractExamFactLine(
-        p.correctGuide,
-        p.issue,
-        s.competitor,
-        facts,
-        p.customerAsk,
-      );
-      if (!line || !isValidFactMemoryLine(line)) continue;
+      const extracted = memoryLineFromCorrection(p, s, facts);
+      if (!extracted) continue;
+
+      const body = extracted.replace(/^【資訊對錯】/, "").trim();
+      const line = formatMemoryLine(body);
+      if (!isValidFactMemoryLine(line)) continue;
 
       const key = line.slice(0, 32);
       if (seenGuide.has(key)) {
@@ -318,25 +323,39 @@ export function buildFactMemoryLinesFromCorrections(
   });
 }
 
+function formatStrategyAdviceItem(issue: string, tip: string): string {
+  const issueTrim = issue.trim();
+  if (issueTrim.length < 4) return tip;
+  const issueShort = issueTrim.length > 40 ? `${issueTrim.slice(0, 38)}…` : issueTrim;
+  return `${issueShort}：${tip}`;
+}
+
 /**
- * 建議：彙整近 N 場「銷售策略」待加強。
+ * 建議：彙整近 N 場「銷售策略」待加強（描述性行為建議，不含須記數字）。
  * 無資料回傳「無」。
  */
 export function buildStrategyAdviceFromCorrections(
   sessions: RoleplayCompletedDetail[],
 ): string {
   const recent = takeRecentCompletedSessions(sessions);
-  const tips = new Set<string>();
+  const items: string[] = [];
+  const seen = new Set<string>();
 
   for (const s of recent) {
-    for (const p of correctionPointsFromDetail(s)) {
+    for (const p of correctionPointsForBriefing(s)) {
       const cat = p.category ?? inferCorrectionCategory(p.issue);
       if (cat !== "strategy") continue;
       const tip = simplifyStrategyLine(p.correctGuide, p.issue);
-      if (tip) tips.add(tip);
+      if (!tip) continue;
+      const key = p.issue.slice(0, 28);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      items.push(formatStrategyAdviceItem(p.issue, tip));
+      if (items.length >= 3) break;
     }
+    if (items.length >= 3) break;
   }
 
-  if (tips.size === 0) return "無";
-  return [...tips].slice(0, 2).join("；") + "。";
+  if (items.length === 0) return "無";
+  return `${items.join("；")}。`;
 }

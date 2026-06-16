@@ -4,6 +4,7 @@ import type { RoleplayHistoryItem } from "@/lib/roleplay/roleplay-types-api";
 import { inferCorrectionCategory, normalizeCorrectionPoint } from "@/lib/roleplay/engine/correction-builder";
 import { CORRECTION_RUBRIC_VERSION } from "@/lib/roleplay/engine/correction-version";
 import { splitScenarioFactsForSession } from "@/lib/roleplay/roleplay-rag-filter";
+import { inferRoleplayProductLine } from "@/lib/roleplay/roleplay-session-config";
 import { archiveFinishedSession } from "@/lib/roleplay/engine/session-store";
 import { coalesceAdjacentAgentTurns } from "@/lib/roleplay/engine/turn-coalesce";
 import { ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
@@ -57,6 +58,7 @@ export type RoleplayCompletedDetail = RoleplaySessionRecord & {
   /** Gate2 report_json 原文（含 dashboardBriefing 快取） */
   reportJson?: string | null;
   transcript?: string | null;
+  maxTurns?: number;
 };
 
 /** 將 BQ transcript 字串解析為對話列（供後台檢視） */
@@ -132,6 +134,7 @@ function buildReportJson(
   result: RoleplayScoreResult,
   scenarioFacts?: { label: string; value: string }[],
   sessionCompetitor?: string,
+  sessionConfig?: RoleplaySessionConfig,
 ): string {
   const allFacts = (scenarioFacts ?? []).map((f) => ({
     label: f.label,
@@ -159,6 +162,7 @@ function buildReportJson(
     scenarioFacts: factSplit.facts,
     coreFacts: factSplit.coreFacts,
     competitorFacts: factSplit.competitorFacts,
+    sessionConfig: sessionConfig ?? undefined,
   });
 }
 
@@ -185,6 +189,7 @@ export function parseReportJson(raw: string | null | undefined): {
   competitorFacts: { label: string; value: string }[];
   rubricVersion: string | null;
   dimensions: { dimensionId: string; label: string; score: number; comment: string }[];
+  sessionConfig: RoleplaySessionConfig | null;
 } {
   if (!raw?.trim()) {
     return {
@@ -197,6 +202,7 @@ export function parseReportJson(raw: string | null | undefined): {
       competitorFacts: [],
       rubricVersion: null,
       dimensions: [],
+      sessionConfig: null,
     };
   }
   try {
@@ -204,6 +210,7 @@ export function parseReportJson(raw: string | null | undefined): {
       summary?: string;
       improvementTips?: string[];
       rubricVersion?: string;
+      sessionConfig?: RoleplaySessionConfig;
       correctionPoints?: {
         issue?: string;
         category?: string;
@@ -260,6 +267,7 @@ export function parseReportJson(raw: string | null | undefined): {
         score: Number(d.score ?? 0),
         comment: String(d.comment ?? ""),
       })),
+      sessionConfig: j.sessionConfig ?? null,
     };
   } catch {
     return {
@@ -272,6 +280,7 @@ export function parseReportJson(raw: string | null | undefined): {
       competitorFacts: [],
       rubricVersion: null,
       dimensions: [],
+      sessionConfig: null,
     };
   }
 }
@@ -297,6 +306,14 @@ function rowToCompletedDetail(r: Record<string, unknown>): RoleplayCompletedDeta
   const report = parseReportJson(String(r.reportJson ?? ""));
   const personaId = String(r.personaId ?? "");
   const status = String(r.status ?? "COMPLETED") === "STARTED" ? "STARTED" : "COMPLETED";
+  const targetModel = String(r.targetModel ?? "");
+  const productLine =
+    report.sessionConfig?.productLine?.trim() ||
+    inferRoleplayProductLine(targetModel);
+  const maxTurns =
+    r.maxTurns != null
+      ? Number(r.maxTurns)
+      : report.sessionConfig?.maxTurns ?? 5;
   return {
     sessionId: String(r.sessionId),
     status,
@@ -305,10 +322,11 @@ function rowToCompletedDetail(r: Record<string, unknown>): RoleplayCompletedDeta
     branch: String(r.branch ?? ""),
     personaId,
     competitor: String(r.competitor ?? ""),
-    productLine: "",
-    targetModel: String(r.targetModel ?? ""),
+    productLine,
+    targetModel,
     ageRange: String(r.ageRange ?? ""),
     difficulty: String(r.difficulty ?? "advanced"),
+    maxTurns,
     score: r.score != null ? Number(r.score) : 0,
     grade: String(r.grade ?? ""),
     startedAt: parseBqTimestamp(r.startedAt),
@@ -360,6 +378,17 @@ export function completedDetailToHistoryItem(d: RoleplayCompletedDetail): Rolepl
     ROLEPLAY_GLOBAL_CONFIG.personas.find((p) => p.id === d.personaId)?.name ?? d.personaId;
   const completed = d.status === "COMPLETED";
   const completedAt = completed && d.finishedAt ? d.finishedAt : null;
+  const report = parseReportJson(d.reportJson);
+  const sessionConfig: RoleplaySessionConfig =
+    report.sessionConfig ??
+    ({
+      productLine: d.productLine || inferRoleplayProductLine(d.targetModel),
+      personaId: d.personaId,
+      ageRange: d.ageRange,
+      competitor: d.competitor,
+      difficulty: d.difficulty,
+      maxTurns: d.maxTurns ?? 5,
+    } as RoleplaySessionConfig);
   return {
     sessionId: d.sessionId,
     status: d.status,
@@ -379,6 +408,7 @@ export function completedDetailToHistoryItem(d: RoleplayCompletedDetail): Rolepl
     improvementTips: completed ? d.improvementTips : [],
     correctionPoints: completed ? d.correctionPoints : [],
     unusedStrategies: completed ? d.unusedStrategies : [],
+    sessionConfig,
   };
 }
 
@@ -393,6 +423,7 @@ const HISTORY_SELECT = `
   target_model AS targetModel,
   age_range AS ageRange,
   difficulty,
+  max_turns AS maxTurns,
   score_total AS score,
   grade,
   score_empathy AS scoreEmpathy,
@@ -537,6 +568,14 @@ async function insertGate2(session: RoleplaySession): Promise<void> {
     session.scoreResult,
     session.scenario.sectionC.facts,
     dim.competitor,
+    session.config ?? {
+      productLine: session.scenario.sectionA.productLine,
+      personaId: dim.customerType,
+      ageRange: dim.ageRange as RoleplaySessionConfig["ageRange"],
+      competitor: dim.competitor,
+      difficulty: dim.difficulty as RoleplaySessionConfig["difficulty"],
+      maxTurns: dim.maxTurns,
+    },
   );
 
   const record: RoleplaySessionRecord = {

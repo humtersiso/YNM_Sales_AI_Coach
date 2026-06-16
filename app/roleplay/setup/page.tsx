@@ -14,9 +14,17 @@ type ConfigOptions = {
   personas: { id: string; name: string; style: string; traits?: string[]; decisionMode?: string }[];
   ageRanges: { id: RoleplayAgeRange; label: string }[];
   competitors: string[];
+  competitorsByProduct?: Record<string, string[]>;
   difficulties: { id: RoleplayDrillDifficulty; label: string; hint: string }[];
   maxTurns: { min: number; max: number; default: number };
 };
+
+function competitorsForProduct(opt: ConfigOptions | null, productLine: string): string[] {
+  if (!opt) return [];
+  const fromMap = opt.competitorsByProduct?.[productLine];
+  if (Array.isArray(fromMap)) return fromMap;
+  return [];
+}
 
 type SessionResult = {
   sessionId: string;
@@ -201,20 +209,28 @@ function SetupForm() {
   const pendingSession = useRef<Promise<SessionResult | null>>(Promise.resolve(null));
 
   useEffect(() => {
+    const ac = new AbortController();
     void (async () => {
-      const meRes = await fetch("/api/portal/auth/me", { cache: "no-store" });
-      const salesRes = await fetch("/api/sales/auth/me", { cache: "no-store" });
+      const meRes = await fetch("/api/portal/auth/me", { cache: "no-store", signal: ac.signal });
+      const salesRes = await fetch("/api/sales/auth/me", { cache: "no-store", signal: ac.signal });
       if (!meRes.ok && !salesRes.ok) {
-        router.replace("/login");
+        if (!ac.signal.aborted) router.replace("/login");
         return;
       }
-      const optRes = await fetch("/api/roleplay/config-options");
+      const optRes = await fetch("/api/roleplay/config-options", { signal: ac.signal });
+      if (ac.signal.aborted) return;
       if (!optRes.ok) {
-        setError("無法載入情境選項，請重新整理");
+        setError(
+          optRes.status === 401
+            ? "登入已過期，請重新登入"
+            : "無法載入情境選項，請重新整理",
+        );
         setReady(true);
         return;
       }
       const opt = (await optRes.json()) as ConfigOptions;
+      if (ac.signal.aborted) return;
+      setError("");
       if (!opt.products?.length) {
         setError("尚無 RAG 就緒車型，請確認語料設定或查看支援清單");
         setReady(true);
@@ -229,11 +245,12 @@ function SetupForm() {
         const qpDiff = searchParams.get("difficulty") as RoleplayDrillDifficulty | null;
         const qpTurns = searchParams.get("maxTurns");
 
-        setProductLine(
+        const initialProduct =
           qpProduct && opt.products.some((p) => p.id === qpProduct)
             ? qpProduct
-            : (opt.products[0]?.id ?? "xtrail-ice"),
-        );
+            : (opt.products[0]?.id ?? "xtrail-ice");
+        const initialCompetitors = competitorsForProduct(opt, initialProduct);
+        setProductLine(initialProduct);
         setPersonaId(
           qpPersona && opt.personas.some((p) => p.id === qpPersona)
             ? qpPersona
@@ -245,9 +262,9 @@ function SetupForm() {
             : "30-40",
         );
         setCompetitor(
-          qpComp && opt.competitors.includes(qpComp)
+          qpComp && initialCompetitors.includes(qpComp)
             ? qpComp
-            : (opt.competitors[0] ?? "Toyota RAV4"),
+            : (initialCompetitors[0] ?? ""),
         );
         if (qpDiff && opt.difficulties.some((d) => d.id === qpDiff)) {
           setDifficulty(qpDiff);
@@ -260,35 +277,54 @@ function SetupForm() {
         }
       }
       setReady(true);
-    })();
+    })().catch((e: unknown) => {
+      if (ac.signal.aborted) return;
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/abort/i.test(msg)) return;
+      setError("無法載入情境選項，請重新整理");
+      setReady(true);
+    });
+    return () => ac.abort();
   }, [router, searchParams]);
+
+  useEffect(() => {
+    if (!options) return;
+    const list = competitorsForProduct(options, productLine);
+    if (list.length === 0) {
+      if (competitor) setCompetitor("");
+      return;
+    }
+    if (!list.includes(competitor)) {
+      setCompetitor(list[0]!);
+    }
+  }, [productLine, options, competitor]);
+
+  const competitorOptions = competitorsForProduct(options, productLine);
 
   const canStart =
     Boolean(options?.products?.length) &&
+    Boolean(productLine?.trim()) &&
+    competitorOptions.length > 0 &&
     Boolean(competitor?.trim()) &&
-    Boolean(productLine?.trim());
+    competitorOptions.includes(competitor);
 
   async function fetchSession(): Promise<SessionResult | null> {
-    try {
-      const res = await fetch("/api/roleplay/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "custom",
-          config: { productLine, personaId, ageRange, competitor, maxTurns, difficulty },
-        }),
-      });
-      const data = (await res.json()) as SessionResult & { error?: string };
-      if (!res.ok) {
-        const msg = data.error?.trim();
-        if (msg) throw new Error(msg);
-        return null;
-      }
-      if (!data.sessionId || !data.customerMessage?.trim()) return null;
-      return data;
-    } catch {
-      return null;
+    const res = await fetch("/api/roleplay/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "custom",
+        config: { productLine, personaId, ageRange, competitor, maxTurns, difficulty },
+      }),
+    });
+    const data = (await res.json()) as SessionResult & { error?: string };
+    if (!res.ok) {
+      throw new Error(data.error?.trim() || "情境建立失敗，請稍後再試");
     }
+    if (!data.sessionId || !data.customerMessage?.trim()) {
+      throw new Error("情境建立失敗，請稍後再試");
+    }
+    return data;
   }
 
   function openModal() {
@@ -309,6 +345,7 @@ function SetupForm() {
       const msg = e instanceof Error ? e.message : "連線失敗，請關閉後重試";
       setModalError(msg);
       setModalPending(false);
+      setError("");
     });
   }
 
@@ -418,13 +455,23 @@ function SetupForm() {
             className="mt-1 w-full rounded-xl border border-emerald-200 px-3 py-2.5"
             value={competitor}
             onChange={(e) => setCompetitor(e.target.value)}
+            disabled={competitorOptions.length === 0}
           >
-            {(options?.competitors ?? []).map((c) => (
+            {competitorOptions.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
           </select>
+          {competitorOptions.length === 0 ? (
+            <span className="mt-1 block text-xs text-amber-800">
+              此車型尚無 RAG 對戰教材的競品，請先匯入語料或改選其他車型。
+            </span>
+          ) : (
+            <span className="mt-1 block text-xs text-emerald-700">
+              僅顯示知識庫已有對戰教材的競品
+            </span>
+          )}
         </label>
 
         <div className="block text-sm font-medium text-emerald-950">
@@ -478,19 +525,6 @@ function SetupForm() {
         >
           開始演練
         </button>
-
-        <p className="text-center text-xs text-emerald-700">
-          開練前可先練{" "}
-          <a
-            href="/docs/ROLEPLAY_HIGH_SCORE_QA_GUIDE.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-teal-700 underline"
-          >
-            競品高分問答集
-          </a>
-          （每競品 20 題）
-        </p>
       </div>
 
       {modalOpen && options ? (

@@ -1,9 +1,12 @@
 import { questionSimilarity } from "@/lib/analytics/question-dedup";
+import { isCostDetailQuery } from "@/lib/gemini/cost-query-expand";
 import { extractFileHints, extractSearchKeywords } from "@/lib/gemini/knowledge-search";
-import { extractMentionedCompetitor, isSpecQuestion } from "@/lib/gemini/sales-question-profile";
 import { blobContainsTerm, hanFold } from "@/lib/gemini/han-fold";
+import { resolveInactiveProductBlock } from "@/lib/gemini/inactive-product-guard";
+import { extractMentionedCompetitor, isSpecQuestion, mentionsHeroProduct } from "@/lib/gemini/sales-question-profile";
 import type { ScriptCitation } from "@/lib/gemini/reply-format";
 import { outOfScopeKnowledgeMessage } from "@/lib/gemini/reply-format";
+import type { KnowledgeSearchScope } from "@/lib/knowledge/search-scope";
 
 /** 明顯非題庫／惡搞 */
 const BLOCKLIST = [/\bufo\b/i, /飛碟|外星人|外星/];
@@ -44,9 +47,7 @@ function citationsGroundedInQuery(message: string, citations: ScriptCitation[]):
 
   const competitor = extractMentionedCompetitor(message);
   if (competitor) {
-    const compNeed = hanFold(competitor).replace(/\s/g, "");
-    const compHay = hanFold(blob).replace(/\s/g, "");
-    if (!compHay.includes(compNeed)) return false;
+    if (!blobContainsTerm(blob, competitor)) return false;
   }
 
   for (const hint of extractFileHints(message)) {
@@ -66,6 +67,49 @@ function citationsGroundedInQuery(message: string, citations: ScriptCitation[]):
   return false;
 }
 
+function competitorHasSubstantiveData(
+  competitor: string,
+  citations: ScriptCitation[],
+): boolean {
+  return citations.some(
+    (c) =>
+      (c.script?.trim().length ?? 0) >= 36 &&
+      blobContainsTerm(`${c.question}\n${c.script}`, competitor),
+  );
+}
+
+/** 問句指定競品但檢索結果僅有他牌對照試算（如問 CR-V 卻只有 RAV4 成本表） */
+function hasWrongRivalSubstitution(
+  message: string,
+  citations: ScriptCitation[],
+): boolean {
+  const asked = extractMentionedCompetitor(message);
+  if (!asked) return false;
+
+  const needsRivalData =
+    isCostDetailQuery(message) ||
+    /差多少|哪個省|哪台|兩台|兩款/i.test(message) ||
+    (mentionsHeroProduct(message) && /保養|油耗|成本/i.test(message));
+  if (!needsRivalData) return false;
+
+  if (competitorHasSubstantiveData(asked, citations)) return false;
+
+  const blob = citations
+    .slice(0, 8)
+    .map((c) => `${c.question}\n${c.script}`)
+    .join("\n");
+  const hasComparison = /比|對照|相比|省下|差異|持有成本|用車成本/i.test(blob);
+  if (!hasComparison) return false;
+
+  const OTHER_RIVALS = ["RAV4", "CR-V", "TUCSON L", "Sportage", "Territory", "Outlander"];
+  const askedNorm = hanFold(asked).replace(/\s/g, "");
+  for (const other of OTHER_RIVALS) {
+    if (hanFold(other).replace(/\s/g, "") === askedNorm) continue;
+    if (blobContainsTerm(blob, other)) return true;
+  }
+  return false;
+}
+
 export type SalesAnswerability = {
   ok: boolean;
   userReply?: string;
@@ -74,6 +118,7 @@ export type SalesAnswerability = {
 
 export type SalesAnswerabilityOptions = {
   questionCategory?: "own_product" | "competitor" | "sales_qa" | "spec";
+  scope?: KnowledgeSearchScope;
 };
 
 /**
@@ -86,12 +131,29 @@ export function assessSalesQueryAnswerability(
   citations: ScriptCitation[],
   options?: SalesAnswerabilityOptions,
 ): SalesAnswerability {
+  const inactiveReply = resolveInactiveProductBlock(message, options?.scope);
+  if (inactiveReply) {
+    const term = inactiveReply.match(/「([^」]+)」/)?.[1];
+    return {
+      ok: false,
+      userReply: inactiveReply,
+      unknownTerms: term ? [term] : undefined,
+    };
+  }
+
   if (BLOCKLIST.some((p) => p.test(message))) {
     return { ok: false, userReply: outOfScopeKnowledgeMessage() };
   }
 
-  /** 規格題：不套用話術白名單／相似度護欄，直接放行檢索 */
-  if (isSpecQuestion(message, { category: options?.questionCategory })) {
+  const isCostOrDualCompare =
+    isCostDetailQuery(message) ||
+    /差多少|哪個省|兩台|兩款|同時.*看/i.test(message);
+
+  /** 規格題：不套用話術白名單／相似度護欄，直接放行檢索（持有成本／雙車比較除外） */
+  if (
+    !isCostOrDualCompare &&
+    isSpecQuestion(message, { category: options?.questionCategory })
+  ) {
     return { ok: true };
   }
 
@@ -101,10 +163,16 @@ export function assessSalesQueryAnswerability(
 
   const competitor = extractMentionedCompetitor(message);
   if (competitor || options?.questionCategory === "competitor") {
+    if (hasWrongRivalSubstitution(message, citations)) {
+      return {
+        ok: false,
+        userReply: outOfScopeKnowledgeMessage([competitor ?? "該競品"]),
+      };
+    }
     if (citationsGroundedInQuery(message, citations)) {
       return { ok: true };
     }
-    return { ok: false, userReply: outOfScopeKnowledgeMessage() };
+    return { ok: false, userReply: outOfScopeKnowledgeMessage(competitor ? [competitor] : undefined) };
   }
 
   /** QA 話術：RAG 已有足夠摘錄即視為可答（標題常只是 PDF 名） */

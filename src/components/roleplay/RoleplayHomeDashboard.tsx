@@ -54,19 +54,47 @@ export function RoleplayHomeDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    void (async () => {
+    let cancelled = false;
+    let pollTimer: ReturnType<typeof setTimeout> | undefined;
+
+    async function loadStats() {
       const meRes = await fetch("/api/portal/auth/me", { cache: "no-store" });
       const salesRes = await fetch("/api/sales/auth/me", { cache: "no-store" });
       if (!meRes.ok && !salesRes.ok) {
         router.replace("/login");
-        return;
+        return null;
       }
       const res = await fetch("/api/roleplay/me/stats", { cache: "no-store" });
-      if (res.ok) {
-        setStats((await res.json()) as RoleplayDashboardStats);
-      }
+      if (!res.ok) return null;
+      return (await res.json()) as RoleplayDashboardStats;
+    }
+
+    void (async () => {
+      const first = await loadStats();
+      if (cancelled) return;
+      if (first) setStats(first);
       setLoading(false);
+
+      if (first?.briefingStale) {
+        let attempts = 0;
+        const poll = async () => {
+          if (cancelled || attempts >= 8) return;
+          attempts += 1;
+          pollTimer = setTimeout(async () => {
+            const next = await loadStats();
+            if (cancelled || !next) return;
+            setStats(next);
+            if (next.briefingStale) void poll();
+          }, 4000);
+        };
+        void poll();
+      }
     })();
+
+    return () => {
+      cancelled = true;
+      if (pollTimer) clearTimeout(pollTimer);
+    };
   }, [router]);
 
   if (loading) {

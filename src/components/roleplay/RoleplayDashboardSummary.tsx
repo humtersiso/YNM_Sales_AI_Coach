@@ -63,7 +63,9 @@ function SummaryRow({
       {radar ? <div className="w-[88px] shrink-0">{radar}</div> : null}
       <div className="min-w-0 flex-1 pt-0.5">
         <p className="text-xs font-semibold text-emerald-900">{label}</p>
-        <p className="mt-0.5 text-sm leading-snug text-emerald-800">{line}</p>
+        <p className="mt-0.5 break-words text-sm leading-relaxed text-emerald-800 [overflow-wrap:anywhere]">
+          {line}
+        </p>
       </div>
     </div>
   );
@@ -138,7 +140,7 @@ export function RoleplayDashboardSummary({
         <div className="border-b border-emerald-50 py-2.5 last:border-0">
           <p className="text-xs font-semibold text-emerald-900">
             記憶重點
-            <span className="ml-1 font-normal text-emerald-600">（近五場待加強）</span>
+            <span className="ml-1 font-normal text-emerald-600">（須記住的數字）</span>
           </p>
           {(briefing.knowledgeLines?.length ?? 0) > 0 ? (
             <ul className="mt-1 space-y-1.5">

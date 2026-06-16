@@ -1,56 +1,101 @@
 import {
   detectCorrectionCandidates,
+  addressesCustomerTopic,
   isAgentStrategyDeferReply,
+  isEvasiveAgentReply,
+  isLowQualityAgentReply,
   isOpeningGreeting,
   isWeakAgentReply,
 } from "@/lib/roleplay/engine/correction-builder";
-import { hasConcreteNumbers } from "@/lib/roleplay/engine/correction-guide";
+import {
+  answerTargetsWrongCompetitor,
+  hasConcreteNumbers,
+} from "@/lib/roleplay/engine/correction-guide";
 import { coalesceAdjacentAgentTurns } from "@/lib/roleplay/engine/turn-coalesce";
 import type { RoleplayScenario } from "@/lib/roleplay/scenario-contract";
 import { ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/seed/global-config";
 import type { RoleplayChatTurn, RoleplayDimensionScore } from "@/lib/roleplay/session-types";
 
+export { isLowQualityAgentReply } from "@/lib/roleplay/engine/correction-builder";
+
 const DIMENSION_MAX = 20;
+
+/** 比錯競品或 fact gap ≥2 時，總分不得超過此值 */
+export const STRICT_SCORE_CAP = 72;
 
 function clampDimension(n: number): number {
   return Math.min(DIMENSION_MAX, Math.max(0, Math.round(n)));
 }
 
-/** 消極、敷衍、極短或明顯亂答（評分用；不含打字錯字） */
-export function isLowQualityAgentReply(agent: string): boolean {
-  const t = agent.trim();
-  if (!t) return true;
-  if (isOpeningGreeting(t)) return false;
-  if (isWeakAgentReply(t)) return true;
-  if (t.length < 12) return true;
-  if (
-    /不知道|不確定|不太清楚|沒研究|沒辦法|不清楚|不太懂|沒有資料|隨便|再看看|應該吧|大概吧|差不多吧|問主管|回去查|晚點再說|管他|無所謂|都可以|哈哈哈|哈哈|測試|亂講|亂說|敷衍|隨便講|隨便說|不知道耶|不曉得/i.test(
-      t,
-    )
-  ) {
-    return true;
-  }
-  if (
-    t.length < 22 &&
-    !/\d|WLTC|試算|試乘|隔音|油耗|km|萬|配備|功能|加總|折扣/.test(t) &&
-    !/您好|你好|歡迎|請問|想了解|有在比|有在看|很高興|感謝|協助|說明/.test(t)
-  ) {
-    return true;
-  }
-  return false;
-}
+/** 含具體數字且「貼題」回應客戶該輪提問的業代輪次（不含開場招呼） */
+export function countStrongFactualRounds(
+  turns: RoleplayChatTurn[],
+  sessionCompetitor?: string,
+): number {
+  const coalesced = coalesceAdjacentAgentTurns(turns);
+  let count = 0;
+  for (let i = 0; i < coalesced.length; i++) {
+    const t = coalesced[i]!;
+    if (t.role !== "agent" || isOpeningGreeting(t.content)) continue;
 
-/** 含具體數字且回應成本／產品事實的業代輪次（不含開場招呼） */
-export function countStrongFactualRounds(turns: RoleplayChatTurn[]): number {
-  return coalesceAdjacentAgentTurns(turns).filter((t) => {
-    if (t.role !== "agent" || isOpeningGreeting(t.content)) return false;
+    let customer = "";
+    for (let j = i - 1; j >= 0; j--) {
+      if (coalesced[j]!.role === "customer") {
+        customer = coalesced[j]!.content;
+        break;
+      }
+    }
+
     const a = t.content;
-    return (
+    if (
       !isLowQualityAgentReply(a) &&
       hasConcreteNumbers(a) &&
-      /萬|試算|持有成本|稅金|折扣|油耗|WLTC|分貝|定保|油資|十年|10年|電池|加總/.test(a)
-    );
-  }).length;
+      /萬|試算|持有成本|稅金|折扣|油耗|WLTC|分貝|定保|油資|十年|10年|電池|加總/.test(a) &&
+      customer.length >= 10 &&
+      addressesCustomerTopic(a, customer) &&
+      (!sessionCompetitor ||
+        !answerTargetsWrongCompetitor(a, sessionCompetitor, customer))
+    ) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/** 有數字但答非所問／比錯競品的輪次（灌水詳細也不加分） */
+function countOffTopicNumericRounds(
+  turns: RoleplayChatTurn[],
+  sessionCompetitor: string,
+): number {
+  const coalesced = coalesceAdjacentAgentTurns(turns);
+  let count = 0;
+  for (let i = 0; i < coalesced.length; i++) {
+    const t = coalesced[i]!;
+    if (t.role !== "agent" || isOpeningGreeting(t.content)) continue;
+
+    let customer = "";
+    for (let j = i - 1; j >= 0; j--) {
+      if (coalesced[j]!.role === "customer") {
+        customer = coalesced[j]!.content;
+        break;
+      }
+    }
+    if (customer.trim().length < 10) continue;
+
+    const a = t.content;
+    const hasNumericDump =
+      hasConcreteNumbers(a) &&
+      /萬|試算|WLTC|分貝|加總|稅金|定保|油資|十年|km/.test(a);
+    if (!hasNumericDump) continue;
+
+    if (
+      !addressesCustomerTopic(a, customer) ||
+      answerTargetsWrongCompetitor(a, sessionCompetitor, customer)
+    ) {
+      count++;
+    }
+  }
+  return count;
 }
 
 export function strongFactualRatio(strongCount: number, maxTurns: number): number {
@@ -138,45 +183,6 @@ function isRudeInvite(text: string): boolean {
   return /快點約|趕快約|隨便啦|管他|無所謂/i.test(text);
 }
 
-function addressesCustomerTopic(agent: string, customer: string): boolean {
-  const checks: [RegExp, RegExp][] = [
-    [/電池|油電|過保/, /電池|油電|過保|保固|更換/],
-    [/座椅|疲勞|長途|舒服/, /座椅|疲勞|長途|腰|支撐|舒服/],
-    [/高速|風切|公路上/, /高速|風切|120|100|\d+\s*km/],
-    [/分貝|隔音|玻璃/, /分貝|隔音|玻璃|雙層|NVH/],
-    [/盲|旋鈕|按鍵|觸控|螢幕/, /盲|旋鈕|按鍵|觸控|實體/],
-    [/試算|成本|十年|持有/, /試算|成本|十年|持有|萬|稅金|加總/],
-    [/油耗|油價|WLTC|市區/, /油耗|油價|WLTC|km|市區|油資/],
-    [/空間|後座/, /空間|後座|椅背|變化/],
-  ];
-  for (const [ask, cover] of checks) {
-    if (ask.test(customer) && !cover.test(agent)) return false;
-  }
-  return true;
-}
-
-/** 明顯敷衍或未正面回答（部分有答的不算） */
-function isEvasiveAgentReply(agent: string, customer: string): boolean {
-  if (isLowQualityAgentReply(agent)) return true;
-  if (customer.trim().length < 10) return false;
-  const askedSubstance =
-    /試算|成本|油耗|WLTC|持有|十年|分貝|隔音|盲|按鍵|旋鈕|空間|電池|保養|路況|座椅|高速|油價/.test(
-      customer,
-    );
-  if (!askedSubstance) return false;
-  const hasSubstance =
-    (hasConcreteNumbers(agent) &&
-      /萬|WLTC|試算|分貝|加總|稅金|定保|油資|電池/.test(agent)) ||
-    /按鍵|按鈕|旋鈕|盲操|實體|滑移|傾角|後座|空間|椅背|雙層|玻璃/.test(agent);
-  if (hasSubstance) return false;
-  if (!addressesCustomerTopic(agent, customer)) {
-    return agent.length < 80;
-  }
-  return /數據僅供參考|實際感受才是最準確|建議.*試乘|安排試乘|體驗比較準確|相信.*比較好|不會一一測試/.test(
-    agent,
-  );
-}
-
 function scoreEmpathy(
   agentTexts: string[],
   topicMisses: number,
@@ -250,10 +256,10 @@ function scoreStructure(
 
   const comment =
     gaps === 0
-      ? "客戶議題皆有回應到。"
+      ? "客戶議題皆有貼題回應到。"
       : gaps <= 2
-        ? `有 ${gaps} 處客戶追問可再補齊。`
-        : `尚有 ${gaps} 處論點缺口，建議逐項回應。`;
+        ? `有 ${gaps} 處客戶追問可再補齊（先答所問再延伸）。`
+        : `尚有 ${gaps} 處論點缺口，建議逐項貼題回應。`;
   return { score, comment };
 }
 
@@ -265,7 +271,9 @@ function scoreFactCheck(
   agentTexts: string[],
 ): { score: number; comment: string } {
   const maxTurns = configuredDialogueTurns(scenario);
-  const strong = countStrongFactualRounds(turns);
+  const sessionComp = scenario.sectionA.competitor;
+  const strong = countStrongFactualRounds(turns, sessionComp);
+  const offTopicNumeric = countOffTopicNumericRounds(turns, sessionComp);
   let tier = strongFactualTier(strong, maxTurns);
   const ratio = strongFactualRatio(strong, maxTurns);
   const deflect = deflectingRatio(agentTexts);
@@ -287,8 +295,11 @@ function scoreFactCheck(
       : lo + Math.round(Math.min(1, ratio / (tier === 1 ? 0.25 : tier === 2 ? 0.34 : 0.5)) * tierSpan);
 
   const coverageMisses = Math.max(factGaps, Math.floor(topicMisses * 0.5));
-  const factDeduct = Math.min(4, Math.max(0, coverageMisses - 1));
+  const factDeduct = Math.min(6, Math.max(0, coverageMisses - 1) + factGaps);
   let score = clampDimension(withinTier - factDeduct);
+  if (offTopicNumeric > 0) {
+    score = clampDimension(score - Math.min(5, offTopicNumeric * 2));
+  }
   if (coverageMisses >= 2 && tier >= 3) score = Math.min(score, 18);
   if (coverageMisses >= 2 && deflect >= 0.4) score = Math.min(score, 17);
   if (coverageMisses >= 3 && tier <= 2) score = Math.min(score, 16);
@@ -297,16 +308,18 @@ function scoreFactCheck(
 
   if (strong < 1) score = Math.min(score, 14);
   if (deflect >= 0.45) score = Math.min(score, 15);
-  if (strong >= 3 && factGaps <= 1 && deflect < 0.35) score = Math.max(score, 19);
-  if (strong >= 2 && factGaps <= 2 && deflect < 0.3) score = Math.max(score, 18);
 
   const tierComment: Record<0 | 1 | 2 | 3, string> = {
-    0: "較少引用具體試算或產品數字。",
-    1: "有部分輪次帶出試算或成本數字。",
-    2: "多輪有具體數字與成本說明。",
-    3: "強事實輪次充足，數字引用到位。",
+    0: "較少貼題引用試算或產品數字。",
+    1: "有部分數字，但多數回合須更對準客戶提問。",
+    2: "多輪有具體數字，且大致貼題回應。",
+    3: "強事實輪次充足，數字引用貼題到位。",
   };
-  return { score, comment: tierComment[tier] };
+  let comment = tierComment[tier];
+  if (offTopicNumeric > 0) {
+    comment = `有 ${offTopicNumeric} 輪雖帶數字但未對準客戶提問，詳細不等於答對。`;
+  }
+  return { score, comment };
 }
 
 function scoreStrategy(
@@ -390,7 +403,22 @@ export type DimensionScoreBundle = {
   total: number;
   factGapCount: number;
   strategyGapCount: number;
+  strictScoreCapped: boolean;
 };
+
+function applyStrictScoreCap(
+  total: number,
+  topicMisses: number,
+  candidates: ReturnType<typeof detectCorrectionCandidates>,
+): { total: number; capped: boolean } {
+  const competitorMismatch = candidates.some(
+    (c) => c.topic === "competitor" || /不符|比錯|其他競品/.test(c.issue),
+  );
+  if (competitorMismatch || topicMisses >= 2) {
+    return { total: Math.min(total, STRICT_SCORE_CAP), capped: true };
+  }
+  return { total, capped: false };
+}
 
 export function computeDimensionScores(
   scenario: RoleplayScenario,
@@ -400,15 +428,19 @@ export function computeDimensionScores(
   const agentTexts = coalesced.filter((t) => t.role === "agent").map((t) => t.content);
 
   const candidates = detectCorrectionCandidates(scenario, turns);
-  const factGaps = candidates.filter((c) => c.category === "fact").length;
+  const factGapCount = candidates.filter((c) => c.category === "fact").length;
   const strategyGaps = candidates.filter((c) => c.category === "strategy").length;
   const topicMisses = countTopicMisses(turns);
+  const coverageGaps = Math.max(
+    topicMisses,
+    candidates.filter((c) => c.topic === "competitor").length,
+  );
 
   const dims = ROLEPLAY_GLOBAL_CONFIG.rubricDimensions;
   const scored: Record<string, { score: number; comment: string }> = {
-    empathy: scoreEmpathy(agentTexts, topicMisses, factGaps),
-    structure: scoreStructure(factGaps, topicMisses, agentTexts),
-    factCheck: scoreFactCheck(turns, scenario, factGaps, topicMisses, agentTexts),
+    empathy: scoreEmpathy(agentTexts, topicMisses, coverageGaps),
+    structure: scoreStructure(coverageGaps, topicMisses, agentTexts),
+    factCheck: scoreFactCheck(turns, scenario, coverageGaps, topicMisses, agentTexts),
     strategy: scoreStrategy(scenario, agentTexts, strategyGaps),
     advance: scoreAdvance(agentTexts),
   };
@@ -421,8 +453,15 @@ export function computeDimensionScores(
     comment: scored[d.id]?.comment ?? "—",
   }));
 
-  const total = dimensions.reduce((s, x) => s + x.score, 0);
-  return { dimensions, total, factGapCount: factGaps, strategyGapCount: strategyGaps };
+  const totalRaw = dimensions.reduce((s, x) => s + x.score, 0);
+  const { total, capped } = applyStrictScoreCap(totalRaw, topicMisses, candidates);
+  return {
+    dimensions,
+    total,
+    factGapCount,
+    strategyGapCount: strategyGaps,
+    strictScoreCapped: capped,
+  };
 }
 
 /** 評分主流程與測試腳本用：回傳五維與加總 */

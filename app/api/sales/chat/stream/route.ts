@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { readSalesSession, readSession } from "@/lib/auth/session";
+import { readAssistantApiUser } from "@/lib/auth/api-auth";
 import { formatSalesReplyForUsageLog } from "@/lib/analytics/reply-log-format";
 import { insertUsageEvent } from "@/lib/bq/usage-events";
 import type { SalesChatResult } from "@/lib/gemini/sales-chat-types";
@@ -15,7 +15,7 @@ function ndjson(obj: unknown): string {
 }
 
 export async function POST(request: NextRequest) {
-  const session = (await readSalesSession()) ?? (await readSession());
+  const session = await readAssistantApiUser();
   if (!session) {
     return new Response(ndjson({ type: "error", message: "未登入" }), { status: 401 });
   }

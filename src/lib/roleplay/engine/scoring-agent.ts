@@ -44,8 +44,8 @@ function buildSummary(
     correctionPoints.length > 0
       ? `以下 ${correctionPoints.length} 處為客戶有問到、可再精準補強。`
       : score >= 60
-        ? "客戶疑慮皆有回應到，表現穩定。"
-        : "部分疑慮尚可再精準回應，建議補強數據說明。";
+        ? "客戶疑慮皆有貼題回應到，表現穩定。"
+        : "部分疑慮尚可再精準回應，先答客戶問的再補數據。";
 
   return `${strengthPart}${gapPart}`;
 }

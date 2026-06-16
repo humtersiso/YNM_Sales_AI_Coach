@@ -2,22 +2,33 @@ import type {
   RoleplayDashboardBriefing,
   RoleplayDashboardStats,
 } from "@/lib/roleplay/roleplay-types-api";
-import { abandonedSessionMin } from "@/lib/roleplay/dashboard-briefing-cache";
+import {
+  abandonedSessionMin,
+  BRIEFING_ADVICE_LINE_MAX_CHARS,
+} from "@/lib/roleplay/dashboard-briefing-cache";
 import { normalizeBriefingLines } from "@/lib/roleplay/briefing-numeral-format";
 import { ruleKnowledgeLines } from "@/lib/roleplay/briefing-knowledge-reminders";
 
-function ruleTrendLine(trend: RoleplayDashboardStats["scoreTrend"]): string {
+function ruleTrendLine(
+  trend: RoleplayDashboardStats["scoreTrend"],
+  completedSessions: number,
+  overallAvg: number,
+): string {
   const last5 = trend.slice(-5);
   if (last5.length < 2) return "完賽場次尚少，完成更多對練後可觀察走勢。";
   const first = last5[0].score;
   const last = last5[last5.length - 1].score;
   const delta = last - first;
   const seq = last5.map((p) => p.score).join("→");
-  if (delta >= 8) return `近 5 場 ${seq}，分數明顯上升。`;
-  if (delta >= 3) return `近 5 場 ${seq}，整體小幅進步。`;
-  if (delta <= -8) return `近 5 場 ${seq}，分數下滑，建議檢視弱項。`;
-  if (delta <= -3) return `近 5 場 ${seq}，略為回落，可針對待加強維度多練。`;
-  return `近 5 場 ${seq}，表現持平，維持節奏即可。`;
+  const prefix =
+    completedSessions >= 2
+      ? `累計 ${completedSessions} 場對練平均 ${Math.round(overallAvg)} 分，近 5 場分數 ${seq}，`
+      : `近 5 場 ${seq}，`;
+  if (delta >= 8) return `${prefix}近期狀態顯著回升。`;
+  if (delta >= 3) return `${prefix}整體小幅進步。`;
+  if (delta <= -8) return `${prefix}分數下滑，建議檢視弱項。`;
+  if (delta <= -3) return `${prefix}略為回落，可針對待加強維度多練。`;
+  return `${prefix}表現持平，維持節奏即可。`;
 }
 
 function ruleAdviceLine(
@@ -62,14 +73,24 @@ export function buildRuleDashboardBriefing(
     }
   }
 
-  const trendLine = ruleTrendLine(stats.scoreTrend);
+  const trendLine = ruleTrendLine(
+    stats.scoreTrend,
+    stats.completedSessions,
+    stats.overallAvg,
+  );
   const abandoned = Math.max(0, stats.startedSessions - stats.completedSessions);
   const knowledgeLines =
     (stats.correctionMemoryLines?.length ?? 0) > 0
       ? stats.correctionMemoryLines!
       : (stats.factMemoryLines?.length ?? 0) > 0
-        ? stats.factMemoryLines!.slice(0, 3)
-        : ruleKnowledgeLines(stats.knowledgeReminders ?? []);
+        ? stats.factMemoryLines!.map((line) =>
+            line.startsWith("【")
+              ? line
+              : `【資訊對錯】${line.replace(/^須牢記：?|^記熟：?/, "")}`,
+          )
+        : ruleKnowledgeLines(stats.knowledgeReminders ?? []).filter((l) =>
+            /【資訊對錯】/.test(l) || /\d{3,}|\d[\d,.]*(?:萬|元|千|公里|km)/i.test(l),
+          );
   const adviceLine =
     stats.strategyAdviceFromCorrections?.trim() ||
     (stats.completedSessions > 0 ? "無" : ruleAdviceLine(stats, strongLabels, weakLabels, trendLine));
@@ -102,7 +123,7 @@ export function appendAbandonedReminder(
   const hint = `另有 ${abandonedSessions} 場尚未完賽，建議先打完再開新局。`;
   const base = stripAbandonedHint(briefing.adviceLine);
   const adviceLine =
-    base && base.length + hint.length + 1 <= 48
+    base && base.length + hint.length + 1 <= BRIEFING_ADVICE_LINE_MAX_CHARS
       ? `${base.replace(/。$/u, "")}，${hint}`
       : hint;
   return { ...briefing, adviceLine };

@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { AppIcon } from "@/components/icons/AppIcon";
+import {
+  annotateAgentRoundsFromTurns,
+  formatAgentRoundLabel,
+  type RoleplayAgentRound,
+} from "@/lib/roleplay/roleplay-message-rounds";
 
 export type RoleplayUiMessage = {
   id: string;
   role: "customer" | "agent";
   content: string;
   pending?: boolean;
+  /** 業代發言輪次（開場／R1…／收尾） */
+  agentRound?: RoleplayAgentRound;
 };
 
 export type RoleplayPracticePhase = "opening" | "dialogue" | "closing" | "ready_to_score";
@@ -70,6 +77,20 @@ export function RoleplayPracticeChat({
   });
   const inputLocked = busy || scoring || phase === "ready_to_score";
 
+  const displayMessages = useMemo(() => {
+    const stable = messages.filter((m) => !m.pending);
+    const rounds = annotateAgentRoundsFromTurns(
+      stable.map((m) => ({ role: m.role })),
+      { agentClosingSent: sessionEnded },
+    );
+    let agentIdx = -1;
+    return messages.map((m) => {
+      if (m.role !== "agent" || m.pending) return m;
+      agentIdx += 1;
+      return { ...m, agentRound: m.agentRound ?? rounds.get(agentIdx) };
+    });
+  }, [messages, sessionEnded]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -113,11 +134,22 @@ export function RoleplayPracticeChat({
             </p>
           </div>
         ) : null}
-        {messages.map((m) => (
+        {displayMessages.map((m) => (
           <div
             key={m.id}
-            className={`flex ${m.role === "agent" ? "justify-end" : "justify-start"}`}
+            className={`flex items-end gap-1.5 ${m.role === "agent" ? "justify-end" : "justify-start"}`}
           >
+            {m.role === "agent" && m.agentRound != null ? (
+              <span
+                className={`shrink-0 pb-1 text-[10px] font-semibold tabular-nums ${
+                  m.agentRound === "opening" || m.agentRound === "closing"
+                    ? "text-amber-700"
+                    : "text-emerald-600"
+                }`}
+              >
+                {formatAgentRoundLabel(m.agentRound, maxTurns)}
+              </span>
+            ) : null}
             <div
               className={`max-w-[88%] rounded-2xl px-3 py-2 text-[15px] leading-relaxed ${
                 m.role === "agent"

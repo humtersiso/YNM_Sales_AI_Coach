@@ -73,6 +73,13 @@ const ISSUE_LABEL: Record<TopicKind, string> = {
   maintenance: "客戶問保養／回廠，該輪未說明費用或頻率",
 };
 
+const OFF_TOPIC_TOPIC_LABEL: Record<TopicKind, string> = {
+  fuel: "油耗／持有成本",
+  sound: "隔音／NVH",
+  blind: "操作／盲操",
+  maintenance: "保養／回廠",
+};
+
 const STRATEGY_DEFER_ISSUE = "客戶要求當場說明，該輪只延後到試乘才提供";
 const STRATEGY_LINE_DEFER_ISSUE = "客戶要求當場說明試算，該輪只延後到 LINE／內部確認";
 const STRATEGY_RUDE_ISSUE = "邀約語氣過於敷衍，未先回應客戶疑慮";
@@ -183,7 +190,6 @@ function customerAskedMethodology(customer: string): boolean {
   );
 }
 
-/** 消極、推遲、或過度敷衍的業代回覆（不算已回答） */
 export function isWeakAgentReply(agent: string): boolean {
   const t = agent.trim();
   if (/^我?不清楚|不知道|不確定|沒研究|沒辦法|不太清楚|不太懂|不清楚耶/i.test(t)) {
@@ -201,6 +207,161 @@ export function isWeakAgentReply(agent: string): boolean {
     return true;
   }
   return false;
+}
+
+/** 消極、敷衍、極短或明顯亂答（評分與待加強共用；不含打字錯字） */
+export function isLowQualityAgentReply(agent: string): boolean {
+  const t = agent.trim();
+  if (!t) return true;
+  if (isOpeningGreeting(t)) return false;
+  if (isWeakAgentReply(t)) return true;
+  if (t.length < 12) return true;
+  if (
+    /不知道|不確定|不太清楚|沒研究|沒辦法|不清楚|不太懂|沒有資料|隨便|再看看|應該吧|大概吧|差不多吧|問主管|回去查|晚點再說|管他|無所謂|都可以|哈哈哈|哈哈|測試|亂講|亂說|敷衍|隨便講|隨便說|不知道耶|不曉得/i.test(
+      t,
+    )
+  ) {
+    return true;
+  }
+  if (
+    t.length < 22 &&
+    !/\d|WLTC|試算|試乘|隔音|油耗|km|萬|配備|功能|加總|折扣/.test(t) &&
+    !/您好|你好|歡迎|請問|想了解|有在比|有在看|很高興|感謝|協助|說明/.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/** 業代回覆是否對應客戶提問主題（空間、高速、分貝等） */
+export function addressesCustomerTopic(agent: string, customer: string): boolean {
+  const checks: [RegExp, RegExp][] = [
+    [/電池|油電|過保/, /電池|油電|過保|保固|更換/],
+    [/座椅|疲勞|長途|舒服/, /座椅|疲勞|長途|腰|支撐|舒服/],
+    [/高速|風切|公路上/, /高速|風切|120|100|\d+\s*km/],
+    [/分貝|隔音|玻璃/, /分貝|隔音|玻璃|雙層|NVH/],
+    [/盲|旋鈕|按鍵|觸控|螢幕/, /盲|旋鈕|按鍵|觸控|實體/],
+    [/試算|成本|十年|持有/, /試算|成本|十年|持有|萬|稅金|加總/],
+    [/油耗|油價|WLTC|市區/, /油耗|油價|WLTC|km|市區|油資/],
+    [/空間|後座/, /空間|後座|椅背|變化/],
+  ];
+  for (const [ask, cover] of checks) {
+    if (ask.test(customer) && !cover.test(agent)) return false;
+  }
+  return true;
+}
+
+/** 明顯敷衍或未正面回答（評分用；長篇但議題錯時僅在較短回覆計入） */
+export function isEvasiveAgentReply(agent: string, customer: string): boolean {
+  if (isLowQualityAgentReply(agent)) return true;
+  if (customer.trim().length < 10) return false;
+  if (/帶回去|再聯絡|再研究|先了解到|有需要再|今天先|會再討論/.test(customer)) {
+    return false;
+  }
+  const askedSubstance =
+    /試算|成本|油耗|WLTC|持有|十年|分貝|隔音|盲|按鍵|旋鈕|空間|電池|保養|路況|座椅|高速|油價/.test(
+      customer,
+    );
+  if (!askedSubstance) return false;
+  const hasSubstance =
+    (hasConcreteNumbers(agent) &&
+      /萬|WLTC|試算|分貝|加總|稅金|定保|油資|電池/.test(agent)) ||
+    /按鍵|按鈕|旋鈕|盲操|實體|滑移|傾角|後座|空間|椅背|雙層|玻璃/.test(agent);
+  const onTopic = addressesCustomerTopic(agent, customer);
+  if (hasSubstance && onTopic) return false;
+  if (!onTopic) return true;
+  return /數據僅供參考|實際感受才是最準確|建議.*試乘|安排試乘|體驗比較準確|相信.*比較好|不會一一測試/.test(
+    agent,
+  );
+}
+
+function formatOffTopicIssue(
+  topic: TopicKind,
+  wrong: TopicKind | null,
+  weakMethodology: boolean,
+): string {
+  if (wrong) {
+    return `答非所問：客戶問${OFF_TOPIC_TOPIC_LABEL[topic]}，該輪改講${OFF_TOPIC_TOPIC_LABEL[wrong]}`;
+  }
+  if (weakMethodology) {
+    return "答非所問：客戶問試算邏輯，該輪回覆不清楚或無法說明";
+  }
+  return `答非所問：${ISSUE_LABEL[topic]}`;
+}
+
+/** 待加強用：客戶問 A、業代答 B（含長篇但議題錯、僅試乘帶過） */
+function isAnswerOffTopic(
+  agent: string,
+  customer: string,
+  sessionComp: string,
+  pairedTurns: RoleplayChatTurn[],
+  customerIndex: number,
+): boolean {
+  if (isOpeningGreeting(agent) || isWeakAgentReply(agent)) return false;
+  if (!isSubstantiveCustomerLine(customer)) return false;
+  if (/帶回去|再聯絡|再研究|先了解到|有需要再|今天先|會再討論/.test(customer)) {
+    return false;
+  }
+  if (answerTargetsWrongCompetitor(agent, sessionComp, customer)) return false;
+
+  const topics = customerTopics(customer);
+  if (topics.length > 0) {
+    for (const topic of topics) {
+      if (agentCoversTopic(agent, topic, customer, sessionComp)) continue;
+      if (earlierSessionCoversTopic(pairedTurns, customerIndex, topic, customer, sessionComp)) {
+        continue;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  if (
+    customerWantsExplanation(customer) ||
+    /空間|後座|高速|風切|座椅|電池|路況/.test(customer)
+  ) {
+    if (!addressesCustomerTopic(agent, customer)) return true;
+    return isEvasiveAgentReply(agent, customer);
+  }
+  return false;
+}
+
+function detectOffTopicAnswerGaps(
+  pairedTurns: RoleplayChatTurn[],
+  sessionComp: string,
+): CorrectionCandidate[] {
+  const out: CorrectionCandidate[] = [];
+  for (let i = 0; i < pairedTurns.length - 1; i++) {
+    const c = pairedTurns[i]!;
+    const a = pairedTurns[i + 1]!;
+    if (c.role !== "customer" || a.role !== "agent") continue;
+    if (!isSubstantiveCustomerLine(c.content) || isOpeningGreeting(a.content)) continue;
+    if (!isAnswerOffTopic(a.content, c.content, sessionComp, pairedTurns, i)) continue;
+
+    const topics = customerTopics(c.content);
+    const primary: TopicKind = topics[0] ?? "fuel";
+    const wrong =
+      topics.length > 0 ? wrongTopicResponse(c.content, a.content, primary, sessionComp) : null;
+    const weakMethod =
+      isWeakAgentReply(a.content) && customerAskedMethodology(c.content);
+
+    out.push({
+      issue: wrong
+        ? formatOffTopicIssue(primary, wrong, false)
+        : weakMethod
+          ? formatOffTopicIssue(primary, null, true)
+          : !addressesCustomerTopic(a.content, c.content)
+            ? "答非所問：客戶追問未獲正面回答（內容與提問不符或僅空泛帶過）"
+            : isEvasiveAgentReply(a.content, c.content)
+              ? "答非所問：客戶追問未獲正面回答（僅試乘或空泛帶過）"
+              : formatOffTopicIssue(primary, null, false),
+      category: "fact",
+      whatYouSaid: a.content.slice(0, 120),
+      customerAsk: c.content.slice(0, 150),
+      topic: primary,
+    });
+  }
+  return out;
 }
 
 function hasMethodologyExplanation(agent: string): boolean {
@@ -251,7 +412,11 @@ function agentCoversTopic(
     return /引擎|維修|故障|耐用|CVT|變速箱|保固|零件/.test(agent);
   }
   if (topic === "maintenance" || topic === "fuel") {
-    if (LOOSE_COST_COVERED.test(agent) && (hasConcreteNumbers(agent) || /加總|試算|折扣|稅金|油資/.test(agent))) {
+    const costLoose =
+      LOOSE_COST_COVERED.test(agent) &&
+      (hasConcreteNumbers(agent) || /加總|試算|折扣|稅金|油資/.test(agent));
+    if (topic === "fuel" && costLoose) return true;
+    if (topic === "maintenance" && costLoose && AGENT_TOPIC_COVERED.maintenance.test(agent)) {
       return true;
     }
   }
@@ -470,6 +635,10 @@ export function detectCorrectionCandidates(
     add(gap, true);
   }
 
+  for (const gap of detectOffTopicAnswerGaps(pairedTurns, sessionComp)) {
+    add(gap, true);
+  }
+
   for (let i = 0; i < pairedTurns.length - 1; i++) {
     const cur = pairedTurns[i]!;
     const next = pairedTurns[i + 1]!;
@@ -481,13 +650,28 @@ export function detectCorrectionCandidates(
     if (isOpeningGreeting(a)) continue;
 
     const topics = customerTopics(c);
-    if (topics.length === 0 && (customerWantsExplanation(c) || isWeakAgentReply(a))) {
-      topics.push("fuel");
-    }
 
     const wrongCompetitorThisRound = answerTargetsWrongCompetitor(a, sessionComp, c);
 
     let roundAdded = false;
+
+    if (topics.length === 0) {
+      if (isAnswerOffTopic(a, c, sessionComp, pairedTurns, i)) {
+        add({
+          issue: !addressesCustomerTopic(a, c)
+            ? "答非所問：客戶追問未獲正面回答（內容與提問不符或僅空泛帶過）"
+            : isEvasiveAgentReply(a, c)
+              ? "答非所問：客戶追問未獲正面回答（僅試乘或空泛帶過）"
+              : "答非所問：客戶提問該輪回覆過於空泛或未正面回答",
+          category: "fact",
+          whatYouSaid: a.slice(0, 120),
+          customerAsk: c.slice(0, 150),
+          topic: "fuel",
+        });
+        roundAdded = true;
+      }
+    }
+
     for (const topic of topics) {
       if (wrongCompetitorThisRound && topic !== "maintenance") continue;
       if (wrongCompetitorThisRound && topic === "maintenance") {
@@ -505,11 +689,11 @@ export function detectCorrectionCandidates(
       if (earlierSessionCoversTopic(pairedTurns, i, topic, c, sessionComp)) continue;
 
       const wrong = wrongTopicResponse(c, a, topic, sessionComp);
-      const issue = wrong
-        ? `${ISSUE_LABEL[topic]}（該輪回答了其他面向）`
-        : isWeakAgentReply(a) && customerAskedMethodology(c)
-          ? "客戶問試算邏輯，該輪回覆不清楚或無法說明"
-          : ISSUE_LABEL[topic];
+      const issue = formatOffTopicIssue(
+        topic,
+        wrong,
+        isWeakAgentReply(a) && customerAskedMethodology(c),
+      );
 
       add({
         issue,
@@ -529,7 +713,7 @@ export function detectCorrectionCandidates(
 
     if (!roundAdded && isWeakAgentReply(a)) {
       add({
-        issue: "客戶提問該輪回覆過於空泛或未正面回答",
+        issue: "答非所問：客戶提問該輪回覆過於空泛或未正面回答",
         category: "fact",
         whatYouSaid: a.slice(0, 120),
         customerAsk: c.slice(0, 150),
@@ -769,7 +953,7 @@ function rubricPointVerifiedInTranscript(
         return true;
       }
     }
-    if (/保養|回廠|高里程|妥善|持有成本|成本數據/.test(p.issue + (p.customerAsk ?? ""))) {
+    if (/保養|回廠|高里程|妥善|持有成本|成本數據|答非所問/.test(p.issue + (p.customerAsk ?? ""))) {
       const topics: TopicKind[] = [];
       if (CUSTOMER_ASK.maintenance.test(c.content)) topics.push("maintenance");
       if (CUSTOMER_ASK.fuel.test(c.content)) topics.push("fuel");
@@ -851,10 +1035,13 @@ export async function buildSessionCorrections(
   // 規則偵測到的缺口必須出現在待加強（不依賴 Gemini 是否回傳空陣列）
   let rulePoints: RoleplayCorrectionPoint[] = [];
   if (ruleCandidates.length > 0) {
-    rulePoints = await synthesizeGuidesFromRag(scenario, ruleCandidates);
+    rulePoints = filterValidCorrectionPoints(
+      await synthesizeGuidesFromRag(scenario, ruleCandidates),
+      true,
+    );
   }
 
-  const merged = filterValidCorrectionPoints([...rubricPoints, ...rulePoints]);
+  const merged = filterValidCorrectionPoints([...rulePoints, ...rubricPoints]);
   if (merged.length > 0) return merged.slice(0, 5);
 
   if (ruleCandidates.length > 0) {

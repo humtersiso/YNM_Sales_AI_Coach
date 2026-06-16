@@ -1,4 +1,6 @@
+import { isCostDetailQuery } from "@/lib/gemini/cost-query-expand";
 import type { ScriptCitation } from "@/lib/gemini/reply-format";
+import { isDualChannelComparison } from "@/lib/gemini/retrieval-query-builder";
 import {
   extractMentionedCompetitor,
   getHeroProduct,
@@ -207,4 +209,38 @@ ${excerpt}
 /** hybrid / agent 模式 Gemini 摘要用的分類規則 */
 export function buildSummarizeCategoryRules(profile: SalesQuestionProfile): string {
   return buildCategoryFormatRules(profile).replace(/【.*?整理】/g, "").trim();
+}
+
+/** Grounded 生成：雙車比較／持有成本須統整本品與競品片段 */
+export function buildGroundedSynthesisRules(
+  message: string,
+  profile?: SalesQuestionProfile,
+): string {
+  if (!profile) return "";
+  const hero = profile.heroProduct.displayName;
+  const rival = profile.mentionedCompetitor ?? extractMentionedCompetitor(message);
+  const lines: string[] = [];
+
+  if (isDualChannelComparison(message, profile) && rival) {
+    lines.push(
+      `【雙車比較統整】問句同時涉及 ${hero} 與 ${rival}：`,
+      `- 小結須寫兩車關鍵差異（含金額、油耗、保養週期或配備差），勿只寫單車`,
+      `- 列點須分項對照（如保養費、油耗成本），有數字必須寫出；缺一方數據則只列有資料的一方`,
+      `- 絕對禁止用其他競品（如問 CR-V 卻引用 RAV4 試算）的數據代替 ${rival}`,
+      `- 若片段無 ${rival} 的保養／油耗／成本數據，小結明說知識庫無該車建檔，列點僅能寫 ${hero} 有依據的內容`,
+      `- 語氣為業代對戰話術，勿替競品背書（見競品防禦規範）`,
+    );
+  }
+
+  if (isCostDetailQuery(message)) {
+    lines.push(
+      `【持有成本統整】若片段有試算或累計金額：`,
+      `- 逐項列出（定保、油耗、稅費、輪胎、電池等）並標里程或年數前提`,
+      `- ${hero}${rival ? ` 與 ${rival}` : ""} 有差額須寫出差多少（元或萬元）`,
+      `- 禁止只寫「有試算表」「項目架構」而無任何數字`,
+      `- 片段完全無金額時勿捏造，應明說知識庫無法依建檔資料回答`,
+    );
+  }
+
+  return lines.length > 0 ? lines.join("\n") : "";
 }

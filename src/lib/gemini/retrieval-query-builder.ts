@@ -1,4 +1,5 @@
 import type { MaterialCategory } from "@/lib/ingest/contracts/material-category-contract";
+import { augmentCostQueryForSearch, isCostDetailQuery } from "@/lib/gemini/cost-query-expand";
 import {
   augmentSpecQueryForSearch,
   isSpecNumericQuery,
@@ -10,15 +11,20 @@ import {
 } from "@/lib/gemini/sales-question-profile";
 
 const BATTLE_WORD = /對戰|比較|競品|勝過|贏過|pk\b|對比|跟.*比|vs|相較/i;
+/** 同時考慮本品與競品、或問保養／油耗／成本差異 */
+const CROSS_SHOP_WORD =
+  /同時看|一起看|同時考慮|一併比|順便看|差多少|差異|保養.*差|油耗.*差|成本.*差|長期.*差/i;
 
 /** 比較題：問句同時涉及本品與競品，需雙通道召回 */
 export function isDualChannelComparison(message: string, profile?: SalesQuestionProfile): boolean {
   const competitor = extractMentionedCompetitor(message);
   if (!competitor) return false;
-  if (profile?.category === "competitor" && (mentionsHeroProduct(message) || BATTLE_WORD.test(message))) {
+  const crossShop =
+    BATTLE_WORD.test(message) || CROSS_SHOP_WORD.test(message) || isCostDetailQuery(message);
+  if (profile?.category === "competitor" && (mentionsHeroProduct(message) || crossShop)) {
     return true;
   }
-  return mentionsHeroProduct(message) && BATTLE_WORD.test(message);
+  return mentionsHeroProduct(message) && crossShop;
 }
 
 export type RetrievalChannel = {
@@ -45,16 +51,20 @@ export function buildDualChannelComparisonQueries(
   const competitor = extractMentionedCompetitor(message) ?? profile.mentionedCompetitor;
   if (!competitor) return [];
 
+  const costTerms = isCostDetailQuery(message)
+    ? "長期持有成本 保養 油耗 8萬公里 16萬公里 合計 差異"
+    : "";
   const specTerms = isSpecNumericQuery(message) ? "規格 馬力 扭力 油耗" : "規格 特色 配備";
+  const expanded = augmentCostQueryForSearch(message);
 
   return [
     {
-      query: `${hero} ${specTerms} ${message}`.trim(),
-      materialCategory: "product_info",
+      query: `${hero} ${costTerms} ${specTerms} ${expanded}`.trim(),
+      materialCategory: isCostDetailQuery(message) ? "competitor_compare" : "product_info",
       label: "hero",
     },
     {
-      query: `${competitor} ${specTerms} ${message}`.trim(),
+      query: `${competitor} ${costTerms} ${specTerms} ${expanded}`.trim(),
       materialCategory: "competitor_compare",
       label: "competitor",
     },

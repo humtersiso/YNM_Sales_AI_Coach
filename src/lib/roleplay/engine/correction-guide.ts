@@ -10,14 +10,33 @@ function cleanFactExcerpt(value: string): string {
 
 type TopicKind = "fuel" | "sound" | "blind" | "maintenance" | "advance" | "competitor";
 
-/** 競品全名 → 搜尋用別名（含簡稱） */
+/** 競品全名 → 搜尋用別名（含簡稱；對戰 PDF 檔名比對用） */
 const COMPETITOR_ALIASES: Record<string, RegExp> = {
   "Toyota RAV4": /RAV4|豐田\s*RAV4/i,
-  "Honda CR-V": /CR[-\s]?V|Honda\s*CR/i,
   "Hyundai Tucson L": /Tucson|TUCSON|途勝/i,
-  "Mitsubishi Outlander": /Outlander|歐藍德/i,
   "KIA Sportage": /Sportage|SPORTAGE|斯波特|起亚/i,
+  "Ford Kuga": /KUGA|Kuga|福特\s*Kuga|Ford\s*Kuga/i,
+  "Hyundai MUFASA": /MUFASA|Mufasa|沐法沙/i,
+  "Ford Territory": /TERRITORY|Territory|福特\s*Territory|Ford\s*Territory/i,
+  "Mitsubishi XFORCE": /XFORCE|X[\s-]?FORCE|三菱\s*XFORCE/i,
 };
+
+/** 非可選競品，但仍須偵測「比錯車」口誤（如口頭提到 CR-V） */
+const LEGACY_RIVAL_ALIASES: Record<string, RegExp> = {
+  "Honda CR-V": /CR[-\s]?V|Honda\s*CR/i,
+  "Mitsubishi Outlander": /Outlander|歐藍德/i,
+};
+
+function competitorAlias(competitorFull: string): RegExp | undefined {
+  return COMPETITOR_ALIASES[competitorFull] ?? LEGACY_RIVAL_ALIASES[competitorFull];
+}
+
+function competitorMentionWeight(text: string, competitorFull: string): number {
+  const re = competitorAlias(competitorFull);
+  if (!re) return 0;
+  const flags = re.flags.includes("g") ? re.flags : `${re.flags}g`;
+  return (text.match(new RegExp(re.source, flags)) ?? []).length;
+}
 
 export function hasConcreteNumbers(text: string): boolean {
   return /\d[\d,.]*(?:\s*(?:萬|公里|km\/L|km|分貝|元|千|%))?/i.test(text);
@@ -39,22 +58,30 @@ export function isVagueCorrectGuide(guide: string): boolean {
   return false;
 }
 
-/** 從全名取出簡稱 token（例：Honda CR-V → CR-V） */
+/** 從全名取出簡稱 token（例：Ford Kuga → Kuga） */
 export function normalizeCompetitorToken(name: string): string {
   const t = name.trim();
-  if (/CR[-\s]?V/i.test(t)) return "CR-V";
   if (/RAV4/i.test(t)) return "RAV4";
   if (/Sportage/i.test(t)) return "Sportage";
   if (/Tucson/i.test(t)) return "Tucson L";
-  if (/Outlander/i.test(t)) return "Outlander";
+  if (/Kuga/i.test(t)) return "Kuga";
+  if (/MUFASA/i.test(t)) return "MUFASA";
+  if (/Territory/i.test(t)) return "Territory";
+  if (/XFORCE/i.test(t)) return "XFORCE";
   return t.split(/\s+/).pop() ?? t;
 }
 
 /** 文字中提及的競品全名列表 */
 export function getMentionedCompetitors(text: string): string[] {
   const found: string[] = [];
+  const add = (full: string, re: RegExp | undefined) => {
+    if (re?.test(text) && !found.includes(full)) found.push(full);
+  };
   for (const full of ROLEPLAY_COMPETITORS_XTRAIL) {
-    if (COMPETITOR_ALIASES[full]?.test(text)) found.push(full);
+    add(full, COMPETITOR_ALIASES[full]);
+  }
+  for (const [full, re] of Object.entries(LEGACY_RIVAL_ALIASES)) {
+    add(full, re);
   }
   return found;
 }
@@ -87,11 +114,34 @@ export function answerTargetsWrongCompetitor(
 ): boolean {
   const others = getOtherCompetitorMentions(agent, sessionCompetitor);
   if (others.length === 0) return false;
-  if (mentionsSessionCompetitor(agent, sessionCompetitor)) return false;
-  if (customerContext && mentionsSessionCompetitor(customerContext, sessionCompetitor)) {
-    return true;
+
+  const customerCaresSession =
+    !customerContext ||
+    mentionsSessionCompetitor(customerContext, sessionCompetitor) ||
+    getOtherCompetitorMentions(customerContext, sessionCompetitor).length === 0;
+  if (!customerCaresSession) return false;
+
+  const sessionWeight = competitorMentionWeight(agent, sessionCompetitor);
+  const otherWeight = Math.max(...others.map((o) => competitorMentionWeight(agent, o)), 0);
+
+  if (sessionWeight === 0) return true;
+  if (otherWeight > sessionWeight) return true;
+
+  if (otherWeight > 0 && otherWeight >= sessionWeight) {
+    const wrongCarInCost = others.some((o) =>
+      new RegExp(
+        `${normalizeCompetitorToken(o).replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}.{0,28}(定保|保養|油耗|試算|車價|油資)`,
+        "i",
+      ).test(agent),
+    );
+    const sessionInCost = new RegExp(
+      `${normalizeCompetitorToken(sessionCompetitor).replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}.{0,28}(定保|保養|油耗|試算|車價|油資)`,
+      "i",
+    ).test(agent);
+    if (wrongCarInCost && !sessionInCost) return true;
   }
-  return others.length > 0;
+
+  return false;
 }
 
 type FactRow = { label: string; value: string };
@@ -148,6 +198,10 @@ export function isWrongCompetitorInGuide(
     if (allowed.has(full)) continue;
     if (allowed.has(normalizeCompetitorToken(full))) continue;
     if (COMPETITOR_ALIASES[full]?.test(guide)) return true;
+  }
+  for (const [full, re] of Object.entries(LEGACY_RIVAL_ALIASES)) {
+    if (allowed.has(full)) continue;
+    if (re.test(guide)) return true;
   }
   return false;
 }

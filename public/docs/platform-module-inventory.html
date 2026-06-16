@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YNM 銷售顧問智慧訓練 — 平台功能模組對照表</title>
+  <style>
+    :root {
+      --bg: #f8faf9; --card: #fff; --border: #d1e7dd;
+      --text: #064e3b; --muted: #3d6b5c; --accent: #059669; --accent-light: #ecfdf5; --link: #047857;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 14px; }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.35rem; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; border-bottom: 2px solid var(--border); padding-bottom: 0.35rem; }
+    .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem; }
+    .meta a { color: var(--link); }
+    .scope {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+      padding: 0.75rem 1rem; font-size: 0.85rem; color: #78350f; margin-bottom: 1rem;
+    }
+    .view-banner {
+      background: var(--accent-light); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.88rem;
+    }
+    .view-banner strong { color: var(--accent); }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.85rem 1rem; margin-bottom: 1rem; position: sticky; top: 0; z-index: 10;
+      box-shadow: 0 2px 8px rgba(6,78,59,.06);
+    }
+    .toolbar input[type="search"] { flex: 1; min-width: 180px; padding: 0.45rem 0.65rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+    .toolbar select { padding: 0.45rem 0.65rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fff; }
+    .toolbar label.view-label { font-size: 0.82rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+    #viewMode { min-width: 220px; font-weight: 600; color: var(--text); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem; }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 0.85rem; text-align: center; }
+    .stat .num { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .stat .lbl { font-size: 0.75rem; color: var(--muted); }
+    .badge { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-right: 0.25rem; }
+    .cat-ui { background: #dbeafe; color: #1e40af; }
+    .cat-api { background: #fef3c7; color: #92400e; }
+    .cat-data { background: #ede9fe; color: #5b21b6; }
+    .cat-ops { background: #ffedd5; color: #9a3412; }
+    .cat-vendor { background: #f3f4f6; color: #4b5563; }
+    .cat-archive { background: #fee2e2; color: #991b1b; }
+    .view-compare {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem; margin-bottom: 1rem;
+    }
+    .view-compare .vcard {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.75rem 0.9rem; font-size: 0.82rem;
+    }
+    .view-compare .vcard h3 { margin: 0 0 0.35rem; font-size: 0.92rem; }
+    .view-compare .vcard.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .view-compare .vcard ul { margin: 0.35rem 0 0; padding-left: 1.1rem; }
+    .view-compare .vcard li { margin: 0.2rem 0; color: var(--muted); }
+    .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+    table.simple { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 640px; }
+    table.simple thead th {
+      background: var(--accent-light); text-align: left; padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border); font-weight: 600; white-space: nowrap;
+    }
+    table.simple tbody td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.simple tbody tr:last-child td { border-bottom: 0; }
+    table.simple tbody tr:nth-child(even) { background: #fafdfb; }
+    table.simple tbody tr.hidden { display: none; }
+    .module-list { display: flex; flex-direction: column; gap: 1rem; }
+    .module-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1rem 1.15rem 1.1rem; scroll-margin-top: 5.5rem;
+    }
+    .module-card.hidden { display: none; }
+    .module-card h3 { margin: 0.35rem 0 0.5rem; font-size: 1.05rem; }
+    .module-card .card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+    .module-grid {
+      display: grid;
+      grid-template-columns: 2.5fr 2.5fr 5fr;
+      gap: 0.85rem 1.25rem;
+      margin-top: 0.85rem;
+    }
+    .module-grid > section { min-width: 0; }
+    .module-grid .sec-docs { grid-column: 1 / 3; }
+    .module-grid .sec-ops { grid-column: 3; }
+    .module-grid section h4 {
+      margin: 0 0 0.4rem; font-size: 0.78rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    code {
+      font-family: Consolas, "Courier New", monospace; font-size: 0.8rem;
+      background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px;
+      word-break: break-word; white-space: normal;
+    }
+    ul.files { margin: 0; padding-left: 1.15rem; }
+    ul.files li { margin: 0.25rem 0; line-height: 1.45; }
+    .desc { color: var(--muted); font-size: 0.82rem; }
+    .inner-code { margin-top: 0.35rem; border-radius: 8px; }
+    .inner-code table.simple { min-width: 0; font-size: 0.8rem; }
+    .inner-code table.simple td:first-child { width: 42%; }
+    .purpose-cell { color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
+    details.panel { border: 1px solid var(--border); border-radius: 10px; background: var(--card); margin: 0.75rem 0; overflow: hidden; }
+    details.panel > summary { cursor: pointer; font-weight: 600; padding: 0.7rem 1rem; background: var(--accent-light); list-style: none; }
+    details.panel > summary::-webkit-details-marker { display: none; }
+    details.panel > summary::before { content: "▸ "; }
+    details.panel[open] > summary::before { content: "▾ "; }
+    details.panel .inner { padding: 0.75rem 1rem 1rem; }
+    .toc { columns: 2; column-gap: 2rem; font-size: 0.85rem; }
+    .toc a { color: var(--link); text-decoration: none; }
+    .toc li { margin: 0.2rem 0; break-inside: avoid; }
+    @media (max-width: 900px) {
+      .module-grid { grid-template-columns: 1fr; }
+      .module-grid .sec-docs,
+      .module-grid .sec-ops { grid-column: 1; }
+    }
+    @media (max-width: 768px) { .toc { columns: 1; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>YNM 銷售顧問智慧訓練 — 平台功能模組對照表</h1>
+  <p class="meta">
+    專案根目錄：<code>web/</code> · 更新：2026-06-12 ·
+    本機 dev：<a href="/docs/platform-module-inventory.html">/docs/platform-module-inventory.html</a> ·
+    <a href="PLATFORM_STARTUP.md">啟動說明</a> ·
+    <a href="platform-feature-ownership.html">功能責任總表</a> ·
+    <a href="ARCHITECTURE.md">API 架構</a>
+  </p>
+
+  <p class="desc" style="margin-bottom:0.75rem;">
+    三種檢視：<strong>現況</strong> · <strong>內部精簡重構</strong>（仍 Next 全棧） · <strong>廠商協作</strong>（僅 API，規劃參考）。
+  </p>
+
+  <div class="toolbar" style="position:static;margin-bottom:0.75rem;">
+    <label class="view-label" for="viewMode">檢視模式</label>
+    <select id="viewMode">
+      <option value="current">① 目前版本（PoC 全棧現況）</option>
+      <option value="slim">② 精簡重構（本專案 Next 內部整理）</option>
+      <option value="api-only">③ 廠商協作方案（僅 API 交付）</option>
+    </select>
+  </div>
+
+  <div class="view-compare" id="viewCompare"></div>
+  <div class="view-banner" id="viewBanner"></div>
+
+  <p class="scope" id="scopeNote"></p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="搜尋模組、路由、檔名…" />
+    <select id="catFilter">
+      <option value="">全部類別</option>
+      <option value="ui">使用者介面</option>
+      <option value="api">API / 後端</option>
+      <option value="data">資料 / 知識庫</option>
+      <option value="ops">部署 / 維運</option>
+      <option value="vendor">非主線</option>
+      <option value="archive">歸檔（精簡重構）</option>
+    </select>
+    <span id="matchCount" class="desc"></span>
+  </div>
+
+  <details class="panel" open>
+    <summary>目錄</summary>
+    <div class="inner"><ol class="toc" id="toc"></ol></div>
+  </details>
+
+  <h2 id="modules">一、功能模組總表</h2>
+  <p class="desc" id="moduleHint">路徑皆相對於 <code>web/</code>。</p>
+  <div class="module-list" id="moduleList"></div>
+
+  <h2 id="routes">二、頁面路由</h2>
+  <div class="table-scroll">
+    <table class="simple"><thead><tr><th>路由</th><th>模組</th><th>頁面檔案</th></tr></thead><tbody id="routeBody"></tbody></table>
+  </div>
+
+  <h2 id="apis">三、API</h2>
+  <div class="table-scroll">
+    <table class="simple"><thead><tr><th>模組</th><th>API 路徑</th><th>route 檔案</th></tr></thead><tbody id="apiBody"></tbody></table>
+  </div>
+
+  <h2 id="sql">四、BigQuery 資料表（sql/）</h2>
+  <div class="table-scroll">
+    <table class="simple"><thead><tr><th>DDL 檔案</th><th>用途</th><th>模組</th></tr></thead><tbody id="sqlBody"></tbody></table>
+  </div>
+
+  <h2 id="docs">五、文件索引</h2>
+  <div class="table-scroll">
+    <table class="simple"><thead><tr><th>文件</th><th>用途</th><th>模組</th></tr></thead><tbody id="docBody"></tbody></table>
+  </div>
+</div>
+
+<script>
+const VIEWS = {
+  current: {
+    banner: "盤點 <code>ynm-web-test</code> 現況：Next 全棧，含後台 PoC。",
+    scope: "路徑相對於 web/。",
+    routeHeading: "頁面路由",
+    apiHeading: "API（/api/*）"
+  },
+  slim: {
+    banner: "本專案內部精簡目標：仍 Next 全棧與 <code>/api/*</code>，只保留雙助手主線。",
+    scope: "保留雙助手主線。<strong>歸檔</strong>＝早期後台等從部署拿掉（檔案可留 repo）。<strong>src/server 重構</strong>＝規劃中、目錄尚無，目標讓 app/api 变薄。話術知識在 GCP RAG corpus（你方目前手動上傳）；BQ 僅營運紀錄。",
+    routeHeading: "保留頁面",
+    apiHeading: "保留 API"
+  },
+  "api-only": {
+    banner: "廠商分工規劃：我方 <code>/v1/*</code> API；廠商負責 UI 與 IAM。",
+    scope: "交付 api-server、OpenAPI、核心 lib；Next UI 僅參考。",
+    routeHeading: "UI（廠商）",
+    apiHeading: "API（/v1/*）"
+  }
+};
+
+const VIEW_COMPARE = [
+  { id: "current", title: "現況", items: ["ynm-web-test", "全棧含後台"] },
+  { id: "slim", title: "內部精簡", items: ["仍 Next", "雙助手主線", "歸檔早期後台", "src/server 規劃中"] },
+  { id: "api-only", title: "廠商協作", items: ["/v1 API", "廠商 UI"] }
+];
+
+const MODULES = [
+  {
+    id: "portal", cat: "ui", views: ["current", "slim"],
+    name: "平台入口",
+    desc: "首頁與登入；導向銷售／對練（現況含後台入口）。",
+    routes: ["/", "/login"],
+    apis: [],
+    code: ["app/page.tsx", "app/login/page.tsx", "src/lib/theme/portal-theme.ts", "middleware.ts"],
+    docs: ["README.md", "docs/PLATFORM_STARTUP.md"],
+    ops: []
+  },
+  {
+    id: "auth", cat: "api", views: ["current", "slim"],
+    name: "認證與權限（Cookie）",
+    desc: "Cookie session；middleware 保護需登入頁面。",
+    routes: ["/login", "/admin/login", "/sales/change-password"],
+    apis: ["app/api/portal/auth/*", "app/api/sales/auth/*", "app/api/auth/*"],
+    code: ["src/lib/auth/session.ts", "src/lib/auth/password.ts", "src/lib/bq/users.ts", "src/lib/bq/auth-audit.ts"],
+    docs: ["docs/PLATFORM_STARTUP.md", "sql/platform_users.sql", "sql/auth_audit_log.sql"],
+    ops: ["npm run seed:admin"]
+  },
+  {
+    id: "auth-bearer", cat: "api", views: ["api-only"],
+    name: "認證（Bearer / 裕日 IAM）",
+    desc: "Bearer token；裕日 IAM 或 api_key（廠商方案用）。",
+    routes: [],
+    apis: ["（Header）Authorization: Bearer", "（api_key）X-YNM-User-Id 等"],
+    code: ["packages/platform-core/src/auth/resolve-user.ts", "src/lib/auth/api-auth.ts", "apps/api-server/src/middleware/auth.ts"],
+    docs: ["docs/API_VENDOR_GUIDE.md", "docs/openapi.yaml"],
+    ops: []
+  },
+  {
+    id: "api-server", cat: "api", views: ["api-only"],
+    name: "雙助手 API 服務",
+    desc: "Cloud Run 唯一 HTTP 入口；Hono；路徑 /v1/sales、/v1/roleplay、/health。",
+    routes: [],
+    apis: [
+      "POST /v1/sales/chat", "POST /v1/sales/chat/stream", "GET /v1/sales/knowledge-meta",
+      "POST /v1/roleplay/sessions", "POST /v1/roleplay/sessions/{id}/turn",
+      "POST /v1/roleplay/sessions/{id}/finish", "GET /v1/roleplay/me/stats",
+      "GET /v1/roleplay/me/history", "GET /v1/roleplay/config-options"
+    ],
+    code: ["apps/api-server/src/app.ts", "apps/api-server/src/routes/sales.ts", "apps/api-server/src/routes/roleplay.ts"],
+    docs: ["docs/openapi.yaml", "docs/ARCHITECTURE.md"],
+    ops: ["npm run api:dev", "npm run deploy:api:test"]
+  },
+  {
+    id: "sales", cat: "ui", views: ["current", "slim"],
+    name: "銷售助手（UI + /api）",
+    desc: "話術問答；RAG grounded + Gemini；UI 用串流 chat。",
+    routes: ["/sales"],
+    apis: ["POST /api/sales/chat", "POST /api/sales/chat/stream", "GET /api/sales/knowledge-meta"],
+    code: [
+      "app/sales/page.tsx", "app/api/sales/chat/route.ts", "app/api/sales/chat/stream/route.ts",
+      "src/lib/gemini/conversational-analytics.ts", "src/lib/rag/vertex-rag-grounded-chat.ts",
+      "src/components/mobile/ChatThread.tsx", "src/components/mobile/CitationPanel.tsx"
+    ],
+    docs: ["docs/SALES_AGENT_ARCHITECTURE.md"],
+    ops: []
+  },
+  {
+    id: "sales-core", cat: "api", views: ["api-only"],
+    name: "銷售核心（sales-core）",
+    desc: "銷售問答編排、usage log；封裝既有 gemini / knowledge / rag 邏輯。",
+    routes: [],
+    apis: ["（經 /v1/sales/*）"],
+    code: ["packages/sales-core/src/index.ts", "src/lib/gemini/conversational-analytics.ts"],
+    docs: ["docs/SALES_AGENT_ARCHITECTURE.md"],
+    ops: []
+  },
+  {
+    id: "roleplay", cat: "ui", views: ["current", "slim"],
+    name: "對練助手（UI + /api）",
+    desc: "多輪對練、五維評分、雷達與歷史；完賽寫入 BQ。",
+    routes: ["/roleplay", "/roleplay/setup", "/roleplay/practice", "/roleplay/result", "/roleplay/history"],
+    apis: [
+      "POST/GET /api/roleplay/sessions", "POST /api/roleplay/sessions/[id]/turn",
+      "POST /api/roleplay/sessions/[id]/finish", "GET /api/roleplay/me/stats",
+      "GET /api/roleplay/me/history", "GET /api/roleplay/config-options"
+    ],
+    code: [
+      "app/roleplay/page.tsx", "src/lib/roleplay/engine/session-service.ts",
+      "src/lib/roleplay/engine/dimension-scorer.ts", "src/lib/roleplay/engine/scoring-agent.ts",
+      "src/lib/roleplay/radar-stats.ts", "src/lib/bq/roleplay-sessions-bq.ts",
+      "src/components/roleplay/RoleplayRadarChart.tsx", "src/components/roleplay/RoleplayPracticeChat.tsx"
+    ],
+    docs: ["docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.md", "docs/ROLEPLAY_HIGH_SCORE_QA_GUIDE.md"],
+    ops: []
+  },
+  {
+    id: "roleplay-core", cat: "api", views: ["api-only"],
+    name: "對練核心（roleplay-core）",
+    desc: "開局、回合、完賽評分（五維 server-side）；雷達均分；BQ 寫入。",
+    routes: [],
+    apis: ["（經 /v1/roleplay/*）"],
+    code: [
+      "packages/roleplay-core/src/index.ts", "src/lib/roleplay/engine/session-service.ts",
+      "src/lib/roleplay/engine/dimension-scorer.ts", "src/lib/roleplay/radar-stats.ts",
+      "src/lib/bq/roleplay-sessions-bq.ts"
+    ],
+    docs: ["docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.md"],
+    ops: []
+  },
+  {
+    id: "admin", cat: "vendor", views: ["current"],
+    name: "後台管理",
+    desc: "管理員首頁、用戶 CRUD（現況 PoC，精簡重構時歸檔）。",
+    routes: ["/admin/home", "/admin/users", "/admin/login"],
+    apis: ["GET/POST /api/admin/users", "PATCH/DELETE /api/admin/users/[id]", "GET /api/admin/roleplay/sessions/[id]"],
+    code: ["app/admin/(app)/home/page.tsx", "app/admin/(app)/users/page.tsx", "src/components/AppShell.tsx"],
+    docs: ["docs/PLATFORM_STARTUP.md"],
+    ops: []
+  },
+  {
+    id: "analytics", cat: "vendor", views: ["current"],
+    name: "使用統計",
+    desc: "後台銷售／對練使用統計（現況 PoC）。",
+    routes: ["/admin/usage/sales", "/admin/usage/roleplay"],
+    apis: ["GET /api/admin/analytics"],
+    code: ["app/admin/(app)/usage/roleplay/page.tsx", "src/lib/analytics/roleplay-usage-analytics.ts", "src/lib/bq/usage-events.ts"],
+    docs: ["sql/usage_events.sql", "sql/roleplay_agent_dashboard.sql"],
+    ops: []
+  },
+  {
+    id: "bq", cat: "data", views: ["current", "slim", "api-only"],
+    name: "BigQuery（營運與紀錄）",
+    desc: "營運資料：提問 log、對練完賽、帳號與稽核。話術知識在 RAG，不在 BQ。",
+    routes: [],
+    apis: [],
+    code: [
+      "src/lib/bq/script-drills-insert.ts", "src/lib/bq/usage-events.ts",
+      "src/lib/bq/roleplay-sessions-bq.ts", "src/lib/bq/users.ts"
+    ],
+    docs: ["sql/usage_events.sql", "sql/roleplay_sessions.sql"],
+    ops: ["npm run env:use:test", "npm run env:use:prod"]
+  },
+  {
+    id: "rag", cat: "data", views: ["current", "slim", "api-only"],
+    name: "Vertex RAG（線上讀取）",
+    desc: "話術知識在 GCP Vertex RAG corpus；銷售／對練 runtime 透過 env 連線檢索。你方目前於 Console 手動上傳檔案維護 corpus，此為實際維運方式。",
+    routes: [],
+    apis: ["（經 sales / roleplay chat）"],
+    code: [
+      "src/lib/rag/rag-engine-config.ts", "src/lib/rag/vertex-rag-grounded-chat.ts",
+      "src/lib/rag/vertex-rag-search.ts", "src/lib/rag/rag-document-client.ts"
+    ],
+    docs: ["src/platform/README.md", "docs/CLOUDRUN_LOCAL_PARITY.md"],
+    ops: ["（維運）GCP Console 上傳 corpus", "npm run rag:setup（初次建 datastore 用）"]
+  },
+  {
+    id: "rag-ingest-scripts", cat: "ops", views: ["current"],
+    name: "RAG 本機匯入腳本（可選，非目前維運）",
+    desc: "repo 內有從本機檔案解析後 API 寫入 corpus 的腳本（npm run rag:ingest），讀 data/training-materials/。你方未走此路徑；corpus 已在 GCP 手動維護。保留供日後自動化或本機重現。",
+    routes: [],
+    apis: [],
+    code: [
+      "scripts/rag/rag-ingest-training.ts", "src/lib/ingest/pipeline/ingest-batch.ts",
+      "jobs/rag-sync/", "data/training-materials/"
+    ],
+    docs: ["src/platform/README.md"],
+    ops: ["npm run rag:ingest（可選）", "npm run test:rag-search"]
+  },
+  {
+    id: "archive", cat: "archive", views: ["slim"],
+    name: "歸檔模組（要拿掉的主線外功能）",
+    desc: "早期 PoC，精簡後<strong>不部署、不維護</strong>。程式可暫留 repo 供參考。包含：後台 app/admin/*、legacy-admin/、excel-store（Excel 主庫流程）、workflow／clarification API。與下方 src/server 重構無關——歸檔是<strong>刪減範圍</strong>。",
+    routes: ["/admin/*（整包）"],
+    apis: ["app/api/admin/*", "app/api/workflow/*", "app/api/clarification/*"],
+    code: ["app/admin/", "legacy-admin/", "src/lib/excel-store/", "src/lib/incoming-queue.ts"],
+    docs: ["docs/ARCHIVED_MODULES.md", "legacy-admin/ARCHIVED.md"],
+    ops: []
+  },
+  {
+    id: "refactor", cat: "ops", views: ["slim"],
+    name: "內部重構 src/server（規劃中，目錄尚無）",
+    desc: "雙助手主線<strong>保留</strong>，只整理程式分層。現況：業務邏輯散落在 app/api/*/route.ts 與 src/lib/*。目標：新增 src/server/sales/、src/server/roleplay/，route 只做驗證與 HTTP，呼叫 server 層。尚未實作，repo 內無 src/server/。",
+    routes: [],
+    apis: ["（未來）app/api/sales/* → src/server/sales", "（未來）app/api/roleplay/* → src/server/roleplay"],
+    code: ["app/api/sales/chat/route.ts", "app/api/roleplay/sessions/route.ts", "src/lib/gemini/conversational-analytics.ts", "src/lib/roleplay/engine/session-service.ts"],
+    docs: ["docs/ARCHIVED_MODULES.md"],
+    ops: []
+  },
+  {
+    id: "deploy-next", cat: "ops", views: ["current", "slim"],
+    name: "部署（Next 全棧 Cloud Run）",
+    desc: "Next 全棧 Docker；部署 ynm-web-test。",
+    routes: [],
+    apis: [],
+    code: ["Dockerfile", "deploy/cloudrun-test.env.yaml", "scripts/ops/deploy-cloudrun-test.cjs"],
+    docs: ["docs/CLOUDRUN_LOCAL_PARITY.md", "docs/PLATFORM_STARTUP.md"],
+    ops: ["npm run deploy:test"]
+  },
+  {
+    id: "deploy-api", cat: "ops", views: ["api-only"],
+    name: "部署（API-only Cloud Run）",
+    desc: "ynm-assistants-api；不含 Next 頁面；映像較小。",
+    routes: [],
+    apis: [],
+    code: ["apps/api-server/Dockerfile", "deploy/cloudrun-api.env.example.yaml", "scripts/ops/deploy-cloudrun-api.cjs"],
+    docs: ["docs/ARCHITECTURE.md", "docs/API_VENDOR_GUIDE.md"],
+    ops: ["npm run deploy:api:test", "npm run smoke:api"]
+  },
+  {
+    id: "contracts", cat: "api", views: ["api-only"],
+    name: "契約與 DTO（contracts）",
+    desc: "廠商對接用型別、OpenAPI 對齊的 request body。",
+    routes: [],
+    apis: ["GET /v1/openapi"],
+    code: ["packages/contracts/src/index.ts", "docs/openapi.yaml"],
+    docs: ["docs/API_VENDOR_GUIDE.md", "docs/ARCHIVED_MODULES.md"],
+    ops: []
+  }
+];
+
+const ROUTES_BY_VIEW = {
+  current: [
+    ["/", "平台入口", "app/page.tsx"], ["/login", "平台入口", "app/login/page.tsx"],
+    ["/sales", "銷售助手", "app/sales/page.tsx"], ["/sales/change-password", "認證", "app/sales/change-password/page.tsx"],
+    ["/roleplay", "對練助手", "app/roleplay/page.tsx"], ["/roleplay/setup", "對練助手", "app/roleplay/setup/page.tsx"],
+    ["/roleplay/practice", "對練助手", "app/roleplay/practice/page.tsx"], ["/roleplay/result", "對練助手", "app/roleplay/result/page.tsx"],
+    ["/roleplay/history", "對練助手", "app/roleplay/history/page.tsx"],
+    ["/admin/home", "後台管理", "app/admin/(app)/home/page.tsx"], ["/admin/users", "後台管理", "app/admin/(app)/users/page.tsx"],
+    ["/admin/usage/sales", "使用統計", "app/admin/(app)/usage/sales/page.tsx"], ["/admin/usage/roleplay", "使用統計", "app/admin/(app)/usage/roleplay/page.tsx"],
+    ["/admin/login", "認證", "app/admin/login/page.tsx"]
+  ],
+  slim: [
+    ["/", "平台入口", "app/page.tsx"], ["/login", "平台入口", "app/login/page.tsx"],
+    ["/sales", "銷售助手", "app/sales/page.tsx"], ["/roleplay", "對練助手", "app/roleplay/page.tsx"],
+    ["/roleplay/setup", "對練助手", "app/roleplay/setup/page.tsx"], ["/roleplay/practice", "對練助手", "app/roleplay/practice/page.tsx"],
+    ["/roleplay/result", "對練助手", "app/roleplay/result/page.tsx"], ["/roleplay/history", "對練助手", "app/roleplay/history/page.tsx"]
+  ],
+  "api-only": [
+    ["—", "（廠商 Web/App）", "不在本 repo Production"],
+    ["參考", "銷售 UI", "app/sales/（ARCHIVED，內部 demo）"],
+    ["參考", "對練 UI", "app/roleplay/（ARCHIVED，內部 demo）"]
+  ]
+};
+
+const APIS_BY_VIEW = {
+  current: [
+    ["認證", "POST /api/portal/auth/login", "app/api/portal/auth/login/route.ts"],
+    ["認證", "POST /api/sales/auth/login", "app/api/sales/auth/login/route.ts"],
+    ["銷售助手", "POST /api/sales/chat", "app/api/sales/chat/route.ts"],
+    ["銷售助手", "POST /api/sales/chat/stream", "app/api/sales/chat/stream/route.ts"],
+    ["銷售助手", "GET /api/sales/knowledge-meta", "app/api/sales/knowledge-meta/route.ts"],
+    ["對練助手", "POST /api/roleplay/sessions", "app/api/roleplay/sessions/route.ts"],
+    ["對練助手", "POST /api/roleplay/sessions/[id]/turn", "app/api/roleplay/sessions/[id]/turn/route.ts"],
+    ["對練助手", "POST /api/roleplay/sessions/[id]/finish", "app/api/roleplay/sessions/[id]/finish/route.ts"],
+    ["對練助手", "GET /api/roleplay/me/stats", "app/api/roleplay/me/stats/route.ts"],
+    ["後台", "GET /api/admin/analytics", "app/api/admin/analytics/route.ts"]
+  ],
+  slim: [
+    ["認證", "POST /api/portal/auth/login", "app/api/portal/auth/login/route.ts"],
+    ["銷售助手", "POST /api/sales/chat", "app/api/sales/chat/route.ts"],
+    ["銷售助手", "POST /api/sales/chat/stream", "app/api/sales/chat/stream/route.ts"],
+    ["銷售助手", "GET /api/sales/knowledge-meta", "app/api/sales/knowledge-meta/route.ts"],
+    ["對練助手", "POST /api/roleplay/sessions", "app/api/roleplay/sessions/route.ts"],
+    ["對練助手", "POST /api/roleplay/sessions/[id]/turn", "app/api/roleplay/sessions/[id]/turn/route.ts"],
+    ["對練助手", "POST /api/roleplay/sessions/[id]/finish", "app/api/roleplay/sessions/[id]/finish/route.ts"],
+    ["對練助手", "GET /api/roleplay/me/stats", "app/api/roleplay/me/stats/route.ts"]
+  ],
+  "api-only": [
+    ["雙助手 API", "GET /health", "apps/api-server/src/app.ts"],
+    ["雙助手 API", "GET /v1/openapi", "apps/api-server/src/app.ts"],
+    ["銷售", "POST /v1/sales/chat", "apps/api-server/src/routes/sales.ts"],
+    ["銷售", "POST /v1/sales/chat/stream", "apps/api-server/src/routes/sales.ts"],
+    ["銷售", "GET /v1/sales/knowledge-meta", "apps/api-server/src/routes/sales.ts"],
+    ["對練", "POST /v1/roleplay/sessions", "apps/api-server/src/routes/roleplay.ts"],
+    ["對練", "POST /v1/roleplay/sessions/{id}/turn", "apps/api-server/src/routes/roleplay.ts"],
+    ["對練", "POST /v1/roleplay/sessions/{id}/finish", "apps/api-server/src/routes/roleplay.ts"],
+    ["對練", "GET /v1/roleplay/me/stats", "apps/api-server/src/routes/roleplay.ts"],
+    ["對練", "GET /v1/roleplay/me/history", "apps/api-server/src/routes/roleplay.ts"],
+    ["對練", "GET /v1/roleplay/config-options", "apps/api-server/src/routes/roleplay.ts"]
+  ]
+};
+
+const SQL_BY_VIEW = {
+  current: [
+    ["sql/platform_users.sql", "平台帳號", "認證"],
+    ["sql/usage_events.sql", "銷售提問紀錄", "銷售／統計"],
+    ["sql/roleplay_sessions.sql", "對練場次", "對練"],
+    ["sql/roleplay_session_facts.sql", "五維評分", "對練"]
+  ],
+  slim: [
+    ["sql/usage_events.sql", "銷售提問紀錄", "銷售"],
+    ["sql/roleplay_sessions.sql", "對練場次", "對練"],
+    ["sql/roleplay_session_facts.sql", "五維評分", "對練"]
+  ],
+  "api-only": [
+    ["sql/usage_events.sql", "銷售提問紀錄", "銷售"],
+    ["sql/roleplay_sessions.sql", "對練場次", "對練"],
+    ["sql/roleplay_session_facts.sql", "五維評分", "對練"]
+  ]
+};
+
+const DOCS_BY_VIEW = {
+  current: [
+    ["docs/PLATFORM_STARTUP.md", "全平台"],
+    ["docs/SALES_AGENT_ARCHITECTURE.md", "銷售"],
+    ["docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.md", "對練"],
+    ["docs/CLOUDRUN_LOCAL_PARITY.md", "部署"]
+  ],
+  slim: [
+    ["docs/PLATFORM_STARTUP.md", "全平台"],
+    ["docs/SALES_AGENT_ARCHITECTURE.md", "銷售"],
+    ["src/platform/README.md", "RAG 設定"],
+    ["docs/ARCHIVED_MODULES.md", "歸檔"]
+  ],
+  "api-only": [
+    ["docs/openapi.yaml", "API 契約"],
+    ["docs/API_VENDOR_GUIDE.md", "廠商對接"],
+    ["docs/ARCHITECTURE.md", "架構"]
+  ]
+};
+
+const CAT = { ui: "UI", api: "API", data: "資料", ops: "維運", vendor: "非主線", archive: "歸檔" };
+
+/** 核心程式職責說明（路徑 → 做什麼） */
+const CODE_PURPOSES = {
+  "app/page.tsx": "首頁三入口卡片：導向銷售助手、對練助手、後台。",
+  "app/login/page.tsx": "統一登入表單；驗證後依角色導向 sales / roleplay / admin。",
+  "src/lib/theme/portal-theme.ts": "入口與行動版共用配色、字級等 UI 主題常數。",
+  "middleware.ts": "Next 中介層：未登入攔截、角色導向、保護 admin / sales / roleplay 路徑。",
+  "src/lib/auth/session.ts": "Cookie session 簽章、解析、寫入與清除（admin / sales 分開 cookie）。",
+  "src/lib/auth/password.ts": "密碼雜湊比對、強度檢查、改密碼流程共用邏輯。",
+  "src/lib/auth/api-auth.ts": "Bearer 優先解析使用者；與 Cookie 並存，供廠商 token 聯調。",
+  "src/lib/bq/users.ts": "從 BQ platform_users 查詢／更新業代與管理員帳號。",
+  "src/lib/bq/auth-audit.ts": "登入、改密碼等認證事件寫入 auth_audit_log。",
+  "packages/platform-core/src/auth/resolve-user.ts": "解析 Authorization Bearer（api_key / jwt）；產出 ApiUser。",
+  "apps/api-server/src/middleware/auth.ts": "Hono 中介層：每個 /v1 請求注入已驗證 user。",
+  "apps/api-server/src/app.ts": "API 服務根：掛載 /health、/v1/openapi、sales／roleplay 子路由。",
+  "apps/api-server/src/routes/sales.ts": "銷售 HTTP 端點：chat、stream NDJSON、knowledge-meta。",
+  "apps/api-server/src/routes/roleplay.ts": "對練 HTTP 端點：開局、回合、完賽、戰績、歷史、設定選項。",
+  "app/sales/page.tsx": "銷售助手聊天 UI：輸入、串流回覆、引用來源、產品線篩選。",
+  "app/api/sales/chat/route.ts": "同步問答：等檢索+Gemini 全跑完，一次回 JSON（reply、citations）；適合簡單整合。",
+  "app/api/sales/chat/stream/route.ts": "串流問答：NDJSON 逐行推送 status／引用／打字效果，最後 done；聊天 UI 用。",
+  "src/lib/gemini/sales-agent-orchestrator.ts": "銷售 Agent 編排：檢索、組 prompt、呼叫模型、組裝回覆結構。",
+  "src/lib/gemini/conversational-analytics.ts": "對外銷售 chat 入口：串流／非串流，銜接 orchestrator 與 log。",
+  "src/lib/knowledge/knowledge-backend.ts": "SALES_KNOWLEDGE_BACKEND 開關（rag／bq）。",
+  "src/components/mobile/ChatThread.tsx": "行動版聊天訊息列表與輸入框元件。",
+  "src/components/mobile/CitationPanel.tsx": "顯示回覆引用來源（話術片段、文件標題）。",
+  "packages/sales-core/src/index.ts": "銷售 API facade：chat、stream、meta；封裝 lib 並寫 usage log。",
+  "app/roleplay/page.tsx": "對練首頁：雷達圖、戰績摘要、進入設定或歷史。",
+  "src/lib/roleplay/engine/session-service.ts": "對練場次生命週期：開局、回合、完賽、記憶體 session 狀態。",
+  "src/lib/roleplay/engine/dimension-scorer.ts": "五維規則評分：依對話內容計算各維度分數與總分。",
+  "src/lib/roleplay/engine/scoring-agent.ts": "評分編排：呼叫 dimension-scorer、產出報告與修正建議。",
+  "src/lib/roleplay/radar-stats.ts": "雷達均分計算：近 N 場五維平均，首頁與後台共用。",
+  "src/lib/bq/roleplay-sessions-bq.ts": "對練完賽寫入 BQ（持久化＝記憶體場次存進資料庫，重開機仍可查歷史／後台統計）。",
+  "src/lib/bq/users.ts": "平台帳號讀寫 BQ platform_users（Cookie 登入時代）。",
+  "src/components/roleplay/RoleplayRadarChart.tsx": "五維雷達圖 SVG 元件（首頁／結果頁）。",
+  "src/components/roleplay/RoleplayPracticeChat.tsx": "對練練習頁聊天 UI：業代發言、客戶 AI 回覆。",
+  "packages/roleplay-core/src/index.ts": "對練 API facade：開局、回合、完賽、stats；封裝 session-service。",
+  "app/admin/(app)/home/page.tsx": "後台首頁儀表板與快捷入口。",
+  "app/admin/(app)/users/page.tsx": "用戶管理 UI：列表、新增、編輯、重設密碼。",
+  "src/components/AppShell.tsx": "後台共用版面：側欄、頂欄、內容區框架。",
+  "app/admin/(app)/usage/roleplay/page.tsx": "對練使用統計頁：場次列表、五維均分、篩選。",
+  "src/lib/analytics/roleplay-usage-analytics.ts": "後台對練 analytics 聚合：近 10 場均分、完賽率等 KPI。",
+  "src/lib/bq/usage-events.ts": "銷售提問 usage_events 寫入與查詢。",
+  "src/lib/bq/script-drills-insert.ts": "BigQuery 連線（getBigQueryClient）；全專案共用。",
+  "src/lib/rag/rag-engine-config.ts": "Vertex RAG corpus、專案、區域等連線設定。",
+  "src/lib/rag/vertex-rag-grounded-chat.ts": "Grounded 模式：RAG 檢索 + 強制引用生成回覆。",
+  "src/lib/rag/vertex-rag-search.ts": "對 RAG corpus 執行語意搜尋，回傳相關片段。",
+  "src/lib/rag/rag-document-client.ts": "透過 API upsert 文件至 RAG corpus（匯入腳本用）。",
+  "src/lib/ingest/pipeline/ingest-batch.ts": "可選：解析本機 xlsx／PDF 為 KnowledgeUnit（供 rag:ingest 腳本）。",
+  "data/training-materials/": "可選腳本用的本機目錄範本；repo 內多為 placeholder，非 GCP corpus 本體。",
+  "jobs/rag-sync/": "可選：Cloud Run Job 包裝 rag-ingest-training.ts。",
+  "scripts/rag/rag-ingest-training.ts": "可選：本機素材 → API 寫入 corpus（npm run rag:ingest）；你方目前改用手動上傳。",
+  "Dockerfile": "Next 全棧映像：build 全部 app 頁面 + API routes。",
+  "deploy/cloudrun-test.env.yaml": "ynm-web-test Cloud Run 環境變數。",
+  "scripts/ops/deploy-cloudrun-test.cjs": "建置並部署 Next 全棧至 Cloud Run test。",
+  "apps/api-server/Dockerfile": "API-only 映像：僅 api-server + packages + src/lib。",
+  "deploy/cloudrun-api.env.example.yaml": "ynm-assistants-api 環境變數範本。",
+  "scripts/ops/deploy-cloudrun-api.cjs": "建置並部署雙助手 API 至 Cloud Run。",
+  "packages/contracts/src/index.ts": "廠商 API 共用 DTO：ApiUser、chat／roleplay request body。",
+  "docs/openapi.yaml": "OpenAPI 3 契約：/v1/sales、/v1/roleplay 路徑與 schema。"
+};
+
+const DOC_PURPOSES = {
+  "README.md": "專案簡介、目錄結構、常用指令。",
+  "docs/PLATFORM_STARTUP.md": "本機啟動、環境變數、測試帳號。",
+  "docs/SALES_AGENT_ARCHITECTURE.md": "銷售助手架構、檢索模式、資料流。",
+  "docs/ROLEPLAY_HIGH_SCORE_PLAYBOOK.md": "對練高分話術與情境策略。",
+  "docs/ROLEPLAY_HIGH_SCORE_QA_GUIDE.md": "對練常見問答與得分要點。",
+  "docs/CLOUDRUN_LOCAL_PARITY.md": "本機與 Cloud Run 環境對齊。",
+  "docs/ARCHITECTURE.md": "API-only 架構與部署單元。",
+  "docs/API_VENDOR_GUIDE.md": "廠商對接：Bearer、curl、NDJSON。",
+  "docs/openapi.yaml": "OpenAPI 契約；路徑與 schema。",
+  "docs/ARCHIVED_MODULES.md": "歸檔模組清單。",
+  "deploy/cloudrun-jobs.md": "RAG 同步 Job 排程與部署。",
+  "src/platform/README.md": "Vertex RAG 設定與 ingest 指令。",
+  "sql/platform_users.sql": "平台帳號表 DDL。",
+  "sql/auth_audit_log.sql": "登入稽核 log 表 DDL。",
+  "sql/usage_events.sql": "銷售提問紀錄表 DDL。",
+  "sql/roleplay_sessions.sql": "對練場次表 DDL。",
+  "sql/roleplay_agent_dashboard.sql": "業代儀表板快取表 DDL。"
+};
+
+function codePurpose(path) {
+  return CODE_PURPOSES[path] || "輔助邏輯或設定。";
+}
+
+function docPurpose(path) {
+  return DOC_PURPOSES[path] || "模組相關說明。";
+}
+
+function li(a) {
+  const items = Array.isArray(a) ? a : [a];
+  return items.length ? "<ul class=\"files\">" + items.map(i => "<li><code>" + i + "</code></li>").join("") + "</ul>" : "—";
+}
+
+function section(title, items, cls) {
+  const list = Array.isArray(items) ? items : [items];
+  const attr = cls ? ` class="${cls}"` : "";
+  return `<section${attr}><h4>${title}</h4>${li(list)}</section>`;
+}
+
+function sectionCode(items) {
+  if (!items || !items.length) return `<section class="sec-code"><h4>核心程式</h4>—</section>`;
+  const rows = items.map(p => {
+    const purpose = codePurpose(p);
+    return `<tr data-code-search="${(p + " " + purpose).toLowerCase()}"><td><code>${p}</code></td><td class="purpose-cell">${purpose}</td></tr>`;
+  }).join("");
+  return `<section class="sec-code"><h4>核心程式</h4><div class="table-scroll inner-code"><table class="simple"><thead><tr><th>檔案</th><th>做什麼</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+}
+
+function sectionDocs(items) {
+  if (!items || !items.length) return `<section class="sec-docs"><h4>文件</h4>—</section>`;
+  const rows = items.map(p => {
+    const purpose = docPurpose(p);
+    return `<tr data-doc-search="${(p + " " + purpose).toLowerCase()}"><td><code>${p}</code></td><td class="purpose-cell">${purpose}</td></tr>`;
+  }).join("");
+  return `<section class="sec-docs"><h4>文件</h4><div class="table-scroll inner-code"><table class="simple"><thead><tr><th>檔案</th><th>做什麼</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+}
+
+function countCodeFiles(mods) {
+  const seen = new Set();
+  mods.forEach(m => (m.code || []).forEach(p => seen.add(p)));
+  return seen.size;
+}
+
+function moduleSearchText(m) {
+  const codeText = (m.code || []).map(p => p + " " + codePurpose(p)).join(" ");
+  const docText = (m.docs || []).map(p => p + " " + docPurpose(p)).join(" ");
+  return [m.name, m.desc, ...(m.routes || []), ...(m.apis || []), codeText, docText, ...(m.ops || [])].join(" ").toLowerCase();
+}
+
+function modulesForView(view) {
+  return MODULES.filter(m => m.views.includes(view));
+}
+
+function renderAll() {
+  const view = document.getElementById("viewMode").value;
+  const meta = VIEWS[view];
+  const mods = modulesForView(view);
+  const routes = ROUTES_BY_VIEW[view];
+  const apis = APIS_BY_VIEW[view];
+  const sql = SQL_BY_VIEW[view];
+  const docs = DOCS_BY_VIEW[view];
+
+  document.getElementById("viewCompare").innerHTML = VIEW_COMPARE.map(v =>
+    `<div class="vcard${v.id === view ? " active" : ""}"><h3>${v.title}</h3><ul>${v.items.map(i => `<li>${i}</li>`).join("")}</ul></div>`
+  ).join("");
+  document.getElementById("viewBanner").innerHTML = meta.banner;
+  document.getElementById("scopeNote").innerHTML = "<strong>收錄說明：</strong>" + meta.scope;
+  document.querySelector("#routes").textContent = "二、" + meta.routeHeading;
+  document.querySelector("#apis").textContent = "三、" + meta.apiHeading;
+
+  document.getElementById("stats").innerHTML = [
+    ["模組", mods.length], ["頁面", routes.length], ["API", apis.length],
+    ["核心檔", countCodeFiles(mods)], ["DDL", sql.length], ["文件", docs.length]
+  ].map(([l, n]) => `<div class="stat"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join("");
+
+  const toc = document.getElementById("toc");
+  toc.innerHTML = "";
+  document.getElementById("moduleList").innerHTML = mods.map(m => {
+    toc.innerHTML += `<li><a href="#mod-${m.id}">${m.name}</a></li>`;
+    return `<article class="module-card" id="mod-${m.id}" data-cat="${m.cat}" data-search="${moduleSearchText(m)}">
+      <div class="card-head">
+        <span class="badge cat-${m.cat}">${CAT[m.cat]}</span>
+        <h3>${m.name}</h3>
+      </div>
+      <p class="desc">${m.desc}</p>
+      <div class="module-grid">
+        ${section("頁面路由", m.routes, "sec-routes")}
+        ${section("API", m.apis, "sec-apis")}
+        ${sectionCode(m.code)}
+        ${sectionDocs(m.docs)}
+        ${section("維運指令", m.ops, "sec-ops")}
+      </div>
+    </article>`;
+  }).join("");
+
+  document.getElementById("routeBody").innerHTML = routes.map(r =>
+    `<tr data-search="${r.join(" ").toLowerCase()}"><td><code>${r[0]}</code></td><td>${r[1]}</td><td><code>${r[2]}</code></td></tr>`
+  ).join("");
+
+  document.getElementById("apiBody").innerHTML = apis.map(a =>
+    `<tr data-search="${a.join(" ").toLowerCase()}"><td>${a[0]}</td><td><code>${a[1]}</code></td><td><code>${a[2]}</code></td></tr>`
+  ).join("");
+
+  document.getElementById("sqlBody").innerHTML = sql.map(s =>
+    `<tr data-search="${s.join(" ").toLowerCase()}"><td><code>${s[0]}</code></td><td>${s[1]}</td><td>${s[2]}</td></tr>`
+  ).join("");
+
+  document.getElementById("docBody").innerHTML = docs.map(d => {
+    const path = d[0];
+    const mod = d[1];
+    const purpose = docPurpose(path);
+    return `<tr data-search="${(path + " " + purpose + " " + mod).toLowerCase()}"><td><code>${path}</code></td><td class="purpose-cell">${purpose}</td><td>${mod}</td></tr>`;
+  }).join("");
+
+  filterAll();
+}
+
+function filterAll() {
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const cat = document.getElementById("catFilter").value;
+  const mods = document.querySelectorAll("#moduleList .module-card");
+  let shown = 0;
+  mods.forEach(card => {
+    const ok = (!cat || card.dataset.cat === cat) && (!q || card.dataset.search.includes(q));
+    card.classList.toggle("hidden", !ok);
+    if (ok) shown++;
+  });
+  ["routeBody", "apiBody", "sqlBody", "docBody"].forEach(id => {
+    document.querySelectorAll("#" + id + " tr").forEach(tr => {
+      tr.classList.toggle("hidden", q && !tr.dataset.search.includes(q));
+    });
+  });
+  const total = mods.length;
+  document.getElementById("matchCount").textContent = (q || cat) ? `模組 ${shown} / ${total}` : "";
+}
+
+const savedView = new URLSearchParams(location.search).get("view");
+if (savedView && VIEWS[savedView]) document.getElementById("viewMode").value = savedView;
+
+document.getElementById("viewMode").addEventListener("change", () => {
+  const v = document.getElementById("viewMode").value;
+  history.replaceState(null, "", "?view=" + v);
+  renderAll();
+});
+document.getElementById("search").addEventListener("input", filterAll);
+document.getElementById("catFilter").addEventListener("change", filterAll);
+renderAll();
+</script>
+</body>
+</html>

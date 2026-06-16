@@ -6,6 +6,10 @@ import { Suspense, useEffect, useState } from "react";
 import { PortalLayout } from "@/components/mobile/PortalLayout";
 import { RoleplayScoreCard } from "@/components/roleplay/RoleplayScoreCard";
 import type { RoleplayScoreResult } from "@/lib/roleplay/session-types";
+import type { RoleplaySessionConfig } from "@/lib/roleplay/scenario-contract";
+import {
+  retrySameRoleplayScenario,
+} from "@/lib/roleplay/start-roleplay-session";
 
 type AgentStats = {
   suggestions: { label: string; reason: string; personaId: string; difficulty: string; competitor: string }[];
@@ -18,6 +22,9 @@ function ResultContent() {
   const [scenarioTitle, setScenarioTitle] = useState("");
   const [scoreResult, setScoreResult] = useState<RoleplayScoreResult | null>(null);
   const [stats, setStats] = useState<AgentStats | null>(null);
+  const [sessionConfig, setSessionConfig] = useState<RoleplaySessionConfig | null>(null);
+  const [retryPending, setRetryPending] = useState(false);
+  const [retryError, setRetryError] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -35,10 +42,12 @@ function ResultContent() {
         const cached = JSON.parse(cachedRaw) as {
           scenarioTitle?: string;
           scoreResult?: RoleplayScoreResult;
+          sessionConfig?: RoleplaySessionConfig;
         };
         if (cached.scoreResult) {
           setScenarioTitle(cached.scenarioTitle ?? "");
           setScoreResult(cached.scoreResult);
+          if (cached.sessionConfig) setSessionConfig(cached.sessionConfig);
           setLoading(false);
           sessionStorage.removeItem(cacheKey);
           void fetch("/api/roleplay/me/stats")
@@ -59,6 +68,9 @@ function ResultContent() {
       const data = (await sessRes.json()) as {
         scenarioTitle?: string;
         scoreResult?: RoleplayScoreResult | null;
+        sessionConfig?: RoleplaySessionConfig;
+        targetModel?: string;
+        competitor?: string;
         error?: string;
       };
       if (!sessRes.ok) {
@@ -72,12 +84,26 @@ function ResultContent() {
       }
       setScenarioTitle(data.scenarioTitle ?? "");
       setScoreResult(data.scoreResult ?? null);
+      if (data.sessionConfig) {
+        setSessionConfig(data.sessionConfig);
+      }
       if (statsRes.ok) {
         setStats((await statsRes.json()) as AgentStats);
       }
       setLoading(false);
     })();
   }, [sessionId, router]);
+
+  async function handleRetrySame() {
+    if (!sessionConfig || retryPending) return;
+    setRetryError("");
+    setRetryPending(true);
+    const result = await retrySameRoleplayScenario(sessionConfig, router);
+    if (!result.ok) {
+      setRetryError(result.error);
+      setRetryPending(false);
+    }
+  }
 
   if (loading) {
     return <p className="py-8 text-center text-sm text-emerald-600">載入評分結果…</p>;
@@ -115,12 +141,24 @@ function ResultContent() {
         </div>
       ) : null}
 
-      <Link
-        href="/roleplay/setup"
-        className="block rounded-xl bg-emerald-700 py-3 text-center text-sm font-medium text-white"
-      >
-        再練一次
-      </Link>
+      {sessionConfig ? (
+        <button
+          type="button"
+          disabled={retryPending}
+          onClick={() => void handleRetrySame()}
+          className="block w-full rounded-xl bg-emerald-700 py-3 text-center text-sm font-medium text-white disabled:opacity-60"
+        >
+          {retryPending ? "情境建立中…" : "同情境再練一次"}
+        </button>
+      ) : (
+        <Link
+          href="/roleplay/setup"
+          className="block rounded-xl bg-emerald-700 py-3 text-center text-sm font-medium text-white"
+        >
+          再練一次
+        </Link>
+      )}
+      {retryError ? <p className="text-center text-sm text-red-600">{retryError}</p> : null}
       <Link
         href="/roleplay"
         className="block rounded-xl border border-emerald-200 py-3 text-center text-sm text-emerald-800"

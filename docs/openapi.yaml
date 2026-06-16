@@ -1,0 +1,551 @@
+openapi: 3.0.3
+info:
+  title: YNM 雙助手 API
+  description: |
+    裕日銷售助手與對練助手對外 API（v1）。
+    廠商前端負責 UI 與登入；本 API 僅驗證 `Authorization: Bearer`。
+    串流端點回傳 NDJSON（`application/x-ndjson`），每行一個 JSON 物件。
+  version: 1.0.0
+  contact:
+    name: YNM PoC Team
+
+servers:
+  - url: https://ynm-assistants-api.example.com/v1
+    description: Production（範例，以實際 Gateway URL 為準）
+  - url: http://localhost:8080/v1
+    description: 本機 api-server
+
+tags:
+  - name: sales
+    description: 銷售助手
+  - name: roleplay
+    description: 對練助手
+
+security:
+  - bearerAuth: []
+
+paths:
+  /sales/chat:
+    post:
+      tags: [sales]
+      summary: 同步話術問答
+      operationId: salesChat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SalesChatRequest"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SalesChatResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /sales/chat/stream:
+    post:
+      tags: [sales]
+      summary: 串流話術問答（NDJSON）
+      operationId: salesChatStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SalesChatRequest"
+      responses:
+        "200":
+          description: |
+            NDJSON 串流。事件類型：`status` | `citations_ready` | `intro_delta` | `done` | `error`
+          content:
+            application/x-ndjson:
+              schema:
+                $ref: "#/components/schemas/SalesChatStreamEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /sales/knowledge-meta:
+    get:
+      tags: [sales]
+      summary: 知識庫產品線與範圍 meta
+      operationId: salesKnowledgeMeta
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeMetaResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /roleplay/sessions:
+    post:
+      tags: [roleplay]
+      summary: 開局（自訂或隨機情境）
+      operationId: roleplayStartSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleplayStartRequest"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleplaySessionView"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /roleplay/sessions/{sessionId}:
+    get:
+      tags: [roleplay]
+      summary: 取得場次狀態與對話
+      operationId: roleplayGetSession
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleplaySessionView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /roleplay/sessions/{sessionId}/turn:
+    post:
+      tags: [roleplay]
+      summary: 業代發言（觸發客戶回覆）
+      operationId: roleplaySubmitTurn
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleplayTurnRequest"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleplayTurnResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /roleplay/sessions/{sessionId}/finish:
+    post:
+      tags: [roleplay]
+      summary: 完賽評分（五維 0–20，總分為五維加總）
+      operationId: roleplayFinishSession
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleplayScoreResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /roleplay/me/stats:
+    get:
+      tags: [roleplay]
+      summary: 業代戰績（含近 10 場五維雷達均分）
+      operationId: roleplayMeStats
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleplayDashboardStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /roleplay/me/history:
+    get:
+      tags: [roleplay]
+      summary: 完賽歷史列表
+      operationId: roleplayMeHistory
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/RoleplayHistoryItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /roleplay/config-options:
+    get:
+      tags: [roleplay]
+      summary: 人設、難度、競品等設定選項
+      operationId: roleplayConfigOptions
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /roleplay/scenarios/{scenarioId}:
+    get:
+      tags: [roleplay]
+      summary: 情境詳情
+      operationId: roleplayGetScenario
+      parameters:
+        - name: scenarioId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        廠商／裕日 IAM 簽發之 Bearer Token。
+        開發聯調可設 `YNM_API_AUTH_MODE=api_key`，Header 帶 `Authorization: Bearer <YNM_API_KEY>`，
+        並以 `X-YNM-User-Id`、`X-YNM-Username`、`X-YNM-Branch` 傳遞業代身分。
+
+  parameters:
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: 請求參數錯誤
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    Unauthorized:
+      description: 未授權或 Token 無效
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    NotFound:
+      description: 資源不存在
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    InternalError:
+      description: 伺服器錯誤
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+
+  schemas:
+    ErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: 未登入
+
+    SalesChatRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          description: 業代提問
+        productLine:
+          type: string
+          example: xtrail-ice
+        materialCategory:
+          type: string
+          description: 素材分類（可選）
+
+    CitationCard:
+      type: object
+      properties:
+        title:
+          type: string
+        snippet:
+          type: string
+        source:
+          type: string
+
+    SalesChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+        bullets:
+          type: array
+          items:
+            type: string
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/CitationCard"
+        inQuestionBank:
+          type: boolean
+        allowAddRequest:
+          type: boolean
+        question:
+          type: string
+
+    SalesChatStreamEvent:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [status, citations_ready, intro_delta, done, error]
+        text:
+          type: string
+        message:
+          type: string
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/CitationCard"
+        result:
+          $ref: "#/components/schemas/SalesChatResponse"
+
+    KnowledgeMetaResponse:
+      type: object
+      additionalProperties: true
+
+    RoleplayStartRequest:
+      type: object
+      properties:
+        scenarioId:
+          type: string
+        personaId:
+          type: string
+        mode:
+          type: string
+          enum: [custom, random, demo]
+        config:
+          type: object
+          additionalProperties: true
+
+    RoleplayTurnRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          description: 業代本輪發言
+
+    RoleplayChatTurn:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [customer, agent]
+        content:
+          type: string
+        at:
+          type: string
+
+    RoleplaySessionView:
+      type: object
+      additionalProperties: true
+      description: 含 sessionId、turns、status、scenario 摘要等
+
+    RoleplayTurnResponse:
+      type: object
+      additionalProperties: true
+      description: 含更新後 turns、客戶新回覆、輪次狀態
+
+    RoleplayDimensionScore:
+      type: object
+      properties:
+        dimensionId:
+          type: string
+          enum: [empathy, structure, factCheck, strategy, advance]
+        label:
+          type: string
+        score:
+          type: number
+          minimum: 0
+          maximum: 20
+        maxScore:
+          type: number
+        comment:
+          type: string
+
+    RoleplayCorrectionPoint:
+      type: object
+      properties:
+        issue:
+          type: string
+        category:
+          type: string
+          enum: [fact, strategy]
+        customerAsk:
+          type: string
+        whatYouSaid:
+          type: string
+        correctGuide:
+          type: string
+
+    RoleplayScoreResult:
+      type: object
+      properties:
+        score:
+          type: number
+          description: 五維加總（0–100）
+        grade:
+          type: string
+        gradeLabel:
+          type: string
+        summary:
+          type: string
+        dimensions:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleplayDimensionScore"
+        improvementTips:
+          type: array
+          items:
+            type: string
+        correctionPoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleplayCorrectionPoint"
+        unusedStrategies:
+          type: array
+          items:
+            type: string
+
+    RoleplayDimensionAverages:
+      type: object
+      properties:
+        empathy:
+          type: number
+          nullable: true
+        structure:
+          type: number
+          nullable: true
+        factCheck:
+          type: number
+          nullable: true
+        strategy:
+          type: number
+          nullable: true
+        advance:
+          type: number
+          nullable: true
+
+    RoleplayDashboardStats:
+      type: object
+      properties:
+        startedSessions:
+          type: integer
+        completedSessions:
+          type: integer
+        overallAvg:
+          type: number
+        radarOverallAvg:
+          type: number
+          description: 近 10 場五維均分加總
+        lastScore:
+          type: number
+          nullable: true
+        dimensionAverages:
+          $ref: "#/components/schemas/RoleplayDimensionAverages"
+        dimensionLabels:
+          type: object
+          additionalProperties:
+            type: string
+        scoreTrend:
+          type: array
+          items:
+            type: object
+            properties:
+              sessionId:
+                type: string
+              completedAt:
+                type: string
+              score:
+                type: number
+
+    RoleplayHistoryItem:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        status:
+          type: string
+          enum: [COMPLETED, STARTED]
+        score:
+          type: number
+          nullable: true
+        grade:
+          type: string
+        dimensions:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleplayDimensionScore"

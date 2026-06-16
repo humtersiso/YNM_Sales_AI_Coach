@@ -9,7 +9,9 @@ import {
   type RoleplayUiMessage,
 } from "@/components/roleplay/RoleplayPracticeChat";
 import { RoleplayScoringOverlay } from "@/components/roleplay/RoleplayScoringOverlay";
+import { inferAgentRoundForNextSend } from "@/lib/roleplay/roleplay-message-rounds";
 import type { RoleplayScoreResult } from "@/lib/roleplay/session-types";
+import type { RoleplaySessionConfig } from "@/lib/roleplay/scenario-contract";
 
 function newId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -27,6 +29,7 @@ type PracticeBootstrap = {
   awaitingAgentClosing?: boolean;
   agentClosingSent?: boolean;
   readyToScore?: boolean;
+  sessionConfig?: RoleplaySessionConfig;
 };
 
 function PracticeContent() {
@@ -51,12 +54,14 @@ function PracticeContent() {
   /** 對話輪次已滿，等待業代收尾 */
   const [awaitingClosing, setAwaitingClosing] = useState(false);
   const [scenarioTitle, setScenarioTitle] = useState("");
+  const [sessionConfig, setSessionConfig] = useState<RoleplaySessionConfig | null>(null);
 
   function applyBootstrap(data: PracticeBootstrap) {
     setSessionId(data.sessionId);
     setMaxTurns(data.maxTurns ?? 5);
     setTurn(data.turn ?? 0);
     setScenarioTitle(data.scenarioTitle?.trim() ?? "");
+    if (data.sessionConfig) setSessionConfig(data.sessionConfig);
 
     const readyToScore = data.readyToScore ?? data.agentClosingSent ?? false;
     const needsClosing =
@@ -219,7 +224,13 @@ function PracticeContent() {
     const agentId = newId();
     const isFirstAgentTurn = waitingForAgent;
 
-    setMessages((m) => [...m, { id: agentId, role: "agent", content: text }]);
+    const agentRound = inferAgentRoundForNextSend({
+      waitingForAgent,
+      awaitingClosing,
+      turn,
+    });
+
+    setMessages((m) => [...m, { id: agentId, role: "agent", content: text, agentRound }]);
     const pendingId = isClosingTurn ? null : newId();
     if (pendingId) {
       setMessages((m) => [
@@ -298,6 +309,7 @@ function PracticeContent() {
           JSON.stringify({
             scenarioTitle,
             scoreResult: data.scoreResult,
+            sessionConfig,
           }),
         );
       }

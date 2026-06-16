@@ -25,7 +25,8 @@ const COMPETITOR_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /territory|福特\s*territory/i, label: "Territory" },
   { pattern: /\bford\b|福特(?!territory)/i, label: "Ford" },
   { pattern: /sportage/i, label: "Sportage" },
-  { pattern: /rav4|cr-?v/i, label: "RAV4" },
+  { pattern: /cr-?v/i, label: "CR-V" },
+  { pattern: /rav4/i, label: "RAV4" },
   { pattern: /kuga/i, label: "Kuga" },
   { pattern: /mufasa/i, label: "Mufasa" },
   { pattern: /x-?\s*force|xforce/i, label: "XFORCE" },
@@ -63,8 +64,17 @@ export function extractMentionedCompetitor(message: string): string | null {
   return null;
 }
 
+export function mentionsKicksProduct(message: string): boolean {
+  return /\bkicks\b|勁客/i.test(message);
+}
+
+/** 預設銷售主力車（X-TRAIL）；不含 KICKS 等其他本品線 */
 export function mentionsHeroProduct(message: string): boolean {
-  return /x-?trail|xtrail|勁客|\bkicks\b/i.test(message);
+  return /x-?trail|xtrail/i.test(message);
+}
+
+export function mentionsAnyOwnProductLine(message: string): boolean {
+  return mentionsHeroProduct(message) || mentionsKicksProduct(message);
 }
 
 export function mentionsCompetitor(message: string): boolean {
@@ -112,7 +122,7 @@ export function classifySalesQuestionByRules(message: string): SalesQuestionProf
   const hasCost = COST_WORD.test(t);
   const hasQa = QA_WORD.test(t) || CUSTOMER_OBJECTION.test(t);
   const hasOwn = OWN_PRODUCT_WORD.test(t);
-  const hasHero = mentionsHeroProduct(t);
+  const hasHero = mentionsAnyOwnProductLine(t);
 
   let category: SalesQuestionCategory;
 
@@ -189,7 +199,7 @@ export function applyProfileToScope(
 ): KnowledgeSearchScope {
   let productLine = scope.productLine ?? profile.heroProduct.id;
 
-  if (message && /kicks|勁客/i.test(message)) {
+  if (message && mentionsKicksProduct(message)) {
     productLine = "kicks";
   } else if (message && mentionsHeroProduct(message)) {
     productLine = profile.heroProduct.id;

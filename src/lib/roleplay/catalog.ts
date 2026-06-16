@@ -22,16 +22,29 @@ export const ROLEPLAY_DIFFICULTIES: {
   { id: "challenge", label: "挑戰", hint: "強硬、要求具體數字" },
 ];
 
-/** X-TRAIL 對練常用競品（可擴充） */
+/**
+ * X-TRAIL 對練競品探測候選（須有 competitor_compare 語料；實際可選清單以 RAG 探測為準）
+ * 對照 data/training-materials-inventory.json、retrieval-gold.json 之 competitor-compare 檔名
+ */
 export const ROLEPLAY_COMPETITORS_XTRAIL = [
   "Toyota RAV4",
-  "Honda CR-V",
   "Hyundai Tucson L",
-  "Mitsubishi Outlander",
   "KIA Sportage",
+  "Ford Kuga",
+  "Hyundai MUFASA",
+  "Ford Territory",
+  "Mitsubishi XFORCE",
 ] as const;
 
-export function getRoleplayConfigOptions() {
+export type RoleplayCompetitorId = (typeof ROLEPLAY_COMPETITORS_XTRAIL)[number];
+
+/** 語料候選清單（設定頁即時顯示；開局時由 RAG 覆蓋檢查驗證） */
+export function staticCompetitorsForProduct(productLine: string): string[] {
+  if (!isRoleplayProductRagReady(productLine)) return [];
+  return [...ROLEPLAY_COMPETITORS_XTRAIL];
+}
+
+function buildStaticRoleplayConfigOptions() {
   const rag = getRoleplayRagSupportedProducts();
   const products = rag.products.map((p) => ({ id: p.id, displayName: p.displayName }));
 
@@ -49,9 +62,43 @@ export function getRoleplayConfigOptions() {
     products,
     personas,
     ageRanges: ROLEPLAY_AGE_RANGES,
-    competitors: [...ROLEPLAY_COMPETITORS_XTRAIL],
     difficulties: ROLEPLAY_DIFFICULTIES,
     maxTurns: { min: 3, max: 10, default: 5 },
+  };
+}
+
+/** @deprecated 請改用 getRoleplayConfigOptions */
+export function getRoleplayConfigOptionsSync() {
+  const base = buildStaticRoleplayConfigOptions();
+  const competitorsByProduct: Record<string, string[]> = {};
+  for (const p of base.products) {
+    competitorsByProduct[p.id] = staticCompetitorsForProduct(p.id);
+  }
+  const defaultProduct = base.products[0]?.id;
+  return {
+    ...base,
+    competitors: defaultProduct ? (competitorsByProduct[defaultProduct] ?? []) : [],
+    competitorsByProduct,
+  };
+}
+
+export async function getRoleplayConfigOptions() {
+  const base = buildStaticRoleplayConfigOptions();
+  const competitorsByProduct: Record<string, string[]> = {};
+
+  for (const p of base.products) {
+    competitorsByProduct[p.id] = staticCompetitorsForProduct(p.id);
+  }
+
+  const defaultProduct = base.products[0]?.id;
+  const competitors = defaultProduct
+    ? (competitorsByProduct[defaultProduct] ?? [])
+    : [];
+
+  return {
+    ...base,
+    competitors,
+    competitorsByProduct,
   };
 }
 

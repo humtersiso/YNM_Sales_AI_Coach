@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*", "./*"]
+      "@/*": ["./src/*", "./*"],
+      "@ynm/contracts": ["./packages/contracts/src"],
+      "@ynm/platform-core": ["./packages/platform-core/src"]
     }
   },
   "include": [

@@ -29,10 +29,8 @@ import {
   resolveSalesChatMode,
 } from "@/lib/gemini/sales-chat-mode";
 import { neverCallDataAgent, skipDataAgentWhenCitationsFound } from "@/lib/gemini/sales-chat-speed";
-import {
-  detectInactiveProductLine,
-  inactiveProductLineMessage,
-} from "@/lib/gemini/inactive-product-guard";
+import { resolveInactiveProductBlock } from "@/lib/gemini/inactive-product-guard";
+import { isCostDetailQuery } from "@/lib/gemini/cost-query-expand";
 import { assessSalesQueryAnswerability } from "@/lib/gemini/query-relevance-guard";
 import { isSpecQuestion } from "@/lib/gemini/sales-question-profile";
 import { outOfScopeKnowledgeMessage } from "@/lib/gemini/reply-format";
@@ -135,9 +133,9 @@ async function tryGroundedRagChat(
   message: string,
   scope: KnowledgeSearchScope,
 ): Promise<SalesChatResult | "fallback"> {
-  const inactiveProduct = detectInactiveProductLine(message, scope);
-  if (inactiveProduct) {
-    return noMatchResult(message, inactiveProductLineMessage(inactiveProduct));
+  const inactiveReply = resolveInactiveProductBlock(message, scope);
+  if (inactiveReply) {
+    return noMatchResult(message, inactiveReply);
   }
 
   const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
@@ -154,6 +152,7 @@ async function tryGroundedRagChat(
 
   const preCheck = assessSalesQueryAnswerability(message, [], {
     questionCategory: profile.category,
+    scope,
   });
   if (!preCheck.ok && preCheck.userReply) {
     return outOfScopeResult(message, preCheck.userReply);
@@ -171,8 +170,9 @@ async function tryGroundedRagChat(
 
     const answerability = assessSalesQueryAnswerability(message, grounded.citations, {
       questionCategory: profile.category,
+      scope,
     });
-    if (!answerability.ok && !isSpecQuestion(message, profile)) {
+    if (!answerability.ok && !isSpecQuestion(message, profile) && !isCostDetailQuery(message)) {
       return outOfScopeResult(
         message,
         answerability.userReply ?? outOfScopeKnowledgeMessage(),
@@ -230,14 +230,14 @@ async function chatWithRetrievePipeline(
   scope: KnowledgeSearchScope,
   mode: ReturnType<typeof resolveSalesChatMode>,
 ): Promise<SalesChatResult> {
-  const inactiveProduct = detectInactiveProductLine(message, scope);
-  if (inactiveProduct) {
-    return noMatchResult(message, inactiveProductLineMessage(inactiveProduct));
+  const inactiveReply = resolveInactiveProductBlock(message, scope);
+  if (inactiveReply) {
+    return noMatchResult(message, inactiveReply);
   }
 
   const { plan, profile } = await resolveSearchPlanWithProfile(message, scope);
 
-  const preCheck = assessSalesQueryAnswerability(message, []);
+  const preCheck = assessSalesQueryAnswerability(message, [], { scope });
   if (!preCheck.ok && preCheck.userReply) {
     return outOfScopeResult(message, preCheck.userReply);
   }
@@ -315,6 +315,7 @@ async function chatWithRetrievePipeline(
 
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
+    scope,
   });
   if (!answerability.ok && !isSpecQuestion(message, profile)) {
     return outOfScopeResult(
@@ -464,11 +465,11 @@ export async function* streamSalesChat(
   }
 
   if (mode === "grounded" && isRagKnowledgeBackend()) {
-    const inactiveProduct = detectInactiveProductLine(message, scope);
-    if (inactiveProduct) {
+    const inactiveReply = resolveInactiveProductBlock(message, scope);
+    if (inactiveReply) {
       yield {
         type: "done",
-        result: noMatchResult(message, inactiveProductLineMessage(inactiveProduct)),
+        result: noMatchResult(message, inactiveReply),
       };
       return;
     }
@@ -491,6 +492,7 @@ export async function* streamSalesChat(
 
     const preCheck = assessSalesQueryAnswerability(message, [], {
       questionCategory: profile.category,
+      scope,
     });
     if (!preCheck.ok && preCheck.userReply) {
       yield { type: "done", result: outOfScopeResult(message, preCheck.userReply) };
@@ -503,11 +505,11 @@ export async function* streamSalesChat(
 
   yield { type: "status", text: "正在查詢知識庫…" };
 
-  const inactiveProduct = detectInactiveProductLine(message, scope);
-  if (inactiveProduct) {
+  const inactiveReply = resolveInactiveProductBlock(message, scope);
+  if (inactiveReply) {
     yield {
       type: "done",
-      result: noMatchResult(message, inactiveProductLineMessage(inactiveProduct)),
+      result: noMatchResult(message, inactiveReply),
     };
     return;
   }
@@ -516,6 +518,7 @@ export async function* streamSalesChat(
 
   const preCheck = assessSalesQueryAnswerability(message, [], {
     questionCategory: profile.category,
+    scope,
   });
   if (!preCheck.ok && preCheck.userReply && !isSpecQuestion(message, profile)) {
     yield { type: "done", result: outOfScopeResult(message, preCheck.userReply) };
@@ -554,6 +557,7 @@ export async function* streamSalesChat(
 
   const answerability = assessSalesQueryAnswerability(message, citations, {
     questionCategory: profile.category,
+    scope,
   });
   if (!answerability.ok && !isSpecQuestion(message, profile)) {
     yield {

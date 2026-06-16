@@ -3,6 +3,10 @@
 import { useState, type ReactNode } from "react";
 import { cleanInlineMarkdown } from "@/lib/gemini/reply-format";
 import {
+  isKnowledgeGapNoticeText,
+  segmentKnowledgeGapText,
+} from "@/lib/gemini/knowledge-gap-display";
+import {
   stripInlineCitationMarkers,
   type CitationCard,
 } from "@/lib/gemini/citation-display";
@@ -51,15 +55,41 @@ function ThinkingBubble({ hint }: { hint?: string }) {
   );
 }
 
+const GAP_TEXT_CLASS = "font-medium text-red-600";
+
+function KnowledgeGapText({ text, className }: { text: string; className?: string }) {
+  const segments = segmentKnowledgeGapText(text);
+  if (segments.length === 0) return null;
+
+  const allGap = segments.every((s) => s.gap);
+  if (allGap) {
+    return <span className={`${GAP_TEXT_CLASS} ${className ?? ""}`.trim()}>{text}</span>;
+  }
+
+  return (
+    <span className={className}>
+      {segments.map((seg, i) => (
+        <span key={i} className={seg.gap ? GAP_TEXT_CLASS : undefined}>
+          {seg.text}
+          {i < segments.length - 1 && !/[。！？]$/.test(seg.text) ? " " : null}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function formatBulletLine(text: string): ReactNode {
   const plain = stripInlineCitationMarkers(cleanInlineMarkdown(text));
+  if (isKnowledgeGapNoticeText(plain)) {
+    return <span className={GAP_TEXT_CLASS}>{plain}</span>;
+  }
   const kw = plain.match(/^(建議|可強調|重點|可回覆|說明)([：:，,]?\s*)([\s\S]+)/);
   if (kw) {
     return (
       <>
         <span className="font-semibold text-emerald-900">{kw[1]}</span>
         {kw[2]}
-        {kw[3]}
+        <KnowledgeGapText text={kw[3]!} />
       </>
     );
   }
@@ -68,11 +98,11 @@ function formatBulletLine(text: string): ReactNode {
     return (
       <>
         <span className="font-semibold text-emerald-900">{titled[1]}</span>
-        ：{titled[2]}
+        ：<KnowledgeGapText text={titled[2]!} />
       </>
     );
   }
-  return plain;
+  return <KnowledgeGapText text={plain} />;
 }
 
 function BulletList({ bullets }: { bullets: string[] }) {
@@ -96,55 +126,14 @@ function BulletList({ bullets }: { bullets: string[] }) {
   );
 }
 
-function AddToBankPrompt({
-  question,
-  submitted,
-  busy,
-  onSubmit,
-}: {
-  question: string;
-  submitted: boolean;
-  busy: boolean;
-  onSubmit: () => void;
-}) {
-  return (
-    <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/80 px-3 py-3">
-      <p className="text-[11px] text-amber-900/80 line-clamp-3">「{question}」</p>
-      {submitted ? (
-        <p className="mt-2 text-xs font-medium text-emerald-800">已送出，話術窗口將後續建檔。</p>
-      ) : (
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={busy}
-          className="mt-2.5 w-full rounded-lg bg-emerald-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-60"
-        >
-          {busy ? "送出中…" : "加入待新增題庫清單"}
-        </button>
-      )}
-    </div>
-  );
-}
-
 function AssistantBubble({
   message,
-  onAddToBank,
   onOpenCitation,
 }: {
   message: ChatMessage;
-  onAddToBank?: (messageId: string, question: string) => Promise<void>;
   onOpenCitation: (id: number) => void;
 }) {
-  const [addBusy, setAddBusy] = useState(false);
-  const {
-    content,
-    bullets,
-    citations,
-    citationsOverflow,
-    allowAddRequest,
-    questionForAdd,
-    addRequestSubmitted,
-  } = message;
+  const { content, bullets, citations, citationsOverflow, allowAddRequest } = message;
 
   const hasBullets = Boolean(bullets && bullets.length > 0);
   const hasCitations = Boolean(citations && citations.length > 0);
@@ -156,20 +145,13 @@ function AssistantBubble({
     introRaw.trim().length > 0
       ? stripInlineCitationMarkers(cleanInlineMarkdown(introRaw))
       : "";
-  async function handleAdd() {
-    if (!questionForAdd || !onAddToBank || addRequestSubmitted) return;
-    setAddBusy(true);
-    try {
-      await onAddToBank(message.id, questionForAdd);
-    } finally {
-      setAddBusy(false);
-    }
-  }
 
   return (
     <>
       {allowAddRequest ? (
-        <p className="text-[16px] leading-relaxed text-zinc-800">{safeIntro}</p>
+        <p className="text-[16px] leading-relaxed text-zinc-800">
+          <KnowledgeGapText text={safeIntro} />
+        </p>
       ) : (
         <>
           {safeIntro ? (
@@ -178,7 +160,7 @@ function AssistantBubble({
                 小結
               </p>
               <p className="whitespace-pre-line text-[16px] leading-relaxed text-zinc-800">
-                {safeIntro}
+                <KnowledgeGapText text={safeIntro} />
               </p>
             </div>
           ) : null}
@@ -194,25 +176,11 @@ function AssistantBubble({
           ) : null}
         </>
       )}
-      {allowAddRequest && questionForAdd ? (
-        <AddToBankPrompt
-          question={questionForAdd}
-          submitted={Boolean(addRequestSubmitted)}
-          busy={addBusy}
-          onSubmit={() => void handleAdd()}
-        />
-      ) : null}
     </>
   );
 }
 
-export function ChatThread({
-  messages,
-  onAddToBank,
-}: {
-  messages: ChatMessage[];
-  onAddToBank?: (messageId: string, question: string) => Promise<void>;
-}) {
+export function ChatThread({ messages }: { messages: ChatMessage[] }) {
   const [activeCitation, setActiveCitation] = useState<{
     card: CitationCard;
   } | null>(null);
@@ -252,7 +220,6 @@ export function ChatThread({
               ) : m.role === "assistant" ? (
                 <AssistantBubble
                   message={m}
-                  onAddToBank={onAddToBank}
                   onOpenCitation={(id) => openCitation(id, m.citations)}
                 />
               ) : (

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { readSalesSession, readSession } from "@/lib/auth/session";
+import { readAssistantApiUser } from "@/lib/auth/api-auth";
 import { getKnowledgeMetaForClient } from "@/lib/knowledge/search-scope";
 
 export async function GET() {
-  const session = (await readSalesSession()) ?? (await readSession());
+  const session = await readAssistantApiUser();
   if (!session) {
     return NextResponse.json({ error: "未登入" }, { status: 401 });
   }

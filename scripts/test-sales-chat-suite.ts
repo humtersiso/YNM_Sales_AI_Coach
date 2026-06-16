@@ -49,6 +49,43 @@ const COST_CASES = [
   },
 ];
 
+/** 雙車比較（保養／油耗／持有成本）須含可核對數字或兩車對照 */
+const COMPARISON_NUMERIC =
+  /\d[\d,.]{2,}|[\d,.]+\s*萬|\d+\s*ps|\d+(\.\d+)?\s*(km\/L|km\/l|公里)|差\s*[\d,.]+/i;
+
+const COMPARISON_CASES = [
+  {
+    id: "cmp-crv-maint-fuel",
+    q: "考慮 X-TRAIL ICE 同時看 Honda CR-V，長期保養油耗差多少？",
+    pattern: COMPARISON_NUMERIC,
+  },
+  {
+    id: "cmp-rav4-fuel",
+    q: "X-TRAIL ICE 跟 RAV4 長期油耗成本差異？",
+    pattern: COMPARISON_NUMERIC,
+  },
+  {
+    id: "cmp-crv-maint",
+    q: "CR-V 跟 X-TRAIL ICE 定保費用怎麼比？",
+    pattern: COMPARISON_NUMERIC,
+  },
+  {
+    id: "cmp-tucson-cost",
+    q: "TUCSON L 和 X-TRAIL ICE 8 萬公里持有成本差多少？",
+    pattern: COMPARISON_NUMERIC,
+  },
+  {
+    id: "cmp-sportage-fuel",
+    q: "Sportage 跟 X-TRAIL 油耗跟保養哪個省？",
+    pattern: COMPARISON_NUMERIC,
+  },
+  {
+    id: "cmp-rav4-spec",
+    q: "X-TRAIL ICE 跟 RAV4 馬力油耗一起比",
+    pattern: COMPARISON_NUMERIC,
+  },
+];
+
 const SPEC_CASES = [
   { id: "spec-hp-short", q: "馬力", pattern: /\d+\s*ps|204/i },
   { id: "spec-hp-how", q: "馬力如何", pattern: /\d+\s*ps|204/i },
@@ -68,7 +105,7 @@ const GUARD_CASES = [
 
 type SuiteCase = {
   id: string;
-  category: "qa" | "product" | "competitor" | "spec" | "cost" | "guard";
+  category: "qa" | "product" | "competitor" | "spec" | "cost" | "comparison" | "guard";
   query: string;
   expectNumeric?: RegExp;
   expectBlocked?: boolean;
@@ -273,12 +310,17 @@ async function evaluate(c: SuiteCase): Promise<EvalResult> {
     };
   }
 
-  if (c.category === "spec" || c.category === "cost") {
+  if (c.category === "spec" || c.category === "cost" || c.category === "comparison") {
     if (isOutOfScopeReply(r)) {
       return { case: c, pass: false, reason: "被誤判為知識庫不符", preview };
     }
     const pass = Boolean(c.expectNumeric?.test(fullReply(r)));
-    const label = c.category === "cost" ? "含成本金額" : "含規格數字";
+    const label =
+      c.category === "cost"
+        ? "含成本金額"
+        : c.category === "comparison"
+          ? "含比較數字"
+          : "含規格數字";
     return {
       case: c,
       pass,
@@ -331,6 +373,12 @@ async function main() {
     query: s.q,
     expectNumeric: s.pattern,
   }));
+  const comparison: SuiteCase[] = COMPARISON_CASES.map((s) => ({
+    id: s.id,
+    category: "comparison",
+    query: s.q,
+    expectNumeric: s.pattern,
+  }));
   const guard: SuiteCase[] = GUARD_CASES.map((g) => ({
     id: g.id,
     category: "guard",
@@ -338,13 +386,14 @@ async function main() {
     expectBlocked: true,
   }));
 
-  const cases = [...qa, ...product, ...competitor, ...spec, ...cost, ...guard];
+  const cases = [...qa, ...product, ...competitor, ...spec, ...cost, ...comparison, ...guard];
   console.log("Cases:", cases.length, {
     qa: qa.length,
     product: product.length,
     competitor: competitor.length,
     spec: spec.length,
     cost: cost.length,
+    comparison: comparison.length,
     guard: guard.length,
   });
   console.log(

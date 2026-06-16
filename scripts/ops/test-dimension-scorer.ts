@@ -4,7 +4,10 @@
  */
 import assert from "node:assert/strict";
 import { detectCorrectionCandidates } from "../../src/lib/roleplay/engine/correction-builder";
-import { computeDimensionScores } from "../../src/lib/roleplay/engine/dimension-scorer";
+import {
+  computeDimensionScores,
+  STRICT_SCORE_CAP,
+} from "../../src/lib/roleplay/engine/dimension-scorer";
 import { DEMO_ROLEPLAY_SCENARIOS } from "../../src/lib/roleplay/seed/demo-scenarios";
 import type { RoleplayScenario } from "../../src/lib/roleplay/scenario-contract";
 import type { RoleplayChatTurn } from "../../src/lib/roleplay/session-types";
@@ -206,13 +209,92 @@ const sessionD: RoleplayChatTurn[] = [
   { role: "agent", content: "今天感謝您的時間，有任何問題歡迎再聯絡。", at: "10" },
 ];
 
-printSession("A 答非所問嚴重場", sessionA, 66, 76);
-printSession("B 多數有答有試算", sessionB, 88, 96);
+printSession("A 答非所問嚴重場", sessionA, 58, STRICT_SCORE_CAP);
+const sessionACandidates = detectCorrectionCandidates(scenario, sessionA);
+assert.ok(
+  sessionACandidates.some((c) => /答非所問/.test(c.issue)),
+  "A: 規則待加強應含答非所問",
+);
+console.log(`  待加強（規則）: ${sessionACandidates.length} 項，含答非所問`);
+for (const c of sessionACandidates) {
+  console.log(`    ${c.issue}`);
+}
+printSession("B 多數有答有試算", sessionB, 70, 96);
 printSession("C 全亂答", sessionC, 18, 45);
 printSession("D 全場不知道", sessionD, 18, 45);
 
 const dCandidates = detectCorrectionCandidates(scenario, sessionD);
 assert.ok(dCandidates.length >= 1, `D: expected correction candidates, got ${dCandidates.length}`);
 console.log(`\nD 待加強候選：${dCandidates.length} 筆`);
+
+/** E. 比錯競品（RAV4 場次卻用 Sportage 數據）→ 總分 cap 72 */
+const sessionE: RoleplayChatTurn[] = [
+  {
+    role: "customer",
+    content: "我在比 X-TRAIL ICE 跟 RAV4，RAV4 回廠定保一次大概多少？",
+    at: "1",
+  },
+  {
+    role: "agent",
+    content:
+      "SPORTAGE 回廠保養每次約 1～2 萬元，X-TRAIL 只要 2～5 千元，十年加總差很多。",
+    at: "2",
+  },
+  {
+    role: "customer",
+    content: "我問的是 RAV4，不是 Sportage，能針對 RAV4 說明嗎？",
+    at: "3",
+  },
+  {
+    role: "agent",
+    content:
+      "以十年 10 萬公里試算，車價稅金油資加總，X-TRAIL 比 RAV4 省約 15 萬，定保約 2～5 千元。",
+    at: "4",
+  },
+];
+const eResult = computeDimensionScores(scenario, sessionE);
+assert.ok(eResult.strictScoreCapped, "E: 比錯競品應觸發總分上限");
+assert.ok(eResult.total <= STRICT_SCORE_CAP, `E: 總分應 ≤${STRICT_SCORE_CAP}，實際 ${eResult.total}`);
+console.log(`\n=== E 比錯競品 cap ===\n總分：${eResult.total}（capped=${eResult.strictScoreCapped}）`);
+
+/** F. 問隔音卻灌試算數字：分數應低於貼題回答 */
+const sessionFOffTopic: RoleplayChatTurn[] = [
+  {
+    role: "customer",
+    content: "RAV4 跟 X-TRAIL 的隔音跟玻璃厚度，教材有分貝數據嗎？",
+    at: "1",
+  },
+  {
+    role: "agent",
+    content:
+      "十年 10 萬公里試算，車價稅金油資加總 X-TRAIL 比 RAV4 省約 30 萬，WLTC 綜合油耗約 16 km/L，定保 2～5 千元，電池費用也一併算進去。",
+    at: "2",
+  },
+];
+const sessionFOnTopic: RoleplayChatTurn[] = [
+  {
+    role: "customer",
+    content: "RAV4 跟 X-TRAIL 的隔音跟玻璃厚度，教材有分貝數據嗎？",
+    at: "1",
+  },
+  {
+    role: "agent",
+    content:
+      "X-TRAIL 雙層隔音玻璃約 35 分貝，RAV4 約 38 分貝，時速 50 公里實測差約 3 分貝。",
+    at: "2",
+  },
+];
+const fOff = computeDimensionScores(scenario, sessionFOffTopic);
+const fOn = computeDimensionScores(scenario, sessionFOnTopic);
+assert.ok(
+  fOff.total < fOn.total,
+  `F: 答非所問灌水應低於貼題回答（${fOff.total} vs ${fOn.total}）`,
+);
+assert.ok(
+  fOff.dimensions.find((d) => d.dimensionId === "factCheck")!.score <
+    fOn.dimensions.find((d) => d.dimensionId === "factCheck")!.score,
+  "F: 事實維度應因答非所問而較低",
+);
+console.log(`\n=== F 灌水 vs 貼題 ===\n灌水：${fOff.total}，貼題：${fOn.total}`);
 
 console.log("\ntest-dimension-scorer: OK");

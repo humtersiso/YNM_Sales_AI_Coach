@@ -214,6 +214,55 @@ const TESTS: TestCase[] = [
       },
     ],
   },
+  {
+    name: "⑥ RAV4 場次：客戶問保養，業代用 Sportage 數據回應",
+    competitor: "Toyota RAV4",
+    mockFacts: [
+      {
+        label: "RAV4 對戰",
+        value: "RAV4 定保約 5～8 千元，X-TRAIL 定保約 2～5 千元；十年 10 萬公里試算約省 12 萬。",
+      },
+    ],
+    expectMax: 5,
+    expectIssues: [/不符|Sportage|保養/],
+    turns: [
+      {
+        role: "customer",
+        content: "我在比 X-TRAIL ICE 跟 RAV4，想先了解 RAV4 回廠定保一次大概多少？",
+        at: ts(0),
+      },
+      {
+        role: "agent",
+        content:
+          "SPORTAGE 回廠保養每次約 1～2 萬元，X-TRAIL 只要 2～5 千元，十年加總差很多。",
+        at: ts(1),
+      },
+    ],
+  },
+  {
+    name: "⑦ RAV4 場次：客戶問隔音，業代只講油耗試算",
+    competitor: "Toyota RAV4",
+    mockFacts: [
+      {
+        label: "隔音",
+        value: "X-TRAIL 雙層隔音玻璃約 35 分貝，RAV4 約 38 分貝。",
+      },
+    ],
+    expectMax: 5,
+    expectIssues: [/答非所問.*隔音|答非所問.*其他面向/],
+    turns: [
+      {
+        role: "customer",
+        content: "RAV4 跟 X-TRAIL 的隔音跟玻璃厚度，教材有分貝數據嗎？",
+        at: ts(0),
+      },
+      {
+        role: "agent",
+        content: "十年 10 萬公里試算，車價稅金油資加總 X-TRAIL 比 RAV4 省約 15 萬。",
+        at: ts(1),
+      },
+    ],
+  },
 ];
 
 function mockScenario(
