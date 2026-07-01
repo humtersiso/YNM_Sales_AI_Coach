@@ -6,7 +6,6 @@ import assert from "node:assert/strict";
 import { detectCorrectionCandidates } from "../../src/lib/roleplay/engine/correction-builder";
 import {
   computeDimensionScores,
-  STRICT_SCORE_CAP,
 } from "../../src/lib/roleplay/engine/dimension-scorer";
 import { DEMO_ROLEPLAY_SCENARIOS } from "../../src/lib/roleplay/seed/demo-scenarios";
 import type { RoleplayScenario } from "../../src/lib/roleplay/scenario-contract";
@@ -209,7 +208,7 @@ const sessionD: RoleplayChatTurn[] = [
   { role: "agent", content: "今天感謝您的時間，有任何問題歡迎再聯絡。", at: "10" },
 ];
 
-printSession("A 答非所問嚴重場", sessionA, 58, STRICT_SCORE_CAP);
+printSession("A 答非所問嚴重場", sessionA, 58, 100);
 const sessionACandidates = detectCorrectionCandidates(scenario, sessionA);
 assert.ok(
   sessionACandidates.some((c) => /答非所問/.test(c.issue)),
@@ -227,7 +226,7 @@ const dCandidates = detectCorrectionCandidates(scenario, sessionD);
 assert.ok(dCandidates.length >= 1, `D: expected correction candidates, got ${dCandidates.length}`);
 console.log(`\nD 待加強候選：${dCandidates.length} 筆`);
 
-/** E. 比錯競品（RAV4 場次卻用 Sportage 數據）→ 總分 cap 72 */
+/** E. 比錯競品（RAV4 場次卻用 Sportage 數據）→ 總分＝五維加總 */
 const sessionE: RoleplayChatTurn[] = [
   {
     role: "customer",
@@ -253,9 +252,10 @@ const sessionE: RoleplayChatTurn[] = [
   },
 ];
 const eResult = computeDimensionScores(scenario, sessionE);
-assert.ok(eResult.strictScoreCapped, "E: 比錯競品應觸發總分上限");
-assert.ok(eResult.total <= STRICT_SCORE_CAP, `E: 總分應 ≤${STRICT_SCORE_CAP}，實際 ${eResult.total}`);
-console.log(`\n=== E 比錯競品 cap ===\n總分：${eResult.total}（capped=${eResult.strictScoreCapped}）`);
+const eDimSum = eResult.dimensions.reduce((s, d) => s + d.score, 0);
+assert.equal(eResult.total, eDimSum, "E: 總分應等於五維加總");
+assert.ok(!eResult.strictScoreCapped, "E: 已無總分上限");
+console.log(`\n=== E 比錯競品 ===\n總分：${eResult.total}（五維加總 ${eDimSum}）`);
 
 /** F. 問隔音卻灌試算數字：分數應低於貼題回答 */
 const sessionFOffTopic: RoleplayChatTurn[] = [

@@ -59,6 +59,8 @@ export type RoleplayDashboardStats = {
   overallAvg: number;
   /** 近 N 場五維均分加總（與雷達軸標籤加總一致） */
   radarOverallAvg: number;
+  /** 近 N 場總分（score_total）平均，與 lastScore 同尺度 */
+  recentTotalAvg: number;
   lastScore: number | null;
   strongestDimensions: string[];
   byDifficulty: {

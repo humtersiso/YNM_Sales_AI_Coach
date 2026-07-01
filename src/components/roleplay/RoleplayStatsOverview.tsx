@@ -23,16 +23,13 @@ export function RoleplayStatsOverview({
   hasData: boolean;
   dimensions: RoleplayDimensionScore[] | null;
 }) {
-  const radarTotal =
-    dimensions?.reduce((s, d) => s + (d.score ?? 0), 0) ?? overallAvg;
-
   const kpis = [
     { label: "開局", value: started },
     { label: "完成", value: completed, hint: abandoned > 0 ? `未完成 ${abandoned}` : undefined },
     {
-      label: "均分",
-      value: hasData ? formatRadarDimensionScore(radarTotal) : "—",
-      hint: hasData ? "近10場" : undefined,
+      label: "總分",
+      value: hasData ? formatRadarDimensionScore(overallAvg) : "—",
+      hint: hasData ? "近10場均" : undefined,
     },
     { label: "最近", value: lastScore != null ? lastScore : "—" },
   ];
@@ -67,7 +64,9 @@ export function RoleplayStatsOverview({
             chartSizePx={292}
             labelScreenPxWithScore={11}
           />
-          <p className="mt-1 text-center text-[10px] text-emerald-500">近 10 場完賽均分 · 各維 0–20</p>
+          <p className="mt-1 text-center text-[10px] text-emerald-500">
+            近 10 場平均總分 · 雷達為五維均值（各維 0–20）
+          </p>
         </div>
       ) : (
         <p className="border-t border-emerald-50 px-4 py-4 text-center text-sm text-emerald-600">

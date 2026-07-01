@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { canManageAdminAccounts } from "@/lib/auth/admin-policy";
 import { generateRandomPassword, hashPassword, isValidPasswordPolicy } from "@/lib/auth/password";
 import { readSession } from "@/lib/auth/session";
 import { writeAuthAudit } from "@/lib/bq/auth-audit";
 import { createUser, listUsers } from "@/lib/bq/users";
+
+const USERNAME_OR_EMAIL_RE =
+  /^(?:[A-Za-z0-9_]{3,32}|[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]+\.[A-Za-z]{2,})$/;
 
 function ensureAdmin() {
   return readSession();
@@ -12,7 +16,7 @@ export async function GET(request: NextRequest) {
   const session = await ensureAdmin();
   if (!session) return NextResponse.json({ error: "未登入" }, { status: 401 });
 
-  const role = request.nextUrl.searchParams.get("role") as "admin" | "agent" | null;
+  const role = request.nextUrl.searchParams.get("role") as "super_admin" | "admin" | "agent" | null;
   const branch = request.nextUrl.searchParams.get("branch");
   const status = request.nextUrl.searchParams.get("status") as "active" | "disabled" | null;
   const q = request.nextUrl.searchParams.get("q");
@@ -34,7 +38,7 @@ export async function POST(request: NextRequest) {
     username?: string;
     displayName?: string;
     branch?: string;
-    role?: "admin" | "agent";
+    role?: "super_admin" | "admin" | "agent";
     tenureYears?: number;
     password?: string;
   };
@@ -42,15 +46,22 @@ export async function POST(request: NextRequest) {
   const username = (body.username ?? "").trim();
   const displayName = (body.displayName ?? "").trim();
   const branch = (body.branch ?? "").trim();
-  const role = body.role === "admin" ? "admin" : "agent";
+  const role =
+    body.role === "admin" ? "admin" : body.role === "super_admin" ? "super_admin" : "agent";
   const rawPassword = (body.password ?? "").trim() || generateRandomPassword(12);
   const tenureYears = Number(body.tenureYears ?? 0);
 
   if (!username || !displayName || !branch) {
     return NextResponse.json({ error: "請填寫帳號、姓名、據點" }, { status: 400 });
   }
-  if (!/^[A-Za-z0-9_]{3,32}$/.test(username)) {
-    return NextResponse.json({ error: "帳號格式需為 3-32 碼英數或底線" }, { status: 400 });
+  if (role !== "agent" && !canManageAdminAccounts(session)) {
+    return NextResponse.json({ error: "僅 super admin 可建立管理員帳號" }, { status: 403 });
+  }
+  if (!USERNAME_OR_EMAIL_RE.test(username)) {
+    return NextResponse.json(
+      { error: "帳號需為 3-32 碼英數底線，或有效 Email 格式" },
+      { status: 400 },
+    );
   }
   if (!Number.isFinite(tenureYears) || tenureYears < 0 || tenureYears > 50) {
     return NextResponse.json({ error: "年資請填 0~50 之間的數字" }, { status: 400 });

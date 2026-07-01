@@ -54,7 +54,7 @@ async function buildScoreResult(
   scenario: RoleplayScenario,
   turns: RoleplayChatTurn[],
 ): Promise<RoleplayScoreResult> {
-  const { dimensions, total } = computeDimensionScores(scenario, turns);
+  const { dimensions, total, strictScoreCapped } = computeDimensionScores(scenario, turns);
   const score = clampScore(total);
   const { grade, gradeLabel, advice } = scoreToGrade(score);
   const correctionPoints = await buildSessionCorrections(scenario, turns);
@@ -72,6 +72,7 @@ async function buildScoreResult(
     unusedStrategies: toLegacyUnused(correctionPoints),
     previousScore: null,
     scoreDelta: null,
+    strictScoreCapped,
   };
 }
 

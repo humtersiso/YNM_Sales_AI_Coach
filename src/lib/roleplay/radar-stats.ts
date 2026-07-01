@@ -62,6 +62,17 @@ export function radarOverallFromDimensionAverages(avg: RoleplayDimensionAverages
   return roundOneDecimal(DIMENSION_IDS.reduce((s, id) => s + (avg[id] ?? 0), 0));
 }
 
+/** 近 N 場完賽的總分（score_total）平均；與「最近」場次同一尺度 0–100 */
+export function computeRecentTotalScoreAvg(
+  rows: RoleplayCompletedDetail[],
+  lastN = OVERVIEW_RADAR_LAST_N,
+): number | null {
+  const recent = takeRecentCompleted(rows, lastN);
+  const scores = recent.map((r) => r.score).filter((n) => Number.isFinite(n));
+  if (scores.length === 0) return null;
+  return roundOneDecimal(scores.reduce((a, b) => a + b, 0) / scores.length);
+}
+
 /** 近 N 場完賽的五維均分加總（與首頁雷達一致）；無五維資料時退回場次總分均値 */
 export function computeRadarAvgFromCompletedDetails(
   rows: RoleplayCompletedDetail[],

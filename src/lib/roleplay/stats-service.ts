@@ -32,12 +32,14 @@ import { ROLEPLAY_PERSONA_IDS, ROLEPLAY_GLOBAL_CONFIG } from "@/lib/roleplay/see
 import type { RoleplayScoreResult, RoleplaySession } from "@/lib/roleplay/session-types";
 import {
   buildDimensionAverages,
+  computeRecentTotalScoreAvg,
   OVERVIEW_RADAR_LAST_N,
   radarOverallFromDimensionAverages,
 } from "@/lib/roleplay/radar-stats";
 
 export {
   computeRadarAvgFromCompletedDetails,
+  computeRecentTotalScoreAvg,
   OVERVIEW_RADAR_LAST_N,
   radarOverallFromDimensionAverages,
 } from "@/lib/roleplay/radar-stats";
@@ -206,6 +208,7 @@ export function buildDashboardStatsCore(
   const radarOverallAvg = dimensionAverages
     ? radarOverallFromDimensionAverages(dimensionAverages)
     : overallAvg;
+  const recentTotalAvg = computeRecentTotalScoreAvg(recentForRadar) ?? overallAvg;
   const completedSessions = completed.length;
   const correctionMemoryLines = buildCorrectionMemoryLinesFromCorrections(completed);
   const factMemoryLines = buildFactMemoryLinesFromCorrections(completed);
@@ -216,8 +219,10 @@ export function buildDashboardStatsCore(
     completedSessions,
     totalSessions: completedSessions,
     overallAvg,
-    /** 與首頁雷達同一批近 N 場的均分，五維加總應與此一致 */
+    /** 近 N 場五維均分加總（與雷達軸標籤加總、總分一致） */
     radarOverallAvg,
+    /** 近 N 場 score_total 平均（與「最近」同一尺度，首頁 KPI 用） */
+    recentTotalAvg,
     lastScore: completed[0]?.score ?? null,
     byDifficulty,
     dimensionAverages,

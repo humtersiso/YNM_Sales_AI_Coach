@@ -31,46 +31,7 @@ function run(command, args) {
   }
 }
 
-function parseGeminiKeyFromSecretsYaml() {
-  if (!fs.existsSync(secretsYaml)) return null;
-  const text = fs.readFileSync(secretsYaml, "utf8");
-  const m = text.match(/^\s*GEMINI_API_KEY:\s*["']?([^"'\n#]+)["']?\s*$/m);
-  const v = m?.[1]?.trim();
-  if (!v || v.includes("your-gemini")) return null;
-  return v;
-}
-
-function resolveGeminiApiKey() {
-  const fromEnv = (process.env.GEMINI_API_KEY || "").trim();
-  if (fromEnv) return fromEnv;
-  return parseGeminiKeyFromSecretsYaml();
-}
-
-/** 合併 base env + secrets（供 gcloud --env-vars-file） */
-function writeMergedEnvFile() {
-  let merged = fs.readFileSync(envFile, "utf8").trimEnd();
-  const vertexOnly = /^GEMINI_USE_VERTEX_ONLY:\s*["']?true["']?\s*$/im.test(merged);
-  const key = resolveGeminiApiKey();
-  if (key && !vertexOnly && !/^GEMINI_API_KEY:/m.test(merged)) {
-    merged += `\nGEMINI_API_KEY: "${key.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"\n`;
-  }
-  if (fs.existsSync(secretsYaml)) {
-    for (const line of fs.readFileSync(secretsYaml, "utf8").split(/\r?\n/)) {
-      const t = line.trim();
-      if (!t || t.startsWith("#")) continue;
-      const name = t.split(":")[0]?.trim();
-      if (!name || name === "GEMINI_API_KEY") continue;
-      if (vertexOnly && name === "GEMINI_API_KEY") continue;
-      if (!new RegExp(`^${name}:`, "m").test(merged)) {
-        merged += `\n${line}`;
-      }
-    }
-  }
-  const tmp = path.join(webRoot, ".deploy-tmp", "cloudrun-test-merged.env.yaml");
-  fs.mkdirSync(path.dirname(tmp), { recursive: true });
-  fs.writeFileSync(tmp, merged, "utf8");
-  return tmp;
-}
+const { writeMergedEnvFile } = require("./deploy-env-merge.cjs");
 
 function getServiceUrl() {
   const r = spawnSync(
@@ -85,17 +46,21 @@ function getServiceUrl() {
 }
 
 function vertexOnlyFromYaml() {
-  const text = fs.readFileSync(envFile, "utf8");
-  return /^GEMINI_USE_VERTEX_ONLY:\s*["']?true["']?\s*$/im.test(text);
+  return require("./deploy-env-merge.cjs").vertexOnlyFromText(fs.readFileSync(envFile, "utf8"));
 }
 
 const envOnly =
   process.argv.includes("--env-only") ||
   ["1", "true", "yes"].includes(String(process.env.DEPLOY_ENV_ONLY ?? "").trim().toLowerCase());
 
-const mergedEnv = writeMergedEnvFile();
+const mergedEnv = writeMergedEnvFile({
+  envFile,
+  secretsYaml,
+  dotEnv: path.join(webRoot, ".env"),
+  tmpPath: path.join(webRoot, ".deploy-tmp", "cloudrun-test-merged.env.yaml"),
+}).mergedPath;
 const vertexOnly = vertexOnlyFromYaml();
-const geminiKey = vertexOnly ? null : resolveGeminiApiKey();
+const geminiKey = vertexOnly ? null : require("./deploy-env-merge.cjs").resolveGeminiApiKey({ secretsYaml, dotEnv: path.join(webRoot, ".env") });
 if (vertexOnly) {
   console.log("[deploy] GEMINI_USE_VERTEX_ONLY=true — 使用 Cloud Run 服務帳號 ADC，不注入 GEMINI_API_KEY");
 } else if (!geminiKey) {

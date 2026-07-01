@@ -6,7 +6,7 @@ import { AppIcon } from "@/components/icons/AppIcon";
 type LoginResponse = {
   error?: string;
   user?: {
-    role?: "admin" | "agent";
+    role?: "super_admin" | "admin" | "agent";
     mustChangePassword?: boolean;
   };
 };

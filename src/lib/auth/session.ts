@@ -5,7 +5,7 @@ const ADMIN_COOKIE_NAME = "ynm_session";
 const SALES_COOKIE_NAME = "ynm_sales_session";
 const EXPIRE_HOURS = 8;
 
-export type AppRole = "admin" | "agent";
+export type AppRole = "super_admin" | "admin" | "agent";
 export type SessionUser = {
   userId: string;
   username: string;
@@ -44,7 +44,7 @@ function parseToken(raw: string): SessionUser | null {
   if (sign(payload) !== sig) return null;
   const expiresAt = Number(expiresAtText);
   if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) return null;
-  if (role !== "admin" && role !== "agent") return null;
+  if (role !== "super_admin" && role !== "admin" && role !== "agent") return null;
   return {
     userId,
     username,
@@ -80,8 +80,10 @@ async function readCookie(name: string): Promise<SessionUser | null> {
   return parseToken(raw);
 }
 
-export async function setAdminSession(user: Omit<SessionUser, "role">) {
-  await setCookie(ADMIN_COOKIE_NAME, { ...user, role: "admin" });
+export async function setAdminSession(
+  user: Omit<SessionUser, "role"> & { role?: "admin" | "super_admin" },
+) {
+  await setCookie(ADMIN_COOKIE_NAME, { ...user, role: user.role ?? "admin" });
 }
 
 export async function setSalesSession(user: Omit<SessionUser, "role">) {
@@ -98,7 +100,8 @@ export async function clearSalesSession() {
 
 export async function readSession(): Promise<SessionUser | null> {
   const user = await readCookie(ADMIN_COOKIE_NAME);
-  return user?.role === "admin" ? user : null;
+  if (user?.role === "admin" || user?.role === "super_admin") return user;
+  return null;
 }
 
 export async function readSalesSession(): Promise<SessionUser | null> {

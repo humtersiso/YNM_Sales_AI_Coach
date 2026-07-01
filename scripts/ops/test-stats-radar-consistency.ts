@@ -66,5 +66,14 @@ const dimSum =
 assert.equal(dimSum, stats.radarOverallAvg, `dim sum ${dimSum} vs radarOverallAvg ${stats.radarOverallAvg}`);
 assert.equal(stats.radarOverallAvg, radarOverallFromDimensionAverages(avg));
 assert.equal(stats.overallAvg, 50, "lifetime overallAvg unchanged");
+assert.equal(stats.recentTotalAvg, 50, "recentTotalAvg uses score_total average");
+
+const capped = [
+  row("c1", 87, [18, 18, 19, 16, 16], "2026-06-12T10:00:00Z"),
+];
+const cappedStats = buildDashboardStatsCore(capped, 1);
+assert.equal(cappedStats.recentTotalAvg, 87, "總分與五維加總一致");
+assert.equal(cappedStats.radarOverallAvg, 87, "雷達加總與總分一致");
 console.log("radarOverallAvg:", stats.radarOverallAvg, "dimSum:", dimSum, "overallAvg:", stats.overallAvg);
+console.log("capped recentTotalAvg:", cappedStats.recentTotalAvg, "radarOverallAvg:", cappedStats.radarOverallAvg);
 console.log("test-stats-radar-consistency: OK");

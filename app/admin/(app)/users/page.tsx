@@ -8,7 +8,7 @@ type UserRow = {
   userId: string;
   username: string;
   displayName: string;
-  role: "admin" | "agent";
+  role: "super_admin" | "admin" | "agent";
   branch: string;
   status: "active" | "disabled";
   tenureYears: number;
@@ -40,11 +40,26 @@ const COUNTY_OPTIONS = [
 ];
 
 function isValidUsername(value: string) {
-  return /^[A-Za-z0-9_]{3,32}$/.test(value.trim());
+  const v = value.trim();
+  const accountRe = /^[A-Za-z0-9_]{3,32}$/;
+  const emailRe = /^[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+  return accountRe.test(v) || emailRe.test(v);
 }
 
 function uiRole(role: UserRow["role"]) {
+  if (role === "super_admin") return "super admin";
   return role === "agent" ? "user" : "admin";
+}
+
+function canManageTarget(
+  me: { role: "super_admin" | "admin"; username: string },
+  target: UserRow,
+): boolean {
+  if (target.username === me.username) return false;
+  if (target.role === "admin" || target.role === "super_admin") {
+    return me.role === "super_admin";
+  }
+  return true;
 }
 
 export default function UsersPage() {
@@ -60,7 +75,7 @@ export default function UsersPage() {
   const [error, setError] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const [me, setMe] = useState<{ username: string } | null>(null);
+  const [me, setMe] = useState<{ username: string; role: "super_admin" | "admin" } | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [createError, setCreateError] = useState("");
 
@@ -79,8 +94,12 @@ export default function UsersPage() {
     void (async () => {
       const res = await fetch("/api/auth/me");
       if (!res.ok) return;
-      const data = (await res.json().catch(() => ({}))) as { user?: { username?: string } };
-      if (data.user?.username) setMe({ username: data.user.username });
+      const data = (await res.json().catch(() => ({}))) as {
+        user?: { username?: string; role?: "super_admin" | "admin" };
+      };
+      if (data.user?.username && (data.user.role === "admin" || data.user.role === "super_admin")) {
+        setMe({ username: data.user.username, role: data.user.role });
+      }
     })();
   }, []);
 
@@ -100,7 +119,7 @@ export default function UsersPage() {
     }
     if (!isValidUsername(username)) {
       setBusy(false);
-      setCreateError("帳號格式需為 3-32 碼英數或底線");
+      setCreateError("帳號需為 3-32 碼英數底線，或有效 Email 格式");
       return false;
     }
     if (!Number.isFinite(tenureYears) || tenureYears < 0 || tenureYears > 50) {
@@ -116,7 +135,7 @@ export default function UsersPage() {
         username,
         displayName,
         branch,
-        role: form.role === "user" ? "agent" : "admin",
+        role: form.role === "admin" ? "admin" : "agent",
         tenureYears,
       }),
     });
@@ -295,7 +314,8 @@ export default function UsersPage() {
             <div className="mt-3 flex flex-col gap-2">
               <button
                 type="button"
-                className="w-full rounded-lg border border-emerald-300 py-2 text-xs text-emerald-900"
+                className="w-full rounded-lg border border-emerald-300 py-2 text-xs text-emerald-900 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!me || !canManageTarget(me, u)}
                 onClick={() => void resetPassword(u.userId)}
               >
                 重設密碼
@@ -303,7 +323,7 @@ export default function UsersPage() {
               {u.status !== "disabled" ? (
                 <button
                   type="button"
-                  disabled={me?.username === u.username}
+                  disabled={!me || !canManageTarget(me, u)}
                   className="w-full rounded-lg border border-red-200 py-2 text-xs text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={() => void setUserStatus(u.userId, "disabled")}
                 >
@@ -312,7 +332,8 @@ export default function UsersPage() {
               ) : (
                 <button
                   type="button"
-                  className="w-full rounded-lg border border-emerald-300 py-2 text-xs text-emerald-700"
+                  className="w-full rounded-lg border border-emerald-300 py-2 text-xs text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={!me || !canManageTarget(me, u)}
                   onClick={() => void setUserStatus(u.userId, "active")}
                 >
                   啟用
@@ -320,7 +341,7 @@ export default function UsersPage() {
               )}
               <button
                 type="button"
-                disabled={me?.username === u.username}
+                disabled={!me || !canManageTarget(me, u)}
                 className="w-full rounded-lg border border-red-300 py-2 text-xs text-red-800 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => void removeUser(u.userId, u.username)}
               >
@@ -361,7 +382,7 @@ export default function UsersPage() {
                 帳號
                 <input
                   className="mt-1 w-full rounded-lg border border-emerald-200 px-3 py-2"
-                  placeholder="例如: user_01"
+                  placeholder="例如: user_01 或 user@example.com"
                   value={form.username}
                   onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
                   required
@@ -411,7 +432,7 @@ export default function UsersPage() {
                     onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as "admin" | "user" }))}
                   >
                     <option value="user">user</option>
-                    <option value="admin">admin</option>
+                    {me?.role === "super_admin" ? <option value="admin">admin</option> : null}
                   </select>
                 </label>
               </div>

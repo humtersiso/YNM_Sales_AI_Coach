@@ -5,6 +5,10 @@ import { SakuraHeaderFx } from "@/components/theme/SakuraHeaderFx";
 import type { AppRole } from "@/lib/auth/session";
 
 const ROLE_STYLES: Record<AppRole, { label: string; className: string }> = {
+  super_admin: {
+    label: "Super Admin",
+    className: "bg-amber-100 text-amber-900 border-amber-200",
+  },
   admin: {
     label: "管理者",
     className: "bg-violet-100 text-violet-800 border-violet-200",

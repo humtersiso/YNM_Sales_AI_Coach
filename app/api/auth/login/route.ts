@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   const user = await findUserByUsername(username);
   const ok =
     !!user &&
-    user.role === "admin" &&
+    (user.role === "admin" || user.role === "super_admin") &&
     user.status === "active" &&
     (await verifyPassword(password, user.passwordHash));
   if (!ok || !user) {
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     username: user.username,
     displayName: user.displayName,
     branch: user.branch,
+    role: user.role === "super_admin" ? "super_admin" : "admin",
   });
   await markLoginSuccess(user.userId).catch(() => null);
   await writeAuthAudit({

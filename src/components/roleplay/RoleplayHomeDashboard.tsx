@@ -116,7 +116,7 @@ export function RoleplayHomeDashboard() {
         started={stats?.startedSessions ?? 0}
         completed={completed}
         abandoned={abandoned}
-        overallAvg={stats?.radarOverallAvg ?? stats?.overallAvg ?? 0}
+        overallAvg={stats?.recentTotalAvg ?? stats?.overallAvg ?? 0}
         lastScore={stats?.lastScore ?? null}
         hasData={hasData}
         dimensions={dimensions}
@@ -162,6 +162,7 @@ function emptyStats(): RoleplayDashboardStats {
     totalSessions: 0,
     overallAvg: 0,
     radarOverallAvg: 0,
+    recentTotalAvg: 0,
     lastScore: null,
     byDifficulty: [],
     dimensionAverages: null,

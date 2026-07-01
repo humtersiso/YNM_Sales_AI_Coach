@@ -39,13 +39,18 @@ const portals: {
 
 export default function PortalHomePage() {
   const router = useRouter();
-  const [role, setRole] = useState<"admin" | "agent" | null>(null);
+  const [role, setRole] = useState<"super_admin" | "admin" | "agent" | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
   const roleBadge =
-    role === "admin"
+    role === "super_admin"
+      ? {
+          label: "Super Admin",
+          className: "bg-amber-100 text-amber-900 border border-amber-200",
+        }
+      : role === "admin"
       ? {
           label: "管理者",
           className: "bg-violet-100 text-violet-800 border border-violet-200",
@@ -69,7 +74,7 @@ export default function PortalHomePage() {
         return;
       }
       const data = (await res.json().catch(() => ({}))) as {
-        user?: { role?: "admin" | "agent"; displayName?: string };
+        user?: { role?: "super_admin" | "admin" | "agent"; displayName?: string };
       };
       setRole(data.user?.role ?? null);
       setDisplayName(data.user?.displayName ?? "");
@@ -88,7 +93,7 @@ export default function PortalHomePage() {
 
   const cards = useMemo(
     () => {
-      if (role === "admin") return portals;
+      if (role === "admin" || role === "super_admin") return portals;
       if (role === "agent") return portals.filter((p) => p.href !== "/admin/home");
       return [];
     },

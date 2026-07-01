@@ -5,7 +5,7 @@ export type PlatformUser = {
   userId: string;
   username: string;
   passwordHash: string;
-  role: "admin" | "agent";
+  role: "super_admin" | "admin" | "agent";
   displayName: string;
   branch: string;
   tenureYears: number;
@@ -18,7 +18,7 @@ export type PlatformUser = {
 type CreateUserInput = {
   username: string;
   passwordHash: string;
-  role: "admin" | "agent";
+  role: "super_admin" | "admin" | "agent";
   displayName: string;
   branch: string;
   tenureYears?: number;
@@ -36,7 +36,7 @@ function mapRow(row: Record<string, unknown>): PlatformUser {
     userId: String(row.user_id ?? ""),
     username: String(row.username ?? ""),
     passwordHash: String(row.password_hash ?? ""),
-    role: String(row.role ?? "agent") as "admin" | "agent",
+    role: String(row.role ?? "agent") as PlatformUser["role"],
     displayName: String(row.display_name ?? ""),
     branch: String(row.branch ?? ""),
     tenureYears: Number(row.tenure_years ?? 0),
@@ -108,14 +108,26 @@ export async function countActiveAdmins(): Promise<number> {
     query: `
       SELECT COUNT(*) AS n
       FROM ${usersTable()}
-      WHERE role = 'admin' AND status = 'active'
+      WHERE role IN ('admin', 'super_admin') AND status = 'active'
+    `,
+  });
+  return Number((rows[0] as { n?: number })?.n ?? 0);
+}
+
+export async function countActiveSuperAdmins(): Promise<number> {
+  const client = getBigQueryClient();
+  const [rows] = await client.query({
+    query: `
+      SELECT COUNT(*) AS n
+      FROM ${usersTable()}
+      WHERE role = 'super_admin' AND status = 'active'
     `,
   });
   return Number((rows[0] as { n?: number })?.n ?? 0);
 }
 
 export async function listUsers(filters?: {
-  role?: "admin" | "agent";
+  role?: "super_admin" | "admin" | "agent";
   branch?: string;
   status?: "active" | "disabled";
   q?: string;
@@ -178,7 +190,7 @@ export async function createUser(input: CreateUserInput): Promise<PlatformUser> 
       branch: input.branch.trim(),
       tenureYears: input.tenureYears ?? 0,
       createdBy: input.createdBy,
-      mustChangePassword: input.mustChangePassword ?? (input.role === "agent"),
+      mustChangePassword: input.mustChangePassword ?? input.role === "agent",
     },
   });
 

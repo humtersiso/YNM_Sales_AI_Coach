@@ -58,12 +58,13 @@ export async function POST(request: NextRequest) {
   await clearSession();
   await clearSalesSession();
 
-  if (user.role === "admin") {
+  if (user.role === "admin" || user.role === "super_admin") {
     await setAdminSession({
       userId: user.userId,
       username: user.username,
       displayName: user.displayName,
       branch: user.branch,
+      role: user.role,
     });
   } else {
     await setSalesSession({

@@ -50,6 +50,8 @@ export type RoleplayScoreResult = {
   unusedStrategies: string[];
   previousScore: number | null;
   scoreDelta: number | null;
+  /** 比錯競品等嚴重失誤時，總分會低於五維加總 */
+  strictScoreCapped?: boolean;
 };
 
 export type RoleplaySession = {

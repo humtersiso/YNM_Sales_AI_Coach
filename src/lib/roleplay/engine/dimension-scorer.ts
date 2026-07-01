@@ -20,7 +20,7 @@ export { isLowQualityAgentReply } from "@/lib/roleplay/engine/correction-builder
 
 const DIMENSION_MAX = 20;
 
-/** 比錯競品或 fact gap ≥2 時，總分不得超過此值 */
+/** @deprecated 已移除總分上限；保留常數僅供舊測試／文件參考 */
 export const STRICT_SCORE_CAP = 72;
 
 function clampDimension(n: number): number {
@@ -363,7 +363,7 @@ function scoreStrategy(
         ? `有 ${strategyGaps} 處策略待加強（延後說明或邀約方式）。`
         : keyHits >= 2
           ? "開收尾得體，關鍵話術有帶到。"
-          : "基本禮貌到位，可再對準 Section D 重點。";
+          : "基本禮貌到位，可再帶出本場關鍵話術重點。";
 
   if (garbageRatio >= 0.6) {
     score = Math.min(score, garbageRatio >= 0.8 ? 6 : 10);
@@ -403,22 +403,9 @@ export type DimensionScoreBundle = {
   total: number;
   factGapCount: number;
   strategyGapCount: number;
+  /** 已停用嚴格總分上限，恆為 false */
   strictScoreCapped: boolean;
 };
-
-function applyStrictScoreCap(
-  total: number,
-  topicMisses: number,
-  candidates: ReturnType<typeof detectCorrectionCandidates>,
-): { total: number; capped: boolean } {
-  const competitorMismatch = candidates.some(
-    (c) => c.topic === "competitor" || /不符|比錯|其他競品/.test(c.issue),
-  );
-  if (competitorMismatch || topicMisses >= 2) {
-    return { total: Math.min(total, STRICT_SCORE_CAP), capped: true };
-  }
-  return { total, capped: false };
-}
 
 export function computeDimensionScores(
   scenario: RoleplayScenario,
@@ -453,14 +440,13 @@ export function computeDimensionScores(
     comment: scored[d.id]?.comment ?? "—",
   }));
 
-  const totalRaw = dimensions.reduce((s, x) => s + x.score, 0);
-  const { total, capped } = applyStrictScoreCap(totalRaw, topicMisses, candidates);
+  const total = dimensions.reduce((s, x) => s + x.score, 0);
   return {
     dimensions,
     total,
     factGapCount,
     strategyGapCount: strategyGaps,
-    strictScoreCapped: capped,
+    strictScoreCapped: false,
   };
 }
 
